@@ -402,42 +402,42 @@ exports.createOrder = async(parent,args,context,info) => {
 
       let obj = {};
       const p = new Promise((resolve, reject) => {
-       obj['orderId'] = order.id;
-       obj['quantity'] =  item.quantity;
-       obj['total'] = item.quantity * item.product.price;
-       obj['productId'] = item.product.id;
-       obj['productName'] = item.product.name;
-       obj['paymentDate'] = paymentDate;
-       obj['payment'] = payment;
-       obj['price'] = item.product.price;
+      //  obj['orderId'] = order.id;
+      //  obj['quantity'] =  item.quantity;
+      //  obj['total'] = item.quantity * item.product.price;
+      //  obj['productId'] = item.product.id;
+      //  obj['productName'] = item.product.name;
+      //  obj['paymentDate'] = paymentDate;
+      //  obj['payment'] = payment;
+      //  obj['price'] = item.product.price;
 
-      orders.push(obj);
-      const updateProductAmount = prisma.product.findFirst({  where: {id: item.product.id}  })
-        .then(result => 
-          prisma.product.update({  where: {id: item.product.id}, data: {amount: result.amount - item.quantity}} 
-          ))
-        .catch(err => reject(err));
+      // orders.push(obj);
+      // const updateProductAmount = prisma.product.findFirst({  where: {id: item.product.id}  })
+      //   .then(result => 
+      //     prisma.product.update({  where: {id: item.product.id}, data: {amount: result.amount - item.quantity}} 
+      //     ))
+      //   .catch(err => reject(err));
       // run = [updateProductAmount];
-      const createProductInOrder = prisma.productInOrder.create({data: {
-        orderId: obj.orderId,
-        quantity: obj.quantity,
-        productId: obj.productId,
-        price: obj.price,
-      }})
+      // const createProductInOrder = prisma.productInOrder.create({data: {
+      //   orderId: obj.orderId,
+      //   quantity: obj.quantity,
+      //   productId: obj.productId,
+      //   price: obj.price,
+      // }})
       
-        .then(() => {const deleteCartProduct =  prisma.cartProduct.deleteMany({
-              where: {productId:obj.productId}
-            })
-            // run = [deleteCartProduct]
-          },
-        )
-        .then(() => resolve("already deleted cart product"))
-        .catch(err => reject(err));
+        // .then(() => {const deleteCartProduct =  prisma.cartProduct.deleteMany({
+        //       where: {productId:obj.productId}
+        //     })
+        //     // run = [deleteCartProduct]
+        //   },
+        // )
+        // .then(() => resolve("already deleted cart product"))
+        // .catch(err => reject(err));
         // run = [updateProductAmount];
       });
-      promises.push(p);
+      // promises.push(p);
    });
-   await Promise.all(promises);
+  //  await Promise.all(promises);
    await helperFn.createOrder(context.currentUser.email,orders)
   //  await prisma.$transaction([...run]);
    return orders;
