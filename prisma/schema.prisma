@@ -67,6 +67,8 @@ model ProductInOrder {
   price         Decimal
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("product_in_order")
 }
 
 model ProductImage {
@@ -77,6 +79,8 @@ model ProductImage {
   updatedAt DateTime @updatedAt
   product Product @relation(fields:[productId],references: [id])
   productId Int
+
+  @@map("product_image")
 }
 
 model Product {
@@ -102,6 +106,8 @@ model CategoryProduct {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@id([productId, categoryId])
+
+  @@map("category_product")
 }
 
 model Category {
@@ -124,6 +130,7 @@ model CartProduct {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@map("cart_product")
 }
 
 model Cart {
