@@ -382,7 +382,7 @@ exports.createOrder = async(parent,args,context,info) => {
     if(payment === 'visa') {
       paymentDate = validate.formatDay(temp);
     }
-    const order =  prisma.order.create({
+    const order = await  prisma.order.create({
       data: {
         userId,
         status: 'pending',
@@ -392,7 +392,7 @@ exports.createOrder = async(parent,args,context,info) => {
         updatedAt:validate.formatDay(new Date())
       }
     })
-    run = [order];
+    // run = [order];
     const promises = [];
     //load foundCarts
     foundCarts.cartProduct.map((item) => {
@@ -417,7 +417,7 @@ exports.createOrder = async(parent,args,context,info) => {
           prisma.product.update({  where: {id: item.product.id}, data: {amount: result.amount - item.quantity}} 
           ))
         .catch(err => reject(err));
-      run = [updateProductAmount];
+      // run = [updateProductAmount];
       const createProductInOrder = prisma.productInOrder.create({data: {
         orderId: obj.orderId,
         quantity: obj.quantity,
@@ -428,18 +428,18 @@ exports.createOrder = async(parent,args,context,info) => {
         .then(() => {const deleteCartProduct =  prisma.cartProduct.deleteMany({
               where: {productId:obj.productId}
             })
-            run = [deleteCartProduct]
+            // run = [deleteCartProduct]
           },
         )
         .then(() => resolve("already deleted cart product"))
         .catch(err => reject(err));
-        run = [updateProductAmount];
+        // run = [updateProductAmount];
       });
       promises.push(p);
    });
    await Promise.all(promises);
    await helperFn.createOrder(context.currentUser.email,orders)
-   await prisma.$transaction([...run]);
+  //  await prisma.$transaction([...run]);
    return orders;
   }else{
     return new Error('No product in cart')
@@ -448,6 +448,7 @@ exports.createOrder = async(parent,args,context,info) => {
     return err;
   }
 }
+
 
 exports.listAllOrders = async(parent,args,context,info) => {
   const orders = await prisma.order.findMany({

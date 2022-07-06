@@ -2,7 +2,7 @@ const {createUser,login,changePassword,editProfile,getUser} = require('./service
 const {listProducts,productDetail,productImage,addToCart,cartProduct} = require('./services');
 const {listCategories,listCategory} =require('./services');
 const {getCart,getListItemInCart,deleteItemCart} = require('./services');
-const {createOrder,listAllOrders,changeOrderStatus,} = require('./services');
+const {createOrder,listAllOrders,changeOrderStatus} = require('./services');
 module.exports = {
   Query:{
     user:getUser,
@@ -24,6 +24,6 @@ module.exports = {
     deleteItemCart,
     productDetail,
     changeOrderStatus,
-    createOrder
+    createOrder,
   }
 }

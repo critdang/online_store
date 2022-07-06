@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer =  require('nodemailer');
-
+const fs = require("fs");
+const ejs = require("ejs");
+const moment = require("moment");
 // eslint-disable-next-line arrow-body-style
 exports.comparePassword = async (inputPassword, outputPassword) => {
   return bcrypt.compare(inputPassword, outputPassword);
@@ -100,34 +102,25 @@ exports.reminderCart = async (username, to, products) => {
 
 exports.createOrder = async(to,orders) => {
   const style = 'border:1px solid #bbbbbb';
-  let temp = orders.map(item => console.log(item)
-    `
-    <tr><td style="border:1px solid #bbbbbb;">${item.orderId}</td>
-    <td style='border:1px solid #bbbbbb;'>${item.quantity}</td>
-    <td style='border:1px solid #bbbbbb;'>${item.total}</td>
-    <td style='border:1px solid #bbbbbb;'>${item.productName}</td>
-    <td style='border:1px solid #bbbbbb;'>${item.completedDay?item.completedDay:'Not yet'}</td>
-    <td style='border:1px solid #bbbbbb;'>${item.payment}</td>
-    </tr>
-  `)
-  temp = temp.toString().split(',').join('');
-  await transport.sendMail({
+  const parseOrder = orders.map(item =>( {
+    ...item,
+    paymentDate: moment(item.paymentDate).format('YYYY-MM-DD')
+    
+  }))
+  const data = await ejs.renderFile("views/order.ejs", { orders: parseOrder});
+
+  transport.sendMail({
     from: "critdang@gmail.com",
     to,
     subject: "Order completed",
     text: `Dear customer ${to}, This is your ${orders}`,
-    html: `<table style="width:100%;border:1px solid #bbbbbb;">
-    <tr>
-        <th style="border:1px solid #bbbbbb;">Order ID</th>
-        <th style="border:1px solid #bbbbbb;">Quantity</th>
-        <th style="border:1px solid #bbbbbb;">Price</th>
-        <th style="border:1px solid #bbbbbb;">Product name</th>
-        <th style="border:1px solid #bbbbbb;">Completed</th>
-        <th style="border:1px solid #bbbbbb;">Payment method</th>
-    </tr>
-    ${temp}
-    </table>
-    `
+    html: data
+  },(err,info) => {
+    if(err) {
+      console.log(err);
+    } else {
+      console.log('Message sent:' + info.response);
+    }
   })
 }
 
