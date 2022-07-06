@@ -374,15 +374,14 @@ exports.createOrder = async(parent,args,context,info) => {
         }
       }
     })
-    let run = [];
     let orders = [];
-  if(foundCarts.cartProduct) {
+    if(foundCarts.cartProduct) {
     let temp = new Date();
     let paymentDate = null;
     if(payment === 'visa') {
       paymentDate = validate.formatDay(temp);
     }
-    const order = await  prisma.order.create({
+    const order = await prisma.order.create({
       data: {
         userId,
         status: 'pending',
@@ -392,16 +391,45 @@ exports.createOrder = async(parent,args,context,info) => {
         updatedAt:validate.formatDay(new Date())
       }
     })
-    // run = [order];
+    console.log('order',order)
+    let run = [];
     const promises = [];
     //load foundCarts
-    foundCarts.cartProduct.map((item) => {
+    foundCarts.cartProduct.map(async(item) => {
       if(item.quantity > item.product.amount) {
        throw new Error('Exceed quantity limit')
       }
 
       let obj = {};
-      const p = new Promise((resolve, reject) => {
+      obj['orderId'] = order.id;
+      obj['quantity'] =  item.quantity;
+      obj['total'] = item.quantity * item.product.price;
+      obj['productId'] = item.product.id;
+      obj['productName'] = item.product.name;
+      obj['paymentDate'] = paymentDate;
+      obj['payment'] = payment;
+      obj['price'] = item.product.price;
+      orders.push(obj);
+
+      const checkProduct = await prisma.product.findFirst({where: {id: item.product.id}})
+      console.log('checkProduct',checkProduct)
+      const amount = checkProduct.amount - item.quantity;
+      console.log('amount', amount)
+      const updateProductAmount = prisma.product.update({where: {id: item.product.id}, data: {amount}})
+      run.push(updateProductAmount);
+      console.log(item)
+      const createProductInOrder = prisma.productInOrder.create({data: {
+          orderId: obj.orderId,
+          quantity: obj.quantity,
+          productId: obj.productId,
+          price: obj.price,
+        }})
+      run.push(createProductInOrder)
+      const deleteCartProduct = prisma.cartProduct.deleteMany({where: {productId:obj.productId}})
+      run.push(deleteCartProduct)
+   await prisma.$transaction(run);
+
+      // const p = new Promise((resolve, reject) => {
       //  obj['orderId'] = order.id;
       //  obj['quantity'] =  item.quantity;
       //  obj['total'] = item.quantity * item.product.price;
@@ -424,7 +452,6 @@ exports.createOrder = async(parent,args,context,info) => {
       //   productId: obj.productId,
       //   price: obj.price,
       // }})
-      
         // .then(() => {const deleteCartProduct =  prisma.cartProduct.deleteMany({
         //       where: {productId:obj.productId}
         //     })
@@ -434,12 +461,11 @@ exports.createOrder = async(parent,args,context,info) => {
         // .then(() => resolve("already deleted cart product"))
         // .catch(err => reject(err));
         // run = [updateProductAmount];
-      });
+      // });
       // promises.push(p);
    });
   //  await Promise.all(promises);
    await helperFn.createOrder(context.currentUser.email,orders)
-  //  await prisma.$transaction([...run]);
    return orders;
   }else{
     return new Error('No product in cart')

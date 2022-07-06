@@ -1,0 +1,88 @@
+exports.createOrder = async(parent,args,context,info) => {
+  try{
+    const userId = context.currentUser.userId;
+    const payment = args.payment;
+    const cartId = args.cartId;
+    const errors = [];
+  
+    let foundCarts = await prisma.cart.findFirst({
+      where: {userId, id: cartId},
+      include: {
+        cartProduct: {
+          include: {
+            product: true
+          }
+        }
+      }
+    })
+    let orders = [];
+    if(foundCarts.cartProduct) {
+    let temp = new Date();
+    let paymentDate = null;
+    if(payment === 'visa') {
+      paymentDate = validate.formatDay(temp);
+    }
+    const order = await prisma.order.create({
+      data: {
+        userId,
+        status: 'pending',
+        paymentDate,
+        paymentMethod:payment,
+        createdAt:validate.formatDay(new Date()),
+        updatedAt:validate.formatDay(new Date())
+      }
+    })
+    console.log('order',order)
+    let run = [];
+    const promises = [];
+    //load foundCarts
+    foundCarts.cartProduct.map(async(item) => {
+      if(item.quantity > item.product.amount) {
+       throw new Error('Exceed quantity limit')
+      }
+
+      // const p = new Promise((resolve, reject) => {
+      //  obj['orderId'] = order.id;
+      //  obj['quantity'] =  item.quantity;
+      //  obj['total'] = item.quantity * item.product.price;
+      //  obj['productId'] = item.product.id;
+      //  obj['productName'] = item.product.name;
+      //  obj['paymentDate'] = paymentDate;
+      //  obj['payment'] = payment;
+      //  obj['price'] = item.product.price;
+
+      // orders.push(obj);
+      // const updateProductAmount = prisma.product.findFirst({  where: {id: item.product.id}  })
+      //   .then(result => 
+      //     prisma.product.update({  where: {id: item.product.id}, data: {amount: result.amount - item.quantity}} 
+      //     ))
+      //   .catch(err => reject(err));
+      // run = [updateProductAmount];
+      // const createProductInOrder = prisma.productInOrder.create({data: {
+      //   orderId: obj.orderId,
+      //   quantity: obj.quantity,
+      //   productId: obj.productId,
+      //   price: obj.price,
+      // }})
+        // .then(() => {const deleteCartProduct =  prisma.cartProduct.deleteMany({
+        //       where: {productId:obj.productId}
+        //     })
+        //     // run = [deleteCartProduct]
+        //   },
+        // )
+        // .then(() => resolve("already deleted cart product"))
+        // .catch(err => reject(err));
+        // run = [updateProductAmount];
+      // });
+      // promises.push(p);
+   });
+  //  await Promise.all(promises);
+   await helperFn.createOrder(context.currentUser.email,orders)
+   return orders;
+  }else{
+    return new Error('No product in cart')
+  }
+  }catch(err) {
+    return err;
+  }
+}
