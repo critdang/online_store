@@ -108,7 +108,6 @@ exports.createOrder = async(to,orders) => {
     
   }))
   const data = await ejs.renderFile("views/order.ejs", { orders: parseOrder});
-
   transport.sendMail({
     from: "critdang@gmail.com",
     to,
