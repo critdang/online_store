@@ -1,0 +1,135 @@
+##############################
+Add cart
+mutation{
+  addToCart(quantity:3,productId:1) {
+    id
+    userId
+    cartProduct {
+      id
+      cartId
+      productId
+      amount
+    }
+  }
+}
+
+manageCart
+query{
+ manageCart{
+  id
+  userId
+  cartProduct{
+    product{
+      name
+      amount
+      price
+    }
+  }
+} 
+}
+################################
+Category
+query single Category
+query {
+	listCategory(id:5){
+    name
+    thumbnail
+    description
+    categoryProduct {
+      product{
+        amount
+      }
+    }
+  }
+}
+list Category
+query {
+	listCategory(id:5){
+    name
+    thumbnail
+    description
+    categoryProduct {
+      product{
+        amount
+      }
+    }
+  }
+}
+###############################
+Cart
+manage Cart by users
+query{
+ manageCart{
+  id
+  userId
+  cartProduct{
+    product{
+      name
+      amount
+    }
+  }
+} 
+}
+addToCart
+mutation{
+  addToCart(quantity:2,productId:1) {
+    cartProduct {
+      productId
+      amount
+      cartId
+    }
+  }
+}
+
+delete item in cart
+mutation{
+  deleteItemCart(deleteItem:1) {
+    cartProduct{
+      id
+    }
+  }
+}
+
+get List Item In Cart
+query {
+  getListItemInCart {
+    userId
+    cartProduct {
+      id
+      amount
+      cartId
+      product {
+        name
+        price
+      }
+    }
+  }
+}
+################################
+Product
+list Product
+query {
+  listProducts(input: {category:"Trang phuc"}){
+    id
+    name
+    categoryProduct{
+     productId
+      product{
+        name
+      }
+    }
+  }
+} 
+
+
+################################
+user
+mutation{
+  login(email:"user@gmail.com",password:"123456"){
+    userId
+    token
+  }
+}
+{
+  "authorization" :"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidXNlckBnbWFpbC5jb20iLCJpYXQiOjE2NTY2NjM3OTAsImV4cCI6MTY1NjY2NzM5MH0.OZBUuPAiGnLQubEsCTu7km70wMRVxKg1YBKhAm8SaGk"
+}

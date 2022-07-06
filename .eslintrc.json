@@ -1,0 +1,20 @@
+// research set up rule https://eslint.org/docs/latest/rules/no-unused-vars
+// npm install eslint --save-dev
+// npx eslint --init
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": [
+        "airbnb-base"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+        "no-unused-vars": ["error", {"args": "none","varsIgnorePattern": "seed"}],
+        "max-len": ["error",{"code":200}],
+    }
+}
