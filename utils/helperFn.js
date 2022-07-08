@@ -107,7 +107,7 @@ exports.createOrder = async(to,orders) => {
     paymentDate: moment(item.paymentDate).format('YYYY-MM-DD')
     
   }))
-  const data = await ejs.renderFile("views/order.ejs", { orders: parseOrder});
+  const data = await ejs.renderFile("views/createOrderNoti/order.ejs", { orders: parseOrder});
   transport.sendMail({
     from: "critdang@gmail.com",
     to,

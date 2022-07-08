@@ -32,11 +32,19 @@ const login = async (req, res, next) => {
     if(!wrongPassword) {
         return next(new AppError(constants.PASS_NOT_CORRECT, 400));
     }
-    helperFn.returnSuccess(req, res, "login successfully");
+    // helperFn.returnSuccess(req, res, "login successfully");
+    res.render('admin/dashboard.ejs');
   }catch(err) {
     console.log(err);
   }
 };
+const getLoginView = async(req, res, next) => {
+  res.render("auth/login");
+}
+const forgotPasswordView = async(req, res, next) => {
+  res.render("auth/forgotPassword");
+}
+
 const uploadAdminAvatar = async (req, res, next) => {
   const {id} = req.user;
   try{
@@ -318,6 +326,8 @@ const changeStatus = async (req, res, next) => {
 
 module.exports = {
   login,
+  getLoginView,
+  forgotPasswordView,
   uploadAdminAvatar,
   getUsers,
   getUser,
