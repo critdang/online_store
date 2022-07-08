@@ -464,3 +464,65 @@ input, select {
   border: none;
   background: initial;
 }
+
+/* detail */
+
+.container {
+  background: white;
+  border-radius: 25px;
+  padding: 10px;
+  line-height: 25px;
+  margin-top: 20px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  border-radius: 25px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+#submit-profile-btn {
+  background-color: blue; /* Green */
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  border-radius: 20px;
+}
+.profile-detail {
+  margin: 0 0 25px 0;
+}
+
+.gender-pick {
+  display: flex;
+}
+
+#profile_input {
+  border-radius: 10px;
+    outline: none;
+    box-shadow: none;
+    border-width: thin;
+    border-color: rgb(218 218 218);
+    padding: 5px;
+    width: 90%
+}
+
+#input-gender{
+  width: 5%;
+    margin: 0 10px;
+}
+.profile-input {
+  display: flex;
+}
+
+.card-body {
+  line-height: 30px;
+}
+
+/* detail-body */
