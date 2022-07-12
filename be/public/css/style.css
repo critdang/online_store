@@ -150,6 +150,9 @@ input, select {
   font-weight: lighter;
   color: #000;
 }
+.menu-item__detail a:hover{
+  opacity: 50%;
+}
 .menu-item__img {
   font-size: 18px;
 }
@@ -175,8 +178,19 @@ input, select {
   line-height: 19px;
 }
 .total_item--p {
+  display: flex;
   letter-spacing: 1px;
+  flex-direction: column;
 }
+
+.total_item a {
+  margin-top: 15px;
+}
+
+.total_item--p a:hover{
+  opacity: 50%;
+}
+
 .total_item--img {
   justify-content: right;
   align-items: center;
@@ -203,23 +217,9 @@ input, select {
   box-shadow: 0px 0px 8px 1px rgb(0 0 0 / 28%);
 }
 
-.product-item__detail .col-7 {
-  display: flex;
-    align-items: center;
-    padding-right: 10px;
-}
 
-.product-item__detail .col-1 {
-  font-size: 15px;
-  padding-left: 22px;
-  padding: 0;
-  display: flex;
-  justify-content: right;
-}
 
-.product-item__detail .col-1 i {
-  font-size: 20px;
-}
+
 
 
 
@@ -284,6 +284,7 @@ input, select {
 .order-hover {
   color: #000;
   text-decoration: none;
+  padding: 0 20px;
 }
 .order-hover .row {
   padding-bottom: 12px;
