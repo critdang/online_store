@@ -4,6 +4,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Grid from '@mui/material/Grid';
+import { Button } from '@mui/material';
 
 const products = [
   {
@@ -26,7 +27,6 @@ const products = [
     desc: 'Best thing of all',
     price: '$14.11',
   },
-  { name: 'Shipping', desc: '', price: 'Free' },
 ];
 
 const addresses = ['1 MUI Drive', 'Reactville', 'Anytown', '99999', 'USA'];
@@ -48,8 +48,16 @@ export default function Review() {
           <ListItem key={product.name} sx={{ py: 1, px: 0 }}>
             <ListItemText primary={product.name} secondary={product.desc} />
             <Typography variant="body2">{product.price}</Typography>
+            <Button>Delete</Button>
           </ListItem>
         ))}
+
+        <ListItem sx={{ py: 1, px: 0 }}>
+          <ListItemText primary="Shipping" />
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            Free
+          </Typography>
+        </ListItem>
 
         <ListItem sx={{ py: 1, px: 0 }}>
           <ListItemText primary="Total" />

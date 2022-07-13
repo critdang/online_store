@@ -30,6 +30,7 @@ import { Button, ButtonGroup, ClickAwayListener, Dialog, Grow, MenuList, Modal, 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 
+// style table
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
@@ -128,23 +129,15 @@ export default function Album({ setLogin }) {
 
     setOpenButton(false);
   };
-
-  const [itemCart, setItemCart] = React.useState(0)
-
-  const addToCart = () => {
-
-    setItemCart(itemCart + 1)
-  }
   
+  //lisen toggle modal
   const [openModal, setOpenModal] = React.useState(false);
   const handleOpenModal = () => setOpenModal(true);
-
   const handleCloseModal = () => setOpenModal(false);
   
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <NavBar />
       <main>
         <Container
           maxWidth="xl"
@@ -160,9 +153,7 @@ export default function Album({ setLogin }) {
               alignItems: 'end',
             }}
           >
-            <div style={{position:'absolute', right:'40px', top: '9px'}}>
-              <span style={{color:'white'}}>{itemCart}</span>
-            </div>
+            
             <Button
               sx={{ alignItems: 'right', cursor: 'pointer', float: 'right' }}
               onClick={() => {
@@ -320,16 +311,16 @@ export default function Album({ setLogin }) {
                                 Seller Shipping From
                                 </Typography>
                                   <Typography >
-                                    Order Date: 201900 Shanghai China
+                                    <strong>Order Date:</strong> 201900 Shanghai China
                                   </Typography>
                                   <Typography >
-                                    Payment Date: 201900 Shanghai China
+                                    <strong>Payment Date:</strong> 201900 Shanghai China
                                   </Typography>
                                   <Typography >
-                                    Completed Date: 201900 Shanghai China
+                                    <strong>Completed Date:</strong> 201900 Shanghai China
                                   </Typography>
                                   <Typography >
-                                    Total amount: 201900 Shanghai China
+                                    <strong>Total amount:</strong> 201900 Shanghai China
                                   </Typography>
                               
 

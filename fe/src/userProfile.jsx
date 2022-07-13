@@ -22,7 +22,6 @@ import NavBar from './components/NavBar';
 export default function AddressForm() {
   return (
     <div style={{ boxSizing: 'border-box', padding: '0px', margin: '0px' }}>
-      <NavBar />
       <Typography variant="h6" gutterBottom>
         Edit Profile
       </Typography>

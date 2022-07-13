@@ -1,0 +1,10 @@
+.slick-initialized {
+  margin: 0 30px;
+  margin-right: 62px;
+}
+.slick-prev::before {
+  color: black;
+}
+.slick-next::before {
+  color: black;
+}

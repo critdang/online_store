@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="row background">
+        <%- include('../components/adminNav.ejs')%>
+            <div class="col-8">
+                <div class="container">
+                    <div class="detail-header">
+                        <p>Edit Category</p>
+                    </div>
+                    <div class="detail-body">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Name</th>
+                                    <th>Thumbnail</th>
+                                    <th>Description</th>
+                                  </tr>
+                                <% for(var i=0; i<categories.length;i++) { %>
+                                    <tr>
+                                        <td><%=i+1%></td>
+                                        <td class="category-item--des"><%=categories[i].name%></td>
+                                        <td><img src="<%=categories[i].thumbnail%>" alt=""></td>
+                                        <td><%=categories[i].description%></td>
+                                        <td><%- include('../components/modalCategory.ejs')%></td>
+                                    </tr>
+                                    <% } %>
+                            </table>       
+                    </div>
+
+                </div>
+            </div>
+
+
+    </div>
+</body>
+</html>

@@ -13,8 +13,9 @@ const AppError = require('../utils/ErrorHandler/appError');
 const constants = require('../../constants');
 
 const getUsers = async (req, res, next) => {
-  const data = await prisma.user.findMany();
-  helperFn.returnSuccess(req, res, data);
+  const users = await prisma.user.findMany();
+  // helperFn.returnSuccess(req, res, data);
+  res.render('details/user.ejs',{users})
 };
 
 const login = async (req, res, next) => {
@@ -32,15 +33,38 @@ const login = async (req, res, next) => {
     if(!wrongPassword) {
         return next(new AppError(constants.PASS_NOT_CORRECT, 400));
     }
+    req.user = admin;
     // helperFn.returnSuccess(req, res, "login successfully");
-    res.render('admin/dashboard.ejs');
+    next();
   }catch(err) {
     console.log(err);
   }
 };
+
 const getLoginView = async(req, res, next) => {
   res.render("auth/login");
 }
+
+const dashboard = async(req, res, next) => {
+  const fetchProducts = await prisma.product.findMany({
+    include: {
+      productImage: true,
+    }
+  });
+
+  const fetchUsers = await prisma.user.findMany();
+  const fetchCategories = await prisma.category.findMany();
+  const fetchOrders = await prisma.order.findMany();
+  // return helperFn.returnSuccess(req, res, {fetchProducts,fetchUsers});
+  res.render('admin/dashboard.ejs',{products:fetchProducts,users:fetchUsers,categories:fetchCategories,orders:fetchOrders});
+}
+
+const profile = async(req, res, next) => {
+  // res.render('auth/profile.ejs')
+  console.log(req.user)
+  res.json(req.user)
+}
+
 const forgotPasswordView = async(req, res, next) => {
   res.render("auth/forgotPassword");
 }
@@ -118,8 +142,9 @@ const addCategory = async (req, res, next) => {
 
 const getCategories = async (req, res, next) => {
   try {
-    const data = await prisma.category.findMany({});
-    helperFn.returnSuccess(req, res, data);
+    const categories = await prisma.category.findMany({});
+    // helperFn.returnSuccess(req, res, data);
+    res.render('details/category.ejs',{categories})
   } catch (err) {
     console.log(err);
   }
@@ -211,8 +236,13 @@ const addProduct = async (req, res, next) => {
   }
 };
 const getProducts = async (req, res, next) => {
-  const data = await prisma.product.findMany({});
-  helperFn.returnSuccess(req, res, data);
+  const products = await prisma.product.findMany({
+    include: {
+      productImage: true
+    }
+  });
+  // helperFn.returnSuccess(req, res, data);
+  res.render('details/product.ejs', {products})
 };
 const getProduct = async (req, res, next) => {
   const id = +req.params.id;
@@ -296,7 +326,8 @@ const deleteProduct = async (req, res, next) => {
 // Order
 const getOrders = async (req, res, next) => {
   const orders = await prisma.order.findMany({});
-  helperFn.returnSuccess(req, res, orders);
+  // helperFn.returnSuccess(req, res, orders);
+  res.render('details/order.ejs', {orders})
 };
 
 const getOrder = async (req, res, next) => {
@@ -327,6 +358,8 @@ const changeStatus = async (req, res, next) => {
 module.exports = {
   login,
   getLoginView,
+  dashboard,
+  profile,
   forgotPasswordView,
   uploadAdminAvatar,
   getUsers,

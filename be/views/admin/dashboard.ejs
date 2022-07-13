@@ -23,10 +23,11 @@
                 <div class="col-3">
                     <div class="total_item">
                         <div class="total_item--detail">
+                            
                             <div class="total_item--p">
                                 <p>Total Order</p>
-                                <h3>$53000</h3>
-                                <a href="#">View more</a>
+                                <h3><%=orders.length%></h3>
+                                <a href="http://localhost:4007/admin/orders">View more</a>
                             </div>
                         </div>
                         <div class="total_item--detail">
@@ -42,8 +43,8 @@
                         <div class="total_item--detail">
                             <div class="total_item--p">
                                 <p>Total User</p>
-                                <h3>2,300</h3>
-                                <a href="#">View more</a>
+                                <h3><%=users.length %></h3>
+                                <a href="http://localhost:4007/admin/users">View more</a>
 
                             </div>
                         </div>
@@ -60,10 +61,9 @@
                     <div class="total_item">
                         <div class="total_item--detail">
                             <div class="total_item--p">
-
                                 <p> Categories</p>
-                                <h3>$53000</h3>
-                                <a href="#">View more</a>
+                                <h3><%=categories.length%></h3>
+                                <a href="http://localhost:4007/admin/categories">View more</a>
                             </div>
                         </div>
                         <div class="total_item--detail">
@@ -80,8 +80,8 @@
                             <div class="total_item--p">
 
                                 <p>Total Product</p>
-                                <h3>3</h3>
-                                <a href="#">View more</a>
+                                <h3><%=products.length%></h3>
+                                <a href="http://localhost:4007/admin/products">View more</a>
                             </div>
 
                         </div>
@@ -106,26 +106,17 @@
                                 <th>Payment Method</th>
                                 <th>Payment Date</th>
                               </tr>
+                              <% for(var i=0; i<orders.length;i++) { %>
                               <tr>
-                                <td>1</td>
-                                <td class="order-item--des">Completed</td>
-                                <td>Visa</td>
-                                <td>10/08/2022</td>
+                                <td><%=i+1%></td>
+                                <td class="order-item--des"><%=orders[i].status%></td>
+                                <td><%=orders[i].paymentMethod%></td>
+                                <td><%=orders[i].paymentDate%></td>
                                 <td>
-                                        <%- include('../components/modalOrder.ejs')%>
-                                    
+                                    <%- include('../components/modalOrder.ejs',{order:orders[i]})%>
                                 </td>
                               </tr>
-                              <tr>
-                                <td>2</td>
-                                <td class="order-item--des">Pending</td>
-                                <td>Cash</td>
-                                <td>4/08/2022</td>
-                                <td>
-                                    <%- include('../components/modalOrder.ejs')%>
-
-                                </td>
-                              </tr>
+                            <% } %>
                         </table>
                     </div>
                 </div>
@@ -142,26 +133,18 @@
                                 <th>Thumbnail</th>
                                 <th>Description</th>
                               </tr>
+                              <% for(let i=0; i<categories.length;i++) { %>
+
                               <tr>
-                                <td>1</td>
-                                <td class="category-item--des">Trang phuc</td>
-                                <td><img src="" alt=""></td>
-                                <td>bo su tap</td>
+                                <td><%=i+1%></td>
+                                <td class="category-item--des"><%=categories[i].name%></td>
+                                <td><img src="<%=categories[i].thumbnail%>" alt=""></td>
+                                <td><%=categories[i].description%></td>
                                 <td>
-                                    <%- include('../components/modalCategory.ejs')%>
-                                    
+                                    <%- include('../components/modalCategory.ejs', {category:categories[i]})%>
                                 </td>
                               </tr>
-                              <tr>
-                                <td>2</td>
-                                <td class="category-item--des">Quan ao</td>
-                                <td><img src="" alt=""></td>
-                                <td>bo suu tap</td>
-                                <td>
-                                    <%- include('../components/modalCategory.ejs')%>
-                                    
-                                </td>
-                              </tr>
+                              <% } %>
                         </table>
                     </div>
                 </div>
@@ -180,31 +163,25 @@
                                         <th>Price</th>
                                         <th>Description</th>
                                         <th>Image</th>
-                                        </tr>
+                                    </tr>
+                                        <% for(var i=0; i<products.length;i++) { %>
                                         <tr>
-                                        <td>1</td>
-                                        <td>Dang Quoc Huy</td>
-                                        <td>10</td>
-                                        <td>20.000</td>
-                                        <td>San pham tot</td>
-                                        <td><img width="200px" src="../../public/image/data.png" alt=""></td>
-                                        <td>
-                                            <%- include('../components/modalCategory.ejs')%>
-                                            
-                                        </td>
+                                            <td><%=i+1%></td>
+                                            <td><%=products[i].name%></td>
+                                            <td><%=products[i].amount%></td>
+                                            <td><%=products[i].price%></td>
+                                            <td><%=products[i].description%></td>
+                                            <td>
+                                                <%products[i].productImage.forEach(function(img){%>
+                                                    <img width="200px" src="<%=img.href%>" alt="">
+                                                <%})%>
+                                            </td>
+                                            <td>
+                                                <%- include('../components/modalCategory.ejs')%>
+                                                
+                                            </td>
                                         </tr>
-                                        <tr>
-                                        <td>1</td>
-                                        <td>Dang Quoc Huy</td>
-                                        <td>10</td>
-                                        <td>20.000</td>
-                                        <td>San pham tot</td>
-                                        <td><img width="200px" src="../../public/image/data.png" alt=""></td>
-                                        <td>
-                                            <%- include('../components/modalCategory.ejs')%>
-                                            
-                                        </td>
-                                        </tr>
+                                        <% } %>
                                 </table>       
                             </div>
                         </div>
@@ -224,6 +201,7 @@
                         <table style="width: 90%;">
                             <tr>
                                 <th>No.</th>
+                                <th>Email</th>
                                 <th>Name</th>
                                 <th>Address</th>
                                 <th>Avatar</th>
@@ -233,35 +211,26 @@
                                 <th>Active</th>
                                 <th>Block</th>
                               </tr>
+                            <% for(var i=0; i<users.length;i++) { %>
+
                               <tr>
-                                <td>1</td>
-                                <td>user@gmail.com</td>
-                                <td>125 pham huy thong</td>
-                                <td><img src="" alt=""></td>
-                                <td>10/08/2000</td>
-                                <td>0945246026</td>
-                                <td>Male</td>
-                                <td>True</td>
-                                <td>False</td>
+                                <td><%=i+1 %></td>
+                                <td><%=users[i].email%></td>
+                                <td><%=users[i].fullname%></td>
+                                <td><%=users[i].address%></td>
+                                <td><img src="<%=users[i].avatar%>" alt=""></td>
+                                <td><%=users[i].birthday%></td>
+                                <td><%=users[i].phone%></td>
+                                <td><%=users[i].gender%></td>
+                                <td><%=users[i].is_active%></td>
+                                <td><%=users[i].is_block%></td>
                                 <td>
                                     <%- include('../components/modalUser.ejs')%>
                                     
                                 </td>
                               </tr>
-                              <tr>
-                                <td>2</td>
-                                <td>user2@gmail.com</td>
-                                <td>10 Ngo Gia Tu</td>
-                                <td><img src="" alt=""></td>
-                                <td>08/08/2000</td>
-                                <td>012394232</td>
-                                <td>Female</td>
-                                <td>True</td>
-                                <td>False</td>
-                                <td>
-                                    <%- include('../components/modalUser.ejs')%>
-                                </td>
-                              </tr>
+                              <% } %>
+                             
                         </table>
                     </div>
                 </div>

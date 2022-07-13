@@ -9,7 +9,7 @@ require("../middleware/auth").authUser(passport)
 // http://localhost:3301/api/users/uploadImage/1
 // router.post('/uploadImage/:id',upload.single('image'),adminController.uploadImage);
 // Admin
-router.post('/login',passport.authenticate('login', {failureRedirect: '/loginerror'}),adminController.login);
+router.post('/login',passport.authenticate('login', {failureRedirect: '/loginerror'}),adminController.login,adminController.dashboard);
 // router.post('/login',adminController.login);
 router.get('/avatar', upload.single('avatar'),adminController.uploadAdminAvatar);
 // CRUD client
@@ -46,4 +46,5 @@ router.post('/changeStauts/:id', adminController.changeStatus);
 // ejs
 router.get('/loginView',adminController.getLoginView);
 router.get('/forgotPassword',adminController.forgotPasswordView);
+router.get('/profile', adminController.profile);
 module.exports = router;
