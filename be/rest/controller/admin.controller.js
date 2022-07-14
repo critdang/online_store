@@ -15,7 +15,7 @@ const constants = require('../../constants');
 const getUsers = async (req, res, next) => {
   const users = await prisma.user.findMany();
   // helperFn.returnSuccess(req, res, data);
-  res.render('details/user.ejs',{users})
+  res.render('details/user.ejs',{users:users})
 };
 
 const login = async (req, res, next) => {
@@ -49,13 +49,18 @@ const dashboard = async(req, res, next) => {
   const fetchProducts = await prisma.product.findMany({
     include: {
       productImage: true,
+      categoryProduct:{
+        include: {
+          category:true
+        }
+      },
     }
   });
 
   const fetchUsers = await prisma.user.findMany();
   const fetchCategories = await prisma.category.findMany();
   const fetchOrders = await prisma.order.findMany();
-  // return helperFn.returnSuccess(req, res, {fetchProducts,fetchUsers});
+  // return helperFn.returnSuccess(req, res, {fetchProducts});
   res.render('admin/dashboard.ejs',{products:fetchProducts,users:fetchUsers,categories:fetchCategories,orders:fetchOrders});
 }
 
@@ -238,11 +243,13 @@ const addProduct = async (req, res, next) => {
 const getProducts = async (req, res, next) => {
   const products = await prisma.product.findMany({
     include: {
-      productImage: true
+      categoryProduct: true,
+      productImage: true,
     }
   });
-  // helperFn.returnSuccess(req, res, data);
-  res.render('details/product.ejs', {products})
+  helperFn.returnSuccess(req, res, products);
+  console.log(products[0].categoryProduct[0].categoryId)
+  // res.render('details/product.ejs', {products})
 };
 const getProduct = async (req, res, next) => {
   const id = +req.params.id;

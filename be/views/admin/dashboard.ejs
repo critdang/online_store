@@ -161,6 +161,7 @@
                                         <th>Name</th>
                                         <th>Amount</th>
                                         <th>Price</th>
+                                        <th>Category</th>
                                         <th>Description</th>
                                         <th>Image</th>
                                     </tr>
@@ -170,16 +171,20 @@
                                             <td><%=products[i].name%></td>
                                             <td><%=products[i].amount%></td>
                                             <td><%=products[i].price%></td>
-                                            <td><%=products[i].description%></td>
                                             <td>
+                                                <%products[i].categoryProduct.forEach(function(category){%>
+                                                    <%=category.category.name%>
+                                                </td>
+                                                <td><%=products[i].description%></td>
+                                                <td>
                                                 <%products[i].productImage.forEach(function(img){%>
-                                                    <img width="200px" src="<%=img.href%>" alt="">
+                                                    <img width="50px" src="<%=img.href%>" alt="">
                                                 <%})%>
                                             </td>
                                             <td>
-                                                <%- include('../components/modalCategory.ejs')%>
-                                                
+                                                <%- include('../components/modalProduct.ejs', {product:products[i],categoryProduct:category.category.name})%>
                                             </td>
+                                            <%})%>
                                         </tr>
                                         <% } %>
                                 </table>       
@@ -225,9 +230,8 @@
                                 <td><%=users[i].is_active%></td>
                                 <td><%=users[i].is_block%></td>
                                 <td>
-                                    <%- include('../components/modalUser.ejs')%>
-                                    
-                                </td>
+                                    <%- include('../components/modalUser.ejs', {user:users[i]})%>
+                                </td>   
                               </tr>
                               <% } %>
                              

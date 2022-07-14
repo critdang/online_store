@@ -47,4 +47,5 @@ router.post('/changeStauts/:id', adminController.changeStatus);
 router.get('/loginView',adminController.getLoginView);
 router.get('/forgotPassword',adminController.forgotPasswordView);
 router.get('/profile', adminController.profile);
+router.get('/products',adminController.getProducts);
 module.exports = router;
