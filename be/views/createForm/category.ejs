@@ -1,0 +1,39 @@
+<button style="outline: none;border: none;background: none;" class="user-hover" class="btn btn-primary"
+    data-toggle="modal" data-target="#Category-form" data-whatever="@getbootstrap">
+    <i id="right-click" class="fa-solid fa-angle-right"></i>
+</button>
+<div class="modal fade" id="Category-form" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
+                <button type="button" class="close-form-btn close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/admin/category" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Name:</label>
+                        <input type="text" class="form-control" name="name" id="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Description:</label>
+                        <input type="text" class="form-control" name="description" id="description" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Images:</label>
+                        <input type="file" class="form-control" name="thumbnail" accept="image/*" id="thumbnail"
+                            value="">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create Product</button>
+
+            </form>
+        </div>
+    </div>
+</div>
+</div>

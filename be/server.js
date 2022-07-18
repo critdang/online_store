@@ -20,13 +20,10 @@ const reminder = require('./utils/reminder');
 // reminder
 // cron.schedule('*/3 * * * * *', reminder);
 
-// import CORS
-// app.use(cors) //why doesn't need this one
 
 // middleware
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json({ limit: '50mb' }));
 app.use(session({secret: 'key'}));
 
 // app.set('view engine', 'ejs');
@@ -38,7 +35,7 @@ viewEngine(app);
 app.use("/", routes);
 
 // passport
-app.use(express.static(__dirname + 'public')); // secret key for session
+app.use(express.static('public')); // secret key for session
 app.use(passport.initialize());
 app.use(passport.session());
 // Mount GraphQL

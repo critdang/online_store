@@ -16,8 +16,7 @@ router.get('/avatar', upload.single('avatar'),adminController.uploadAdminAvatar)
 router.get('/users', adminController.getUsers);
 router.get('/user/:id', adminController.getUser);
 router.delete('/user/:id', adminController.deleteUser);
-router.post('/blockUser/:id', adminController.blockUser);
-router.post('/unblockUser/:id', adminController.unblockUser);
+router.post('/changeBlockUserStt/:id', adminController.changeBlockUserStt);
 
 // CRUD category
 router.post('/category',upload.single('thumbnail'),adminController.addCategory);
@@ -28,7 +27,7 @@ router.post('/editThumbnail/:id',upload.single('thumbnail'),adminController.edit
 router.delete('/category/:id', adminController.deleteCategory);
 
 // CRUD product
-router.post('/product', adminController.addProduct);
+router.post('/product',upload.array('images'), adminController.addProduct);
 router.get('/products', adminController.getProducts);
 router.get('/product/:id', adminController.getProduct);
 router.put('/product/:id', adminController.editProduct);

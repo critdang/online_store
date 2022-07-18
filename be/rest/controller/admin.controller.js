@@ -116,29 +116,33 @@ const getUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   const idUser = +req.params.id;
-  const data = await prisma.user.delete({
-    where: { id: idUser, is_active: false },
-  });
-  helperFn.returnSuccess(req, res, data);
+  try{
+    const data = await prisma.user.deleteMany({
+      where: { id: idUser, is_active: false },
+    });
+    if(!data) return res.send('User not found or activated')
+    helperFn.returnSuccess(req, res, data);
+  }catch(err) {
+    console.log(err);
+  }
 };
 
-const blockUser = async (req, res, next) => {
+const changeBlockUserStt = async (req, res, next) => {
   const idUser = +req.params.id;
-  const updateUser = await prisma.user.update({
-    where: { id: idUser, is_active: true },
-    data: { is_ban: true },
-  });
-  helperFn.returnSuccess(req, res, updateUser);
+  try{
+    const existStatus = await prisma.user.findFirst({
+      where: {id: idUser}
+    })
+    const updateUser = await prisma.user.update({
+      where: { id: idUser },
+      data: { is_blocked: !existStatus.is_blocked },
+    });
+    helperFn.returnSuccess(req, res, updateUser);
+  }catch(err) {
+    console.log(err);
+  }
 };
 
-const unblockUser = async (req, res, next) => {
-  const idUser = +req.params.id;
-  const updateUser = await prisma.user.update({
-    where: { id: idUser, is_active: true },
-    data: { is_ban: false },
-  });
-  helperFn.returnSuccess(req, res, updateUser);
-};
 
 const addCategory = async (req, res, next) => {
   const {name,description} = req.body;
@@ -183,7 +187,6 @@ const editCategory = async (req, res, next) => {
     where: { id },
     data: {
       name: data.name,
-      thumbnail: +data.thumbnail,
       description: data.description,
     },
   });
@@ -228,7 +231,7 @@ const addProduct = async (req, res, next) => {
     const {
       name, description, price, amount, href, categoryId,
     } = req.body;
-    console.log(req.body)
+    console.log('this is body',req.body)
     await prisma.$transaction([
       prisma.product.create({
         data: {
@@ -393,8 +396,7 @@ module.exports = {
   getUsers,
   getUser,
   deleteUser,
-  blockUser,
-  unblockUser,
+  changeBlockUserStt,
   addCategory,
   getCategories,
   getCategory,
