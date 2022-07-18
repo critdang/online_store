@@ -73,7 +73,7 @@ model ProductInOrder {
 
 model ProductImage {
   id     Int     @id @default(autoincrement())
-  href     String     @db.VarChar(255)
+  href     String?     @db.VarChar(255)
   is_default Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

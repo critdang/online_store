@@ -1,0 +1,58 @@
+<% if(typeof categories != 'undefined'){%>
+    <button  style="outline: none;border: none;background: none;" class="user-hover" class="btn btn-primary" data-toggle="modal" data-target="#Product-form" data-whatever="@getbootstrap">
+        <i id="right-click" class="fa-solid fa-angle-right"></i>
+    </button>
+    <div class="modal fade" id="Product-form" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
+                    <button type="button" class="close-form-btn close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-product">
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Name:</label>
+                        <input type="text" class="form-control" name="name" id="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Amount:</label>
+                        <input type="text" class="form-control" name="amount" id="amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Price:</label>
+                        <input type="text" class="form-control" name="price" id="price">
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Category:</label>
+                        <% for(var i=0; i<categories.length;i++) { %>
+                            <div class="form-check-category">
+                                <input name="categories" class="form-check-input-category" type="checkbox" data-id="" value="<%=categories[i].id%>" id="flexCheckDefault" >
+                                <label class="form-check-label" for="flexCheckDefault"><%=categories[i].name%>
+                                </label>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Description:</label>
+                        <input type="text" class="form-control" name="description" id="description" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-form-label">Images:</label>
+                        <input type="file" multiple class="form-control" name="images" accept="image/*" id="images" value="">
+                        
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button"  class="btn btn-primary" onclick="addProduct()">Create Product</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        <%}%>
+

@@ -7,7 +7,7 @@ const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const { promisify } = require('util');
 const helperFn = require('../utils/helperFn');
-
+const {formatDay} = require('../../validate/validate')
 const {uploadImg} = require('../../utils/uploadImg')
 const AppError = require('../utils/ErrorHandler/appError');
 const constants = require('../../constants');
@@ -60,8 +60,21 @@ const dashboard = async(req, res, next) => {
   const fetchUsers = await prisma.user.findMany();
   const fetchCategories = await prisma.category.findMany();
   const fetchOrders = await prisma.order.findMany();
-  // return helperFn.returnSuccess(req, res, {fetchProducts});
-  res.render('admin/dashboard.ejs',{products:fetchProducts,users:fetchUsers,categories:fetchCategories,orders:fetchOrders});
+  console.log(formatDay(fetchOrders[0].paymentDate))
+  console.log(fetchOrders[0].paymentDate)
+ const categoryProductResult= fetchProducts.map(product=>{
+  const {categoryProduct,...obj}=product;
+
+  obj.categories= product.categoryProduct.map(item=>({
+      id:item.categoryId,
+      ctgName:item.category.name,
+      thumbnail:item.category.thumbnail
+    }))
+  
+  return obj
+  })
+  // return helperFn.returnSuccess(req, res, {fetchOrders});
+  res.render('admin/dashboard.ejs',{products:fetchProducts,users:fetchUsers,categories:fetchCategories,orders:fetchOrders,categoryProductResult:categoryProductResult});
 }
 
 const profile = async(req, res, next) => {
@@ -215,6 +228,7 @@ const addProduct = async (req, res, next) => {
     const {
       name, description, price, amount, href, categoryId,
     } = req.body;
+    console.log(req.body)
     await prisma.$transaction([
       prisma.product.create({
         data: {
@@ -248,13 +262,20 @@ const getProducts = async (req, res, next) => {
     }
   });
   helperFn.returnSuccess(req, res, products);
-  console.log(products[0].categoryProduct[0].categoryId)
   // res.render('details/product.ejs', {products})
 };
 const getProduct = async (req, res, next) => {
   const id = +req.params.id;
   const data = await prisma.product.findUnique({
     where: { id },
+    include: {
+      categoryProduct: {
+        include: {
+          category: true
+        }
+      },
+      productImage: true,
+    }
   });
   helperFn.returnSuccess(req, res, data);
 };
@@ -333,8 +354,8 @@ const deleteProduct = async (req, res, next) => {
 // Order
 const getOrders = async (req, res, next) => {
   const orders = await prisma.order.findMany({});
-  // helperFn.returnSuccess(req, res, orders);
-  res.render('details/order.ejs', {orders})
+  helperFn.returnSuccess(req, res, orders);
+  // res.render('details/order.ejs', {orders})
 };
 
 const getOrder = async (req, res, next) => {
