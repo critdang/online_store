@@ -145,11 +145,12 @@ const changeBlockUserStt = async (req, res, next) => {
 
 
 const addCategory = async (req, res, next) => {
-  const {name,description} = req.body;
+  const {name,description, thumbnail} = req.body;
   if (!name || !description) return helperFn.returnFail(req, res, "Missing input data");
   const existCategory = await prisma.category.findFirst({where:{name}});
   if(existCategory) { return helperFn.returnFail(req, res, "Category already exists")};
-  const thumbnail = await uploadImg(req.file.path);
+  if(thumbnail) thumbnail = await uploadImg(req.file.path);
+  console.log(req.file)
   try{
     await prisma.category.create({
       data: {

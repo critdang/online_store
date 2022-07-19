@@ -504,14 +504,14 @@
     }
 
     function updateProduct(id) {
-        const name = $('#name').val();
-        const amount = $('#amount').val();
-        const price = $('#price').val();
-        const description = $('#description').val();
-        const categoryId = $('input[type=checkbox]:checked').map(function (_, el) {
+        const name = $(`#product-name-${id}`).val();
+        const amount = $(`#amount-${id}`).val();
+        const price = $(`#price-${id}`).val();
+        const description = $(`#description-${id}`).val();
+        const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
-        console.log(name, description, amount, price, categoryId)
+        console.log(name, amount, price, description, categoryId);
         // axios.put('/admin/product/' + id, {
         //     name: name,
         //     description: description,
