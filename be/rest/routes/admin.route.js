@@ -9,9 +9,10 @@ require("../middleware/auth").authUser(passport)
 // http://localhost:3301/api/users/uploadImage/1
 // router.post('/uploadImage/:id',upload.single('image'),adminController.uploadImage);
 // Admin
-router.post('/login',passport.authenticate('login', {failureRedirect: '/loginerror'}),adminController.login,adminController.dashboard);
+// router.post('/login',passport.authenticate('login', {failureRedirect: '/loginerror'}),adminController.login,adminController.dashboard);
+router.post('/login',passport.authenticate('login', {failureRedirect: '/loginerror'}), adminController.dashboard);
 // router.post('/login',adminController.login);
-router.get('/avatar', upload.single('avatar'),adminController.uploadAdminAvatar);
+router.post('/avatar', upload.single('avatar'),adminController.uploadAdminAvatar);
 // CRUD client
 router.get('/users', adminController.getUsers);
 router.get('/user/:id', adminController.getUser);
@@ -34,12 +35,13 @@ router.put('/product/:id', adminController.editProduct);
 router.delete('/product/:id', adminController.deleteProduct);
 
 // CRUD Image in Product
-router.post('/product/:productId', upload.array('images') ,adminController.uploadImageProduct);
+router.post('/productImage/:productId', upload.array('images') ,adminController.uploadImageProduct);
+router.post('/defaultProductImage/:imgId', adminController.defaultImage);
 router.delete('/product/:productId/:imgId', adminController.deleteImage);
 // CRUD order
 router.get('/orders', adminController.getOrders);
 router.get('/order', adminController.getOrder);
-router.post('/changeStauts/:id', adminController.changeStatus);
+router.post('/changeStatus/:id', adminController.changeStatus);
 
 
 // ejs

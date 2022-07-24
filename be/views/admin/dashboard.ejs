@@ -15,9 +15,6 @@
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<style>
-
-</style>
 
 <body>
     <div class="row background">
@@ -222,7 +219,7 @@
                                                 </td>
                                                 <td>
                                                     <%products[i].productImage.forEach(function(img){%>
-                                                        <img width="50px" src="<%=img.href%>" alt="">
+                                                        <img width="100px" src="<%=img.href%>" alt="">
                                                         <%})%>
                                                 </td>
                                                 <td>
@@ -322,25 +319,83 @@
     const status = document.getElementsByClassName('order-item--des')
     for (let i = 0; i < status.length; i++) {
         if (document.getElementsByClassName('order-item--des')[i].innerText == 'Completed') {
-            document.getElementsByClassName('order-item--des')[i].style.color = 'green';
+            document.getElementsByClassName('order-item--des')[i].style.color = 'rgba(0,199,0,1)';
         } else {
             document.getElementsByClassName('order-item--des')[i].style.color = 'red'
         }
     }
-
     function detailProduct(id) {
+        //get Category Product to compare the exist account
+        const insertImageProduct = $('.image-product-' + id);
         axios.get('/admin/product/' + id).then(res => {
             var checkCategoryProduct = document.getElementsByClassName(`form-check-input-category` + id);
-            console.log('checkExistCategory', res.data.data.categoryProduct[0].categoryId)
-            console.log('checkCategoryProduct', checkCategoryProduct)
+            // console.log('checkExistCategory', res.data.data.categoryProduct[0].categoryId)
+            // console.log('checkCategoryProduct', checkCategoryProduct)
             for (let j = 0; j < checkCategoryProduct.length; j++) {
                 for (let i = 0; i < res.data.data.categoryProduct.length; i++) {
                     if (checkCategoryProduct[j].attributes[2].value == res.data.data.categoryProduct[i].categoryId) {
-                        console.log(checkCategoryPSroduct[j].checked = true)
+                        // console.log(checkCategoryProduct[j].checked = true)
                     }
                 }
             }
+            //neu co anh
+            for (let i = 0; i < res.data.data.productImage.length; i++) {
+                const linkImg = res.data.data.productImage[i].href;
+                const idImg = res.data.data.productImage[i].id;
+                let defaultImg = "";
+                if (res.data.data.productImage[i].is_default == true) {
+                    defaultImg = "borderImg";
+                }
+                insertImageProduct.append(`<img class='${defaultImg}' style="cursor: pointer" onclick="mainImg('mainImg-${idImg}')" id="mainImg-${idImg}" width="120px" src='${linkImg}'/>`)
+            }
         })
+
+    }
+
+    function mainImg(id) {
+        const newImgs = document.querySelectorAll('div.list-img-product img')
+
+        newImgs.forEach(el => {
+            console.log(el)
+            el.addEventListener("click", function (e) {
+                const current = document.getElementsByClassName('borderImg');
+                // current[0].classList.remove('borderImg');
+                console.log(e)
+                // this.classList.add('borderImg');
+                if (!current.length) {
+                    this.classList.add('borderImg');
+                }
+                else {
+                    current[0].classList.remove('borderImg');
+                    console.log('this', this)
+                    this.classList.add('borderImg');
+                }
+            })
+        })
+        // const defaultImg = document.querySelector('.borderImg').getAttribute('id').split('-')[1];
+        // axios.post('/admin/defaultProductImage/' + defaultImg)
+        //     .then(function (response) {
+        //         if (response.status === 200) {
+        //             Swal.fire({
+        //                 position: 'top-end',
+        //                 icon: 'success',
+        //                 title: 'Success',
+        //                 showConfirmButton: false
+        //             }).then(function () {
+        //                 location.reload();
+        //             });
+        //         } else {
+        //             Swal.fire({
+        //                 title: 'Something went wrong',
+        //                 text: response.data.message,
+        //                 icon: 'error',
+        //                 confirmButtonText: ' Not cool'
+        //             })
+        //         }
+        //     })
+        //     .catch(function (error) {
+        //         console.log(error);
+        //     });
     }
 
     function addProduct() {
@@ -511,7 +566,8 @@
         const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
-        console.log(name, amount, price, description, categoryId);
+        const is_default = $(`img:borderImg`)
+        console.log(name, amount, price, description, categoryId, is_default);
         // axios.put('/admin/product/' + id, {
         //     name: name,
         //     description: description,
@@ -541,6 +597,42 @@
         //     .catch(function (error) {
         //         console.log(error);
         //     });
+    }
+
+    function changeStatus(id) {
+        let newStatus;
+        const orderStatus = $('.form-check-input-order-status');
+        for (let i = 0; i < orderStatus.length; i++) {
+            if (orderStatus[i].checked) {
+                newStatus = orderStatus[i].value;
+            }
+        }
+        console.log('newStatus', newStatus)
+        axios.post('/admin/changeStatus/' + id, {
+            newStatus: newStatus
+        })
+            .then(function (response) {
+                if (response.status == 200) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: response.data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    }).then(() => {
+                        location.reload();
+                    })
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: response.data.message,
+                        icon: 'error',
+                        confirmButtonText: ' Not cool'
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 </script>
 

@@ -44,7 +44,7 @@ model Order {
   id     Int     @id @default(autoincrement())
   user     User     @relation(fields:[userId],references: [id])
   userId     Int
-  status     Status     @default(pending)
+  status     Status     @default(Pending)
   paymentMethod     String     @db.VarChar(255)
   paymentDate     String     @db.VarChar(255)
   productInOrder ProductInOrder[]
@@ -53,8 +53,9 @@ model Order {
 }
 
 enum Status {
-  pending
-  completed
+  Pending
+  Completed
+  Cancel
 }
 
 model ProductInOrder {
@@ -144,6 +145,7 @@ model Cart {
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {

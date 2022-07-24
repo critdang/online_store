@@ -24,7 +24,15 @@ const reminder = require('./utils/reminder');
 // middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '50mb' }));
-app.use(session({secret: 'key'}));
+app.use(session({
+  secret: 'key',
+  resave: false,
+  saveUninitialized: false
+}));
+// passport
+app.use(express.static('public')); // secret key for session
+app.use(passport.initialize());
+app.use(passport.session());
 
 // app.set('view engine', 'ejs');
 app.use(cors());
@@ -34,10 +42,6 @@ viewEngine(app);
 //route REST
 app.use("/", routes);
 
-// passport
-app.use(express.static('public')); // secret key for session
-app.use(passport.initialize());
-app.use(passport.session());
 // Mount GraphQL
 const apolloServer = new ApolloServer({
     typeDefs,

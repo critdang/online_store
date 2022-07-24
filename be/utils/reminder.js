@@ -1,6 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const { reminderCart } = require('./helperFn');
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
 
 module.exports = async() => {
  try {

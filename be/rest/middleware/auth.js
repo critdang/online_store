@@ -1,5 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
 
 const jwt = require('jsonwebtoken');
 // const rateLimit = require('express-rate-limit');
@@ -41,22 +43,25 @@ exports.protectingRoutes = catchAsync(async (req, res, next) => {
 
 exports.authUser = catchAsync(async passport => {
   passport.serializeUser((user,done) => {
-    done(null,user);
+    done(null,user.email);
   })
-  passport.deserializeUser((user,done) => {
-    done(null,user);
+  passport.deserializeUser((email,done) => {
+    const existAdmin = prisma.admin.findFirst({where: {email}}).then((user) => {
+      done(null,user);
+    }).catch(err => {
+      console.log(err);
+    })
   })
   passport.use('login', new LocalStrategy({usernameField: 'email'},
     async function(email,password,done) {
       const result = await prisma.admin.findFirst({
         where: {email},
       })
-      .then(async(user) => {
-        if(!user) return done(null,false, {message: 'Wrong email'});
-        let passport = await bcrypt.compare(password, user.password);
-        if(!passport) return done(null,false, {message: 'Wrong password'});
-        return done(null,user)
-      })
+      console.log(result)
+        if(!result) return done(null,false, {message: 'Wrong email'});
+        const existUser = await bcrypt.compare(password, result.password)
+        if(!existUser) return done(null,false, {message: 'Wrong password'});
+        return done(null,result)
     }
   ))
 })

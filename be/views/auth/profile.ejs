@@ -1,51 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <link href="/css/style.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+
 <body>
     <div class="row background">
-            <div class="col-2">
-                <div class="menu">
-                    <div class="menu-heading">
-                        <img src="https://demos.creative-tim.com/argon-dashboard/assets/img/logo-ct-dark.png" >
-                        <h1>Huy's store</h1>
-                    </div>
-                    <div class="menu-item_heading">
-                        <h3>Manage</h3>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-item__detail">
-                            <i style="color:red" class="menu-item__img fa-brands fa-product-hunt"></i>
-                            <a href="#"> Product</a>
-                        </div>
-                        <div class="menu-item__detail">
-                            <i style="color:blue" class="menu-item__img fa-solid fa-cart-shopping"></i>
-                            <a href="#"> Category</a>
-                        </div>
-                        <div class="menu-item__detail">
-                            <i style="color:purple" class="menu-item__img fa-solid fa-bag-shopping"></i>
-                            <a href="#"> Order</a>
-                        </div>
-                    </div>
-                    <div class="menu-item_heading">
-                        <h3>Account Pages</h3>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-item__detail">
-                            <i style="color:green" class="menu-item__img fa-solid fa-user"></i>
-                            <a href="#">Profile</a>
-                        </div>
-                    </div>
-    
-                </div>
-            </div>
+        <%- include('../components/adminNav.ejs')%>
+
             <div class="col-7">
                 <div class="profile">
                     <div class="profile-header">
@@ -57,63 +29,121 @@
                         <div class="row">
                             <div class="col-6 profile-detail">
                                 <label for="exampleInputEmail1">Email address</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                                <input type="email" class="form-control" id="exampleInputEmail1"
+                                    aria-describedby="emailHelp" value="<%=user.email%>">
+                                <small id="emailHelp" class="form-text text-muted">We'll never share your email with
+                                    anyone
+                                    else.</small>
                             </div>
                             <div class="col-6 profile-detail">
                                 <label for="gender">Gender</label>
                                 <div class="gender-pick">
                                     <label for="male">Male</label>
-                                    <input id="input-gender"  type="radio" name="gender" id="male" value="male" checked>
+                                    <input id="input-gender" type="radio" name="gender" id="male" value="male" checked>
                                     <label for="female">Female</label>
                                     <input id="input-gender" type="radio" name="gender" id="female" value="female">
                                 </div>
                             </div>
                             <div class="col-6 profile-detail">
                                 <label for="exampleInputEmail1">Phone Number</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                                <input type="email" class="form-control" id="exampleInputEmail1"
+                                    aria-describedby="emailHelp" value="<%=user.fullname%>">
                             </div>
                             <div class="col-6 profile-detail">
                                 <label for="birthday">Birthday</label>
                                 <input type="date" id="profile_input" placeholder="Birthday" name="birthday" required>
-                                <label for="exampleInputEmail1">Email address</label>
                             </div>
                             <div class="col-12 profile-detail">
                                 <label for="exampleInputEmail1">Address</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Address">
+                                <input type="email" class="form-control" id="exampleInputEmail1"
+                                    aria-describedby="emailHelp" value="<%=user.address%>">
                             </div>
                         </div>
                     </div>
                     <div class="profile-header">
                         <h3>Change Password</h3>
-                        <button id="submit-profile-btn">Update Password</button>
+                        <button id="submit-profile-btn" onclick="updatePassword('<%=user.id%>')">Update
+                            Password</button>
                     </div>
                     <div class="profile-body">
                         <div class="row">
                             <div class="col-6 profile-detail">
                                 <label for="exampleInputEmail1">Password</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Password" >
+                                <input type="email" class="form-control" id="oldPass" aria-describedby="emailHelp"
+                                    placeholder="Enter Password">
                             </div>
                             <div class="col-6 profile-detail">
                                 <label for="exampleInputEmail1">Confirm Password</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Confirm Password">
+                                <input type="email" class="form-control" id="newPass" aria-describedby="emailHelp"
+                                    placeholder="Enter Confirm Password">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-3">
-                <div class="card mt-5" style="width: 18rem;">
-                    <img class="card-img-top" src="https://demos.creative-tim.com/argon-dashboard/assets/img/bg-profile.jpg" alt="Card image cap">
-                    <div class="card-body">
-                      <h5 class="card-title d-flex justify-content-center">Quoc Huy</h5>
-                      <p class="card-text d-flex justify-content-center">user@gmail.com</p>
-                      <label class="form-label" for="customFile">Update Image</label>
-                        <input type="file" class="form-control" id="customFile" />
-                    </div>
-                  </div>
-            </div>
+                <form action="/admin/avatar" method="POST" enctype="multipart/form-data">
+                    <div class="card mt-5" style="width: 18rem;">
+                        <img class="card-img-top" src="<%=user.avatar%>" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title d-flex justify-content-center">Quoc Huy</h5>
+                            <p class="card-text d-flex justify-content-center">user@gmail.com</p>
+                            <label class="form-label" for="customFile">Update Image</label>
+                            <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*" />
+                            <div class="row mt-2 justify-content-center">
 
+                                <button type="submit" class="btn btn-primary ">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
     </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js "
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1 "
+    crossorigin="anonymous "></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function updatePassword(id) {
+        const oldPass = $('#oldPass').val();
+        const newPass = $('#newPass').val();
+        console.log(oldPass, newPass, id)
+        // axios.post('/admin/editCategory/' + id, {
+        //     name: categoryName,
+        //     description: categoryDescription
+        // })
+        //     .then(function (response) {
+        //         if (response.status == 200) {
+        //             Swal.fire({
+        //                 title: 'Updated!',
+        //                 text: response.data.message,
+        //                 icon: 'success',
+        //                 confirmButtonText: 'Cool'
+        //             }).then(() => {
+        //                 location.reload();
+        //             })
+        //         } else {
+        //             Swal.fire({
+        //                 title: 'Something went wrong',
+        //                 text: response.data.message,
+        //                 icon: 'error',
+        //                 confirmButtonText: ' Not cool'
+        //             })
+        //         }
+        //     })
+        //     .catch(function (error) {
+        //         console.log(error);
+        //     });
+    }
+</script>
+
 </html>

@@ -1,5 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
 const AppError = require('../utils/ErrorHandler/appError');
 const helperFn = require('../../utils/helperFn');
 const constants = require('../../constants');
