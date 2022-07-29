@@ -1,31 +1,22 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
-import CameraIcon from '@mui/icons-material/PhotoCamera';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import Menu from '@mui/material/Menu';
+
 import MenuItem from '@mui/material/MenuItem';
-import PersonIcon from '@mui/icons-material/Person';
-import NavBar from './components/NavBar';
 import InputBase from '@mui/material/InputBase';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import { Link } from 'react-router-dom';
+
 import {
   ButtonGroup,
   ClickAwayListener,
@@ -34,22 +25,20 @@ import {
   Modal,
   Paper,
   Popper,
-  Table,
-  TableBody,
   TableCell,
   tableCellClasses,
-  TableContainer,
-  TableHead,
   TableRow,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
+import { gql, useQuery } from '@apollo/client';
+
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
+      <Link color="inherit" to="https://mui.com/">
         Your Website
       </Link>{' '}
       {new Date().getFullYear()}
@@ -102,13 +91,60 @@ const rows = [
   createData('Gingerbread', 356, 16.0, 49, 3.9),
 ];
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
 const theme = createTheme();
 
 const options = ['A-Z', 'Z-A'];
 
-export default function Album(props, { setLogin }) {
+const PRODUCTS = gql`
+  query {
+    products(is_default: true) {
+      name
+      description
+      amount
+      price
+      productImage {
+        id
+        href
+      }
+      categoryProduct {
+        category {
+          name
+        }
+      }
+    }
+  }
+`;
+const PRODUCTSIMAGES = gql`
+  query {
+    products {
+      name
+      description
+      amount
+      price
+      productImage {
+        id
+        href
+      }
+      categoryProduct {
+        category {
+          name
+        }
+      }
+    }
+  }
+`;
+export default function Home(props, { setLogin }) {
+  const { loading, error, data } = useQuery(PRODUCTS);
+
+  const [products, setProducts] = React.useState([]);
+  React.useEffect(() => {
+    if (data) {
+      // console.log(data);
+      setProducts(data.products);
+    }
+  }, [data]);
+  // console.log(products);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -120,9 +156,14 @@ export default function Album(props, { setLogin }) {
   const addToCart = () => {
     props.addToCart();
   };
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [displaySearch, setDisplaySearch] = React.useState('none');
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [openButton, setOpenButton] = React.useState(false);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const anchorRef = React.useRef(null);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   const handleClickOptions = () => {
@@ -147,8 +188,24 @@ export default function Album(props, { setLogin }) {
   };
 
   //lisen toggle modal
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [openModal, setOpenModal] = React.useState(false);
-  const handleOpenModal = () => setOpenModal(true);
+
+  const { productsImages } = useQuery(PRODUCTSIMAGES);
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [productsImages, setProductsImages] = React.useState([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/rules-of-hooks
+
+    if (data) {
+      console.log(data);
+      setProductsImages(data.products);
+    }
+    console.log(productsImages);
+  };
   const handleCloseModal = () => setOpenModal(false);
 
   //setting slick
@@ -160,6 +217,8 @@ export default function Album(props, { setLogin }) {
     slidesToScroll: 1,
     adaptiveHeight: true,
   };
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error! {error.message}</div>;
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -269,8 +328,8 @@ export default function Album(props, { setLogin }) {
             </div>
           </div>
           <Grid container spacing={3} marginTop={5}>
-            {cards.map((card) => (
-              <Grid item key={card} xs={12} sm={6} md={3}>
+            {products.map((product) => (
+              <Grid item key={product} xs={12} sm={6} md={3}>
                 <Card
                   sx={{
                     height: '100%',
@@ -286,7 +345,11 @@ export default function Album(props, { setLogin }) {
                       // 16:9
                       pt: '30%',
                     }}
-                    image="https://source.unsplash.com/random"
+                    image={
+                      product.productImage[0]
+                        ? product.productImage[0].href
+                        : 'https://source.unsplash.com/random'
+                    }
                     alt="random"
                   />
                   <AddCircleOutlineIcon
@@ -304,7 +367,7 @@ export default function Album(props, { setLogin }) {
                   ></AddCircleOutlineIcon>
                   <Container>
                     <Typography variant="body2" component="h2">
-                      DÉP QUAI CHẦN BÔNG
+                      {product.name}
                     </Typography>
                   </Container>
                   <Container
@@ -367,23 +430,29 @@ export default function Album(props, { setLogin }) {
                                 Detail product
                               </Typography>
                               <Typography>
-                                <strong>Name:</strong> 201900 Shanghai
-                                China
+                                <strong>Name:</strong> {product.name}
                               </Typography>
                               <Typography>
-                                <strong>Price:</strong> 201900 Shanghai
-                                China
+                                <strong>Price:</strong> {product.price}
                               </Typography>
                               <Typography>
-                                <strong>Description:</strong> 201900 Shanghai
-                                China
+                                <strong>Description:</strong>{' '}
+                                {product.description}
                               </Typography>
                               <Typography>
-                                <strong>Remaining amount:</strong> 201900 Shanghai
-                                China
+                                <strong>Remaining amount:</strong>{' '}
+                                {product.amount}
                               </Typography>
-                              <Button variant="contained" onClick={addToCart}>Add</Button>
-                              <Button variant="outlined" color="error" onClick={handleCloseModal}>Close</Button>
+                              <Button variant="contained" onClick={addToCart}>
+                                Add
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={handleCloseModal}
+                              >
+                                Close
+                              </Button>
                             </Container>
                           </Grid>
                         </Grid>
@@ -395,7 +464,7 @@ export default function Album(props, { setLogin }) {
                         backgroundColor: 'yellow',
                       }}
                     >
-                      200.000 VND
+                      {product.price}
                     </Typography>
                   </Container>
                 </Card>

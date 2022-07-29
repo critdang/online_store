@@ -14,7 +14,6 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Menu from '@mui/material/Menu';
@@ -26,9 +25,27 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import { Button, ButtonGroup, ClickAwayListener, Dialog, Grow, MenuList, Modal, Paper, Popper, Table, TableBody, TableCell, tableCellClasses, TableContainer, TableHead, TableRow } from '@mui/material';
+import {
+  Button,
+  ButtonGroup,
+  ClickAwayListener,
+  Dialog,
+  Grow,
+  MenuList,
+  Modal,
+  Paper,
+  Popper,
+  Table,
+  TableBody,
+  TableCell,
+  tableCellClasses,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
+import { Link } from 'react-router-dom';
 
 // style table
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -75,27 +92,13 @@ const styleModal = {
   p: 4,
 };
 
-function Copyright() {
-  
-  return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const theme = createTheme();
 
 const options = ['A-Z', 'Z-A'];
 
-export default function Album({ setLogin }) {
+export default function Order({ setLogin }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -129,12 +132,12 @@ export default function Album({ setLogin }) {
 
     setOpenButton(false);
   };
-  
+
   //lisen toggle modal
   const [openModal, setOpenModal] = React.useState(false);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
-  
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -153,7 +156,6 @@ export default function Album({ setLogin }) {
               alignItems: 'end',
             }}
           >
-            
             <Button
               sx={{ alignItems: 'right', cursor: 'pointer', float: 'right' }}
               onClick={() => {
@@ -165,19 +167,24 @@ export default function Album({ setLogin }) {
               {' '}
               Filter
             </Button>
-            <div style={{ display: displaySearch , justifyContent: 'center', alignItems: 'center'}}>
+            <div
+              style={{
+                display: displaySearch,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
               <InputBase
                 sx={{ ml: 1, flex: 1 }}
                 placeholder="Search Product"
                 inputProps={{ 'aria-label': 'search product' }}
               />
-              
+
               <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
                 <SearchIcon />
               </IconButton>
-                <Typography>Sort By Name:</Typography>
+              <Typography>Sort By Name:</Typography>
               <React.Fragment>
-
                 <ButtonGroup
                   variant="contained"
                   ref={anchorRef}
@@ -242,7 +249,9 @@ export default function Album({ setLogin }) {
               <TableHead>
                 <TableRow>
                   <StyledTableCell>No.</StyledTableCell>
-                  <StyledTableCell align="right">Completed Date</StyledTableCell>
+                  <StyledTableCell align="right">
+                    Completed Date
+                  </StyledTableCell>
                   <StyledTableCell align="right">First Item</StyledTableCell>
                   <StyledTableCell align="right">Total Item</StyledTableCell>
                   <StyledTableCell align="right">Total Amount</StyledTableCell>
@@ -255,79 +264,125 @@ export default function Album({ setLogin }) {
                     <StyledTableCell component="th" scope="row">
                       {row.name}
                     </StyledTableCell>
-                    <StyledTableCell align="right">{row.calories}</StyledTableCell>
+                    <StyledTableCell align="right">
+                      {row.calories}
+                    </StyledTableCell>
                     <StyledTableCell align="right">{row.fat}</StyledTableCell>
                     <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-                    <StyledTableCell align="right">{row.protein}</StyledTableCell>
                     <StyledTableCell align="right">
-                      <Link>
-                        <Button variant="primary" onClick={handleOpenModal}>View</Button>
-                      </Link>  
+                      {row.protein}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      <Link to="/">
+                        <Button variant="primary" onClick={handleOpenModal}>
+                          View
+                        </Button>
+                      </Link>
                       <Modal
                         open={openModal}
                         onClose={handleCloseModal}
                         aria-labelledby="modal-modal-title"
                         aria-describedby="modal-modal-description"
-                        BackdropProps= {{style: {backgroundColor: "rgba(0,0,0,0.1)"}}}
+                        BackdropProps={{
+                          style: { backgroundColor: 'rgba(0,0,0,0.1)' },
+                        }}
                       >
                         <Box sx={styleModal}>
-                        <Grid container>
-                          <Grid item xs={8} align="center">
-                          <Typography variant="h5" sx={{backgroundColor: '#f3f3f3', color: '#009688'}}>
-                            Ship To My Address
-                          </Typography>
-                          <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                              <TableHead>
-                                <TableRow>
-                                  <StyledTableCell>No.</StyledTableCell>
-                                  <StyledTableCell align="right">No.</StyledTableCell>
-                                  <StyledTableCell align="right">Product Name</StyledTableCell>
-                                  <StyledTableCell align="right">Thumbnail</StyledTableCell>
-                                  <StyledTableCell align="right">Quantity</StyledTableCell>
-                                  <StyledTableCell align="right">Price</StyledTableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {rows.map((row) => (
-                                  <StyledTableRow key={row.name}>
-                                    <StyledTableCell component="th" scope="row">
-                                      {row.name}
-                                    </StyledTableCell>
-                                    <StyledTableCell align="right">{row.calories}</StyledTableCell>
-                                    <StyledTableCell align="right">{row.fat}</StyledTableCell>
-                                    <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-                                    <StyledTableCell align="right">{row.protein}</StyledTableCell>
-                                  </StyledTableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-
-                          </Grid>
-                          <Grid item xs={4} align="left" sx={{backgroundColor: '#dedede',}}>
-                            <Container>
-                              <Typography  variant="h5" sx={{color: '#009688'}}>
-                                Seller Shipping From
+                          <Grid container>
+                            <Grid item xs={8} align="center">
+                              <Typography
+                                variant="h5"
+                                sx={{
+                                  backgroundColor: '#f3f3f3',
+                                  color: '#009688',
+                                }}
+                              >
+                                Ship To My Address
+                              </Typography>
+                              <TableContainer component={Paper}>
+                                <Table
+                                  sx={{ minWidth: 700 }}
+                                  aria-label="customized table"
+                                >
+                                  <TableHead>
+                                    <TableRow>
+                                      <StyledTableCell>No.</StyledTableCell>
+                                      <StyledTableCell align="right">
+                                        No.
+                                      </StyledTableCell>
+                                      <StyledTableCell align="right">
+                                        Product Name
+                                      </StyledTableCell>
+                                      <StyledTableCell align="right">
+                                        Thumbnail
+                                      </StyledTableCell>
+                                      <StyledTableCell align="right">
+                                        Quantity
+                                      </StyledTableCell>
+                                      <StyledTableCell align="right">
+                                        Price
+                                      </StyledTableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {rows.map((row) => (
+                                      <StyledTableRow key={row.name}>
+                                        <StyledTableCell
+                                          component="th"
+                                          scope="row"
+                                        >
+                                          {row.name}
+                                        </StyledTableCell>
+                                        <StyledTableCell align="right">
+                                          {row.calories}
+                                        </StyledTableCell>
+                                        <StyledTableCell align="right">
+                                          {row.fat}
+                                        </StyledTableCell>
+                                        <StyledTableCell align="right">
+                                          {row.carbs}
+                                        </StyledTableCell>
+                                        <StyledTableCell align="right">
+                                          {row.protein}
+                                        </StyledTableCell>
+                                      </StyledTableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </TableContainer>
+                            </Grid>
+                            <Grid
+                              item
+                              xs={4}
+                              align="left"
+                              sx={{ backgroundColor: '#dedede' }}
+                            >
+                              <Container>
+                                <Typography
+                                  variant="h5"
+                                  sx={{ color: '#009688' }}
+                                >
+                                  Seller Shipping From
                                 </Typography>
-                                  <Typography >
-                                    <strong>Order Date:</strong> 201900 Shanghai China
-                                  </Typography>
-                                  <Typography >
-                                    <strong>Payment Date:</strong> 201900 Shanghai China
-                                  </Typography>
-                                  <Typography >
-                                    <strong>Completed Date:</strong> 201900 Shanghai China
-                                  </Typography>
-                                  <Typography >
-                                    <strong>Total amount:</strong> 201900 Shanghai China
-                                  </Typography>
-                              
-
-                            </Container>
+                                <Typography>
+                                  <strong>Order Date:</strong> 201900 Shanghai
+                                  China
+                                </Typography>
+                                <Typography>
+                                  <strong>Payment Date:</strong> 201900 Shanghai
+                                  China
+                                </Typography>
+                                <Typography>
+                                  <strong>Completed Date:</strong> 201900
+                                  Shanghai China
+                                </Typography>
+                                <Typography>
+                                  <strong>Total amount:</strong> 201900 Shanghai
+                                  China
+                                </Typography>
+                              </Container>
+                            </Grid>
                           </Grid>
-
-                        </Grid>
                         </Box>
                       </Modal>
                     </StyledTableCell>
@@ -351,7 +406,6 @@ export default function Album({ setLogin }) {
         >
           Something here to give the footer a purpose!
         </Typography>
-        <Copyright />
       </Box>
       {/* End footer */}
     </ThemeProvider>

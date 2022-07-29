@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server');
+const { gql } = require('apollo-server');
 
 module.exports = gql`
   type User {
@@ -9,12 +9,14 @@ module.exports = gql`
     address: String
     phone: String
     gender: String
+    avatar: String
+    birthday: String
   }
   type Product {
     id: ID
     name: String
     description: String
-    price: Int
+    price: Float
     amount: Int
     productImage: [ProductImage]
     categoryProduct: [CategoryProduct]
@@ -66,7 +68,8 @@ module.exports = gql`
   }
 
   type Query {
-    user(id: ID!): User!
+    user: User!
+    products(is_default: Boolean): [Product]
     listProducts(input: ProductOrderBy): [Product]
     productImage: [ProductImage]
     cartProduct: [CartProduct]
@@ -82,10 +85,7 @@ module.exports = gql`
       email: String!
       password: String!
     ): User!
-    login(
-      email: String!
-      password: String!
-    ):AuthDataResponse!
+    login(inputLogin: InputLogin): AuthDataResponse!
     changePassword(
       email: String!
       oldPassword: String!
@@ -113,6 +113,10 @@ module.exports = gql`
     ): Order!
   }
 
+  input InputLogin {
+    email: String!
+    password: String!
+  }
 
   type AuthDataResponse {
     token: String!
@@ -146,4 +150,4 @@ module.exports = gql`
     success
   }
 
-`
+`;

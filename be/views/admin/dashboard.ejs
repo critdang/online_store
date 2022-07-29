@@ -334,7 +334,7 @@
             for (let j = 0; j < checkCategoryProduct.length; j++) {
                 for (let i = 0; i < res.data.data.categoryProduct.length; i++) {
                     if (checkCategoryProduct[j].attributes[2].value == res.data.data.categoryProduct[i].categoryId) {
-                        // console.log(checkCategoryProduct[j].checked = true)
+                        checkCategoryProduct[j].checked = true
                     }
                 }
             }
@@ -347,57 +347,58 @@
                     defaultImg = "borderImg";
                 }
                 insertImageProduct.append(`<img class='${defaultImg}' style="cursor: pointer" onclick="mainImg('mainImg-${idImg}')" id="mainImg-${idImg}" width="120px" src='${linkImg}'/>`)
+                const newImgs = document.querySelectorAll('div.list-img-product img')
+                newImgs.forEach(el => {
+                    const current = document.getElementsByClassName('borderImg');
+                    el.addEventListener("click", function (e) {
+                        // current[0].classList.remove('borderImg');
+                        // this.classList.add('borderImg');
+
+                        console.log('e.target', e.target.id)
+                        if (!current.length) {
+                            this.classList.add('borderImg');
+                        }
+                        else {
+                            current[0].classList.remove('borderImg');
+                            e.target.classList.add('borderImg');
+                        }
+                    })
+                })
             }
         })
 
     }
 
     function mainImg(id) {
-        const newImgs = document.querySelectorAll('div.list-img-product img')
-
-        newImgs.forEach(el => {
-            console.log(el)
-            el.addEventListener("click", function (e) {
-                const current = document.getElementsByClassName('borderImg');
-                // current[0].classList.remove('borderImg');
-                console.log(e)
-                // this.classList.add('borderImg');
-                if (!current.length) {
-                    this.classList.add('borderImg');
-                }
-                else {
-                    current[0].classList.remove('borderImg');
-                    console.log('this', this)
-                    this.classList.add('borderImg');
+        const defaultImg = id.split('-')[1];
+        axios.post('/admin/images/' + defaultImg)
+            .then(function (response) {
+                if (response.status === 200) {
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Success',
+                        showConfirmButton: false
+                    }).then(function () {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: response.data.message,
+                        icon: 'error',
+                        confirmButtonText: ' Not cool'
+                    })
                 }
             })
-        })
-        // const defaultImg = document.querySelector('.borderImg').getAttribute('id').split('-')[1];
-        // axios.post('/admin/defaultProductImage/' + defaultImg)
-        //     .then(function (response) {
-        //         if (response.status === 200) {
-        //             Swal.fire({
-        //                 position: 'top-end',
-        //                 icon: 'success',
-        //                 title: 'Success',
-        //                 showConfirmButton: false
-        //             }).then(function () {
-        //                 location.reload();
-        //             });
-        //         } else {
-        //             Swal.fire({
-        //                 title: 'Something went wrong',
-        //                 text: response.data.message,
-        //                 icon: 'error',
-        //                 confirmButtonText: ' Not cool'
-        //             })
-        //         }
-        //     })
-        //     .catch(function (error) {
-        //         console.log(error);
-        //     });
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
+    function changeThumbnail(id) {
+        console.log('this', id)
+    }
     function addProduct() {
         const name = $('#name').val();
         const amount = $('#amount').val();
@@ -431,7 +432,8 @@
     function deleteProduct(id) {
         axios.delete('/admin/product/' + id)
             .then(function (response) {
-                if (response.status == 200) {
+                console.log(response);
+                if (response.data.status == 200) {
                     Swal.fire({
                         title: 'Deleted!',
                         text: response.data.message,
@@ -566,38 +568,38 @@
         const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
-        const is_default = $(`img:borderImg`)
-        console.log(name, amount, price, description, categoryId, is_default);
-        // axios.put('/admin/product/' + id, {
-        //     name: name,
-        //     description: description,
-        //     amount: amount,
-        //     price: price,
-        //     categoryId: categoryId,
-        // })
-        //     .then(function (response) {
-        //         if (response.status == 200) {
-        //             Swal.fire({
-        //                 title: 'Updated!',
-        //                 text: response.data.message,
-        //                 icon: 'success',
-        //                 confirmButtonText: 'Cool'
-        //             }).then(() => {
-        //                 location.reload();
-        //             })
-        //         } else {
-        //             Swal.fire({
-        //                 title: 'Something went wrong',
-        //                 text: response.data.message,
-        //                 icon: 'error',
-        //                 confirmButtonText: ' Not cool'
-        //             })
-        //         }
-        //     })
-        //     .catch(function (error) {
-        //         console.log(error);
-        //     });
+        console.log(name, amount, price, description, categoryId);
+        axios.put('/admin/product/' + id, {
+            name: name,
+            description: description,
+            amount: amount,
+            price: price,
+            categoryId: categoryId,
+        })
+            .then(function (response) {
+                if (response.status == 200) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: response.data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    }).then(() => {
+                        location.reload();
+                    })
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: response.data.message,
+                        icon: 'error',
+                        confirmButtonText: ' Not cool'
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
+
 
     function changeStatus(id) {
         let newStatus;

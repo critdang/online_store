@@ -5,7 +5,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -13,34 +12,54 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
-
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import axios from 'axios';
+import { useMutation, gql } from '@apollo/client';
+import { Link } from 'react-router-dom';
 
 const theme = createTheme();
 
-export default function SignInSide({login, setLogin}) {
-  
-  function handleLogin(){
-    setLogin(!login)
+const LOGIN = gql`
+  mutation login($input: InputLogin) {
+    login(inputLogin: $input) {
+      token
+      userId
+    }
   }
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+`;
+
+export default function SignInSide() {
+  const [input, setInput] = useState();
+  const navigate = useNavigate();
+
+  const [login] = useMutation(LOGIN);
+
+  const handleLogin = async () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    try {
+      const { data } = await login({
+        variables: {
+          input: {
+            email: input.email,
+            password: input.password,
+          },
+        },
+      });
+      if (data) {
+        console.log(
+          '🚀 ~ file: Login.jsx ~ line 66 ~ handleLogin ~ data',
+          data
+        );
+        const token = data.login.token;
+        token.replaceAll('"', '');
+        localStorage.setItem('user', JSON.stringify(data.login));
+        navigate('/');
+      }
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -56,7 +75,9 @@ export default function SignInSide({login, setLogin}) {
             backgroundImage: 'url(https://source.unsplash.com/random)',
             backgroundRepeat: 'no-repeat',
             backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+              t.palette.mode === 'light'
+                ? t.palette.grey[50]
+                : t.palette.grey[900],
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -77,7 +98,8 @@ export default function SignInSide({login, setLogin}) {
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <Box noValidate sx={{ mt: 1 }}>
+              {/* <form onSubmit={handleLogin}> */}
               <TextField
                 margin="normal"
                 required
@@ -87,6 +109,9 @@ export default function SignInSide({login, setLogin}) {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                onChange={(e) =>
+                  setInput({ ...input, [e.target.name]: e.target.value })
+                }
               />
               <TextField
                 margin="normal"
@@ -97,36 +122,36 @@ export default function SignInSide({login, setLogin}) {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                onChange={(e) =>
+                  setInput({ ...input, [e.target.name]: e.target.value })
+                }
               />
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
               />
-              <Link href="http://localhost:3000/album">
-                <Button
-                  // type="submit"
-                  onClick={handleLogin}
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
-                >
-                  Sign In
-                </Button>
-              
-              </Link>
+              <Button
+                // type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                onClick={handleLogin}
+              >
+                Sign In
+              </Button>
+              {/* </form> */}
               <Grid container>
                 <Grid item xs>
-                  <Link href="http://localhost:3000/forgotPassword" variant="body2">
+                  <Link to="/forgotPassword" variant="body2">
                     Forgot password?
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link href="http://localhost:3000/signup" variant="body2">
+                  <Link to="/signup" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
               </Grid>
-              <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
         </Grid>

@@ -1,11 +1,17 @@
-const {createUser,login,changePassword,editProfile,getUser} = require('./services');
-const {listProducts,productDetail,productImage,addToCart,cartProduct} = require('./services');
-const {listCategories,listCategory} =require('./services');
-const {getCart,getListItemInCart,deleteItemCart} = require('./services');
-const {createOrder,listAllOrders,changeOrderStatus} = require('./services');
+const {
+  createUser, login, changePassword, editProfile, getUser,
+} = require('./services');
+const {
+  products, listProducts, productDetail, productImage, addToCart, cartProduct,
+} = require('./services');
+const { listCategories, listCategory } = require('./services');
+const { getCart, getListItemInCart, deleteItemCart } = require('./services');
+const { createOrder, listAllOrders, changeOrderStatus } = require('./services');
+
 module.exports = {
-  Query:{
-    user:getUser,
+  Query: {
+    user: getUser,
+    products,
     listProducts,
     productImage,
     cartProduct,
@@ -13,7 +19,7 @@ module.exports = {
     listCategory,
     getCart,
     listAllOrders,
-    getListItemInCart
+    getListItemInCart,
   },
   Mutation: {
     login,
@@ -25,5 +31,5 @@ module.exports = {
     productDetail,
     changeOrderStatus,
     createOrder,
-  }
-}
+  },
+};

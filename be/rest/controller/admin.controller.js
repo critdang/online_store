@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
@@ -8,6 +9,7 @@ require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const { promisify } = require('util');
+const Promise = require('bluebird');
 const helperFn = require('../utils/helperFn');
 const { formatDay } = require('../../validate/validate');
 const { uploadImg } = require('../../utils/uploadImg');
@@ -17,7 +19,7 @@ const constants = require('../../constants');
 const getUsers = async (req, res, next) => {
   const users = await prisma.user.findMany();
   // helperFn.returnSuccess(req, res, data);
-  res.render('details/user.ejs', { users: users });
+  res.render('details/user.ejs', { users });
 };
 
 const login = async (req, res, next) => {
@@ -35,7 +37,7 @@ const login = async (req, res, next) => {
     const { password } = admin;
     const wrongPassword = await helperFn.comparePassword(
       inputPassword,
-      password
+      password,
     );
     if (!wrongPassword) {
       return next(new AppError(constants.PASS_NOT_CORRECT, 400));
@@ -54,7 +56,6 @@ const getLoginView = async (req, res, next) => {
 
 const dashboard = async (req, res, next) => {
 //  global.user=req.user
-console.log('req.user in db', req.user)
   const fetchProducts = await prisma.product.findMany({
     include: {
       productImage: true,
@@ -87,12 +88,12 @@ console.log('req.user in db', req.user)
     users: fetchUsers,
     categories: fetchCategories,
     orders: fetchOrders,
-    categoryProductResult: categoryProductResult,
+    categoryProductResult,
   });
 };
 
 const profile = async (req, res, next) => {
-  res.render('auth/profile.ejs',{user:req.user})
+  res.render('auth/profile.ejs', { user: req.user });
   // console.log(req.user)
   // console.log('req.user',{user:req.user});
 };
@@ -105,7 +106,7 @@ const uploadAdminAvatar = async (req, res, next) => {
   console.log(req.user);
   const { id } = req.user;
   try {
-    let avatar = await uploadImg(req.file.path);
+    const avatar = await uploadImg(req.file.path);
     if (!avatar) return helperFn.returnFail(req, res, 'upload avatar failed');
     await prisma.admin.update({
       where: { id },
@@ -158,9 +159,8 @@ const changeBlockUserStt = async (req, res, next) => {
 };
 
 const addCategory = async (req, res, next) => {
-  const { name, description} = req.body;
-  if (!name || !description)
-    return helperFn.returnFail(req, res, 'Missing input data');
+  const { name, description } = req.body;
+  if (!name || !description) { return helperFn.returnFail(req, res, 'Missing input data'); }
   const existCategory = await prisma.category.findFirst({ where: { name } });
   if (existCategory) {
     return helperFn.returnFail(req, res, 'Category already exists');
@@ -219,7 +219,7 @@ const editCategory = async (req, res, next) => {
 const editThumbnail = async (req, res, next) => {
   try {
     const { id } = req.params;
-    let thumbnail = await uploadImg(req.file.path);
+    const thumbnail = await uploadImg(req.file.path);
     await prisma.category.update({
       where: { id: +id },
       data: { thumbnail },
@@ -239,7 +239,7 @@ const deleteCategory = async (req, res, next) => {
     });
     if (existCategoryProduct) {
       return next(
-        new AppError('Have product in category. Can not delete', 400)
+        new AppError('Have product in category. Can not delete', 400),
       );
     }
     const deletedCategory = await prisma.category.delete({
@@ -253,12 +253,15 @@ const deleteCategory = async (req, res, next) => {
 
 const addProduct = async (req, res, next) => {
   try {
-    const { name, description, price, amount, categoryId } = req.body;
-    await prisma.$transaction(async(prisma) => {
-      const newProduct = await  prisma.product.create({
-        data: {
-          name,
-          description,
+    const {
+      name, description, price, amount, categoryId,
+    } = req.body;
+    await prisma.$transaction(
+      async (prisma) => {
+        const newProduct = await prisma.product.create({
+          data: {
+            name,
+            description,
             price: +price,
             amount: +amount,
             categoryProduct: {
@@ -267,23 +270,23 @@ const addProduct = async (req, res, next) => {
               },
             },
           },
-        })
+        });
         const idNewProduct = newProduct.id;
-        for(var file of req.files) {
-          var link = await uploadImg(file.path);
-          var createImage = await prisma.productImage.create({
+        for (const file of req.files) {
+          const link = await uploadImg(file.path);
+          const createImage = await prisma.productImage.create({
             data: {
               productId: +idNewProduct,
               href: link,
-            }
-          })
+            },
+          });
         }
-
-    },
-    {
-      maxWait: 100000, // default: 2000
-      timeout: 100000, // default: 5000
-    })
+      },
+      {
+        maxWait: 100000, // default: 2000
+        timeout: 100000, // default: 5000
+      },
+    );
     helperFn.returnSuccess(req, res, 'Add Product successfully');
   } catch (err) {
     console.log(err);
@@ -316,58 +319,94 @@ const getProduct = async (req, res, next) => {
 };
 
 const editProduct = async (req, res, next) => {
-  const { name, description, price, amount, categoryId} = req.body;
-  const id = +req.params.id;
+  const {
+    name, description, price, amount, categoryId,
+  } = req.body;
+  try {
+    const id = +req.params.id;
+    const initialCheck = await prisma.categoryProduct.findMany({ where: { productId: id } });
+    const submitCheck = categoryId;
+    const diffCategory = initialCheck.filter((x) => !submitCheck.includes(x.categoryId.toString()));
 
-  const initialCheck = await prisma.categoryProduct.findMany({where: {productId:id}});
-  const submitCheck = categoryId;
-  const diffCategory = initialCheck.filter(x => !submitCheck.includes(x.categoryId.toString()));
+    const foundProduct = await prisma.product.findFirst({ where: { id } });
+    if (!foundProduct) { return helperFn.returnFail(req, res, 'Product not found'); }
 
-  const foundProduct = await prisma.product.findFirst({where: {id}})
-  if (!foundProduct) { return helperFn.returnFail(req, res, 'Product not found'); }
-
-  const result = await prisma.$transaction(async (prisma) => {
-    const updateProduct = await prisma.product.update({
-      where: { id },
-      data: {
-        name,
-        description,
-        price: +price,
-        amount: +amount,
-      },
-    });
-    categoryId.forEach(async(item) => {
-      const ctgProduct = await prisma.categoryProduct.findFirst({where: {
-        productId: foundProduct.id,
-        categoryId: +item
-      }})
-      if(!ctgProduct) {
-        await prisma.categoryProduct.createMany({
+    const result = await prisma.$transaction(
+      async (prisma) => {
+        const updateProduct = await prisma.product.update({
+          where: { id },
           data: {
-            productId: foundProduct.id,
-            categoryId: +item
+            name,
+            description,
+            price: +price,
+            amount: +amount,
+          },
+        });
+        // categoryId.forEach(async(item) => {
+        //   const ctgProduct = await prisma.categoryProduct.findFirst({where: {
+        //     productId: foundProduct.id,
+        //     categoryId: +item
+        //   }})
+        //   if(!ctgProduct) {
+        //     await prisma.categoryProduct.createMany({
+        //       data: {
+        //         productId: foundProduct.id,
+        //         categoryId: +item
+        //       }
+        //     })
+        //   }
+        // });
+
+        await Promise.mapSeries(categoryId, async (item) => {
+          const ctgProduct = await prisma.categoryProduct.findFirst({
+            where: {
+              productId: foundProduct.id,
+              categoryId: +item,
+            },
+          });
+          if (!ctgProduct) {
+            await prisma.categoryProduct.createMany({
+              data: {
+                productId: foundProduct.id,
+                categoryId: +item,
+              },
+            });
           }
-        })
-      }
-    });
-    diffCategory.forEach(async(item) => {
-      // delete unchecked categoryProduct
-      await prisma.categoryProduct.deleteMany({
-        where: {
-          productId: id,
-          categoryId: +item.categoryId
-        }
-      })
-    });
-  })
-  helperFn.returnSuccess(req, res, foundProduct);
+        });
+        await Promise.mapSeries(diffCategory, async (item) => {
+          await prisma.categoryProduct.deleteMany({
+            where: {
+              productId: id,
+              categoryId: +item.categoryId,
+            },
+          });
+        });
+        // diffCategory.forEach(async(item) => {
+        //   // delete unchecked categoryProduct
+        //   await prisma.categoryProduct.deleteMany({
+        //     where: {
+        //       productId: id,
+        //       categoryId: +item.categoryId
+        //     }
+        //   })
+        // });
+      },
+      {
+        maxWait: 100000, // default: 2000
+        timeout: 100000, // default: 5000
+      },
+    );
+    helperFn.returnSuccess(req, res, foundProduct);
+  } catch (err) {
+    console.log(err);
+  }
 };
 const uploadImageProduct = async (req, res, next) => {
   const { productId } = req.params;
   if (!req.files) return helperFn.returnFail(req, res, 'No file provided');
   try {
-    for (let file of req.files) {
-      let link = await uploadImg(file.path);
+    for (const file of req.files) {
+      const link = await uploadImg(file.path);
       await prisma.productImage.create({
         data: {
           productId: +productId,
@@ -382,27 +421,16 @@ const uploadImageProduct = async (req, res, next) => {
 };
 const defaultImage = async (req, res, next) => {
   const { imgId } = req.params;
-  try{
-    const foundProduct = await prisma.productImage.findMany({where: {id:+imgId}})
-    if(!foundProduct) return helperFn.returnFail(req, res, 'No product image found');
-    await foundProduct.forEach(async(image) => {
-      if(image.id == +imgId) {
-        await prisma.productImage.update({
-          where: {id:+imgId},
-          data: {is_default: true}
-        })
-      }else{
-        await prisma.productImage.update({
-          where: {id:+imgId},
-          data: {is_default: false}
-        })
-      }
-    })
-    helperFn.returnSuccess(req, res, 'Update default product image')
-  }catch(err){
+  try {
+    const foundProduct = await prisma.productImage.findMany({ where: { id: +imgId } });
+    if (!foundProduct) return helperFn.returnFail(req, res, 'No product image found');
+    const { productId, id } = await prisma.productImage.update({ where: { id: +imgId }, data: { is_default: true } });
+    const removeIsDefault = await prisma.productImage.updateMany({ where: { productId, NOT: { id } }, data: { is_default: false } });
+    helperFn.returnSuccess(req, res, 'Update default product image');
+  } catch (err) {
     console.log(err);
   }
-}
+};
 
 const deleteImage = async (req, res, next) => {
   const { productId, imgId } = req.params;
@@ -419,29 +447,40 @@ const deleteImage = async (req, res, next) => {
 const deleteProduct = async (req, res, next) => {
   const id = +req.params.id;
   try {
-    const deleteProductInOrder = prisma.productInOrder.deleteMany({
+    // findProduct
+    const findProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+    if (!findProduct) {
+      helperFn.returnFail(req, res, 'Product not found');
+    }
+    const findProductInOrder = await prisma.productInOrder.findMany({
       where: { productId: id },
     });
+    if (findProductInOrder.length > 0) {
+      return helperFn.returnFail(req, res, 'Product in order.Can not deleted');
+    }
+
     const deleteCategoryProduct = prisma.categoryProduct.deleteMany({
       where: { productId: id },
     });
     const deleteProductImage = prisma.productImage.deleteMany({
       where: { productId: id },
     });
-    const deleteCartProduct = prisma.categoryProduct.deleteMany({
+    const deleteCartProduct = prisma.cartProduct.deleteMany({
       where: { productId: id },
     });
     const deletedProduct = prisma.product.delete({
       where: { id },
     });
+
     await prisma.$transaction([
-      deleteProductInOrder,
       deleteCategoryProduct,
       deleteProductImage,
       deleteCartProduct,
       deletedProduct,
     ]);
-    helperFn.returnSuccess(req, res, 'deleted Product');
+    helperFn.returnSuccess(req, res, 'Deleted Product Successfully');
   } catch (err) {
     console.log(err);
   }
@@ -464,7 +503,7 @@ const getOrder = async (req, res, next) => {
 
 const changeStatus = async (req, res, next) => {
   const id = +req.params.id;
-  const {newStatus} = req.body;
+  const { newStatus } = req.body;
   try {
     const data = await prisma.order.updateMany({
       where: {
@@ -473,8 +512,8 @@ const changeStatus = async (req, res, next) => {
         status: 'pending',
       },
       data: {
-        status:newStatus 
-      }
+        status: newStatus,
+      },
     });
     helperFn.returnSuccess(req, res, data);
   } catch (err) {

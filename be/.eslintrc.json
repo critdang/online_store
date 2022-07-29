@@ -2,19 +2,20 @@
 // npm install eslint --save-dev
 // npx eslint --init
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es2021": true
-    },
-    "extends": [
-        "airbnb-base"
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true
+  },
+  "extends": ["airbnb-base"],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      { "args": "none", "varsIgnorePattern": "seed" }
     ],
-    "parserOptions": {
-        "ecmaVersion": "latest"
-    },
-    "rules": {
-        "no-unused-vars": ["error", {"args": "none","varsIgnorePattern": "seed"}],
-        "max-len": ["error",{"code":200}],
-    }
+    "max-len": ["error", { "code": 200 }]
+  }
 }
