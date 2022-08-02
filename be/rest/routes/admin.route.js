@@ -14,7 +14,7 @@ require('../middleware/auth').authUser(passport);
 router.post('/login', passport.authenticate('login', { failureRedirect: '/loginerror' }), adminController.dashboard);
 // router.post('/login',adminController.login);
 router.post('/avatar', upload.single('avatar'), adminController.uploadAdminAvatar);
-// CRUD client
+// CRUD user
 router.get('/users', adminController.getUsers);
 router.get('/user/:id', adminController.getUser);
 router.delete('/user/:id', adminController.deleteUser);

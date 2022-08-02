@@ -40,7 +40,6 @@ exports.login = async (parent, args, context, info) => {
   let userFind = null;
   try {
     // findFirst = findOne
-    console.log('result', args);
     userFind = await prisma.user.findFirst({
       where: { email: args.inputLogin.email },
     });
@@ -192,7 +191,8 @@ exports.listProducts = async (parent, args, context, info) => {
 };
 
 exports.productDetail = async (parent, args, context, info) => {
-  const { productId } = args;
+  const { productId } = args.productId;
+  console.log(args.productId.productId);
   try {
     const existProduct = await prisma.product.findUnique({
       where: { id: productId },
