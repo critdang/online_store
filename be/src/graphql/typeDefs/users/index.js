@@ -71,6 +71,7 @@ module.exports = gql`
     user: User!
     products(is_default: Boolean): [Product]
     listProducts(input: ProductOrderBy): [Product]
+    productDetail(productId: ProductId):Product!
     productImage: [ProductImage]
     cartProduct: [CartProduct]
     listCategory(id: ID!): Category
@@ -92,17 +93,16 @@ module.exports = gql`
       newPassword: String!
     ): User!
     editProfile(
-      fullname: String
-      address: String
-      phone: String
-      gender: String
+      fullname: String!
+      address: String!
+      phone: String!
+      gender: String!
     ):User!
     addToCart(quantity:Int,productId:Int)
     : Cart!
     deleteItemCart(deleteItem: Int)
     : Cart!
-    productDetail(productId:Int)
-    :Product!
+    
     changeOrderStatus(
       orderId: Int
       payment: String
@@ -121,6 +121,10 @@ module.exports = gql`
   type AuthDataResponse {
     token: String!
     userId: String!
+  }
+
+  input ProductId {
+    productId:Int!
   }
 
   input ProductOrderBy {

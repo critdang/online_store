@@ -54,6 +54,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
 import { gql, useQuery } from '@apollo/client';
+import moment from 'moment';
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
@@ -78,6 +79,7 @@ const PROFILE = gql`
       address
       gender
       avatar
+      birthday
     }
   }
 `;
@@ -85,8 +87,26 @@ const PROFILE = gql`
 export default function Album(props, { setLogin }) {
   const TOKEN = JSON.parse(localStorage.getItem('user')).token;
   const { loading, error, data } = useQuery(PROFILE);
+
+  const [birthday, setBirthday] = React.useState();
+  // setBirthday(data.user.birthday);
+  // const a = moment(new Date()).format('DD-MM-YYYY');
+  //
+  React.useEffect(() => {
+    if (data) {
+      const a = moment(data.user.birthday).format('YYYY-MM-DD');
+      setBirthday(a.toString());
+    }
+  }, [data]);
+
+  React.useEffect(() => {
+    console.log(birthday);
+  }, [birthday]);
+
+  console.log(birthday);
   if (loading) return 'Loading...';
   if (error) return `Error! ${error.message}`;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
 
   return (
     <ThemeProvider theme={theme}>
@@ -151,7 +171,7 @@ export default function Album(props, { setLogin }) {
                         id="date"
                         label="Birthday"
                         type="date"
-                        defaultValue="2017-05-24"
+                        value={birthday}
                         sx={{ width: 270 }}
                         InputLabelProps={{
                           shrink: true,
@@ -252,14 +272,14 @@ export default function Album(props, { setLogin }) {
                           component="div"
                           sx={{ textAlign: 'center' }}
                         >
-                          Lizard
+                          {data.user.fullname}
                         </Typography>
                         <Typography
                           variant="body2"
                           color="text.secondary"
                           sx={{ textAlign: 'center' }}
                         >
-                          critdang@gmail.com
+                          {data.user.email}
                         </Typography>
                       </CardContent>
                       <CardContent sx={{ padding: '0', marginLeft: '7px' }}>

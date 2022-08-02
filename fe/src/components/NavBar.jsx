@@ -51,13 +51,22 @@ export default function NavBar(props) {
     localStorage.removeItem('user');
   }
   return (
-    <AppBar position="relative">
+    <AppBar
+      position="sticky"
+      sx={{
+        backgroundColor: 'white',
+        color: 'black',
+        boxShadow: '0px 0px 0px 0px',
+        paddingTop: '10px',
+      }}
+    >
       <Toolbar>
         <Grid container justify="space-between">
           <Link sx={{ color: 'white', textDecoration: 'none' }} to="/">
-            <Typography variant="h6" color="inherit" noWrap>
-              Huy's store
-            </Typography>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/H%26M-Logo.svg/2560px-H%26M-Logo.svg.png"
+              style={{ width: '130px' }}
+            ></img>
           </Link>
         </Grid>
         <Container
@@ -75,7 +84,7 @@ export default function NavBar(props) {
               aria-expanded={open ? 'true' : undefined}
               onClick={handleClick}
               sx={{
-                color: 'white',
+                color: 'black',
                 marginLeft: '20px',
                 '&:hover': {
                   opacity: '50%',
@@ -93,18 +102,24 @@ export default function NavBar(props) {
                 'aria-labelledby': 'basic-button',
               }}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
-              <MenuItem onClick={handleClose}>My account</MenuItem>
-              <MenuItem onClick={handleClose}>Logout</MenuItem>
+              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
+                Profile
+              </MenuItem>
+              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
+                My account
+              </MenuItem>
+              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
+                Logout
+              </MenuItem>
             </Menu>
 
-            <Link to="/order">
-              <Button underline="none" sx={{ color: 'white' }}>
+            <Link to="/order" style={{ textDecoration: 'none' }}>
+              <Button sx={{ color: 'black', textDecoration: 'none' }}>
                 Orders
               </Button>
             </Link>
             <Link to="/profile">
-              <Button underline="none" sx={{ color: 'white' }}>
+              <Button underline="none" sx={{ color: 'black' }}>
                 <PersonIcon></PersonIcon>
               </Button>
             </Link>
@@ -114,8 +129,8 @@ export default function NavBar(props) {
                   <ShoppingCartIcon
                     cursor="pointer"
                     sx={{
-                      color: 'transparent',
-                      stroke: 'white',
+                      color: 'white',
+                      stroke: 'black',
                       verticalAlign: 'bottom',
                     }}
                   >
@@ -125,7 +140,10 @@ export default function NavBar(props) {
                 </StyledBadge>
               </IconButton>
             </Link>
-            <Link to="/login">
+            <Link
+              to="/login"
+              style={{ textDecoration: 'none', paddingLeft: '30px' }}
+            >
               <Button variant="outlined" color="error" onClick={handleLogout}>
                 Log out
               </Button>

@@ -32,7 +32,7 @@ import {
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 function Copyright() {
   return (
@@ -98,6 +98,7 @@ const options = ['A-Z', 'Z-A'];
 const PRODUCTS = gql`
   query {
     products(is_default: true) {
+      id
       name
       description
       amount
@@ -117,6 +118,7 @@ const PRODUCTS = gql`
 const PRODUCTSIMAGES = gql`
   query {
     products {
+      id
       name
       description
       amount
@@ -133,7 +135,24 @@ const PRODUCTSIMAGES = gql`
     }
   }
 `;
+
+const PRODUCTDETAIL = gql`
+  query productDetail($input: ProductId) {
+    productDetail(productId: $input) {
+      id
+      name
+      description
+      price
+      amount
+      productImage {
+        id
+        href
+      }
+    }
+  }
+`;
 export default function Home(props, { setLogin }) {
+  const [input, setInput] = React.useState();
   const { loading, error, data } = useQuery(PRODUCTS);
 
   const [products, setProducts] = React.useState([]);
@@ -143,7 +162,6 @@ export default function Home(props, { setLogin }) {
       setProducts(data.products);
     }
   }, [data]);
-  // console.log(products);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -190,21 +208,24 @@ export default function Home(props, { setLogin }) {
   //lisen toggle modal
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [openModal, setOpenModal] = React.useState(false);
-
-  const { productsImages } = useQuery(PRODUCTSIMAGES);
-
-  const handleOpenModal = () => {
+  const [idProduct, setIdProduct] = React.useState();
+  const {
+    data: detailData,
+    loading: loadingProductId,
+    error: errorProductId,
+    refetch,
+  } = useQuery(PRODUCTDETAIL, {
+    variables: {
+      input: {
+        productId: idProduct,
+      },
+    },
+  });
+  if (detailData) console.log(detailData);
+  const handleOpenModal = (id) => {
     setOpenModal(true);
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [productsImages, setProductsImages] = React.useState([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/rules-of-hooks
-
-    if (data) {
-      console.log(data);
-      setProductsImages(data.products);
-    }
-    console.log(productsImages);
+    setIdProduct(parseInt(id));
+    refetch();
   };
   const handleCloseModal = () => setOpenModal(false);
 
@@ -219,6 +240,8 @@ export default function Home(props, { setLogin }) {
   };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error! {error.message}</div>;
+  // if (loadingProductId) return <div>Loading...</div>;
+  // if (errorProductId) return <div>Error! {errorProductId.message}</div>;
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -328,8 +351,8 @@ export default function Home(props, { setLogin }) {
             </div>
           </div>
           <Grid container spacing={3} marginTop={5}>
-            {products.map((product) => (
-              <Grid item key={product} xs={12} sm={6} md={3}>
+            {products.map((product, index) => (
+              <Grid item key={index} xs={12} sm={6} md={3}>
                 <Card
                   sx={{
                     height: '100%',
@@ -378,7 +401,11 @@ export default function Home(props, { setLogin }) {
                     }}
                   >
                     <CardActions>
-                      <Button size="small" onClick={handleOpenModal}>
+                      <Button
+                        size="small"
+                        key={index}
+                        onClick={() => handleOpenModal(product.id)}
+                      >
                         View
                       </Button>
                     </CardActions>
@@ -422,38 +449,42 @@ export default function Home(props, { setLogin }) {
                             align="left"
                             sx={{ backgroundColor: '#dedede' }}
                           >
-                            <Container>
-                              <Typography
-                                variant="h5"
-                                sx={{ color: '#009688' }}
-                              >
-                                Detail product
-                              </Typography>
-                              <Typography>
-                                <strong>Name:</strong> {product.name}
-                              </Typography>
-                              <Typography>
-                                <strong>Price:</strong> {product.price}
-                              </Typography>
-                              <Typography>
-                                <strong>Description:</strong>{' '}
-                                {product.description}
-                              </Typography>
-                              <Typography>
-                                <strong>Remaining amount:</strong>{' '}
-                                {product.amount}
-                              </Typography>
-                              <Button variant="contained" onClick={addToCart}>
-                                Add
-                              </Button>
-                              <Button
-                                variant="outlined"
-                                color="error"
-                                onClick={handleCloseModal}
-                              >
-                                Close
-                              </Button>
-                            </Container>
+                            {detailData && (
+                              <Container>
+                                <Typography
+                                  variant="h5"
+                                  sx={{ color: '#009688' }}
+                                >
+                                  Detail product
+                                </Typography>
+                                <Typography>
+                                  <strong>Name:</strong>{' '}
+                                  {detailData.productDetail.name}
+                                </Typography>
+                                <Typography>
+                                  <strong>Price:</strong>{' '}
+                                  {detailData.productDetail.price}
+                                </Typography>
+                                <Typography>
+                                  <strong>Description:</strong>{' '}
+                                  {detailData.productDetail.description}
+                                </Typography>
+                                <Typography>
+                                  <strong>Remaining amount:</strong>{' '}
+                                  {detailData.productDetail.amount}
+                                </Typography>
+                                <Button variant="contained" onClick={addToCart}>
+                                  Add
+                                </Button>
+                                <Button
+                                  variant="outlined"
+                                  color="error"
+                                  onClick={handleCloseModal}
+                                >
+                                  Close
+                                </Button>
+                              </Container>
+                            )}
                           </Grid>
                         </Grid>
                       </Box>

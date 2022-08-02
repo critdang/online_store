@@ -19,6 +19,7 @@ module.exports = {
     listCategory,
     getCart,
     listAllOrders,
+    productDetail,
     getListItemInCart,
   },
   Mutation: {
@@ -28,7 +29,6 @@ module.exports = {
     editProfile,
     addToCart,
     deleteItemCart,
-    productDetail,
     changeOrderStatus,
     createOrder,
   },
