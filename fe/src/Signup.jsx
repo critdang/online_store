@@ -12,19 +12,46 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
+import { gql, useMutation } from '@apollo/client';
+import Swal from 'sweetalert2';
 
 const theme = createTheme();
-
+const SIGNUP = gql`
+  mutation createUser($input: InputSignup) {
+    createUser(inputSignup: $input) {
+      id
+    }
+  }
+`;
 export default function SignUp() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+  const [input, setInput] = React.useState();
+  console.log(input);
+  const [signup] = useMutation(SIGNUP);
+  const handleSignup = async () => {
+    try {
+      const { data } = await signup({
+        variables: {
+          input: {
+            email: input.email,
+            password: input.password,
+          },
+        },
+      });
+      if (data) {
+        console.log(data);
+        Swal.fire({
+          title: 'Success create account',
+          text: 'Please check your email to verify',
+          icon: 'success',
+          confirmButtonText: 'Resend email',
+        }).then(function () {
+          window.location = 'http://localhost:3000/login';
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
-
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -43,34 +70,8 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
-          >
+          <Box component="form" noValidate sx={{ mt: 3 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                />
-              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -79,6 +80,9 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  onChange={(e) =>
+                    setInput({ ...input, [e.target.name]: e.target.value })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -89,9 +93,21 @@ export default function SignUp() {
                   label="Password"
                   type="password"
                   id="password"
-                  autoComplete="new-password"
+                  onChange={(e) =>
+                    setInput({ ...input, [e.target.name]: e.target.value })
+                  }
                 />
               </Grid>
+              {/* <Grid item xs={12}>
+                <TextField
+                  name="fullName"
+                  required
+                  fullWidth
+                  id="fullName"
+                  label="Full Name"
+                  autoFocus
+                />
+              </Grid> */}
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
@@ -102,10 +118,10 @@ export default function SignUp() {
               </Grid>
             </Grid>
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSignup}
             >
               Sign Up
             </Button>

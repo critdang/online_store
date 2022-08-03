@@ -77,6 +77,11 @@ export default function NavBar(props) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <Button sx={{ color: 'black', textDecoration: 'none' }}>
+                Home
+              </Button>
+            </Link>
             <Button
               id="basic-button"
               aria-controls={open ? 'basic-menu' : undefined}
@@ -85,7 +90,6 @@ export default function NavBar(props) {
               onClick={handleClick}
               sx={{
                 color: 'black',
-                marginLeft: '20px',
                 '&:hover': {
                   opacity: '50%',
                 },

@@ -47,16 +47,11 @@ export default function SignInSide() {
         },
       });
       if (data) {
-        console.log(
-          '🚀 ~ file: Login.jsx ~ line 66 ~ handleLogin ~ data',
-          data
-        );
         const token = data.login.token;
         token.replaceAll('"', '');
         localStorage.setItem('user', JSON.stringify(data.login));
         navigate('/');
       }
-      console.log(data);
     } catch (err) {
       console.log(err);
     }
@@ -64,7 +59,7 @@ export default function SignInSide() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
+      <Grid container component="main" sx={{ height: '90vh' }}>
         <CssBaseline />
         <Grid
           item
@@ -72,7 +67,8 @@ export default function SignInSide() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(https://source.unsplash.com/random)',
+            backgroundImage:
+              'url(https://static.zara.net/photos///2022/I/T/2/p/0857/431/712/2/w/1247/0857431712_15_1_1.jpg?ts=1658928471883)',
             backgroundRepeat: 'no-repeat',
             backgroundColor: (t) =>
               t.palette.mode === 'light'

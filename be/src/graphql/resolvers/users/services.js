@@ -13,11 +13,12 @@ const validate = require('../../../../validate/validate');
 
 exports.createUser = async (parent, args, context, info) => {
   // validator
+  console.log(args);
   const errors = [];
-  if (!validator.isEmail(args.email)) {
+  if (!validator.isEmail(args.inputSignup.email)) {
     errors.push({ message: 'Email is invalid' });
   }
-  if (validator.isEmpty(args.password) || validator.isLength(args.password, { min: 5 })) {
+  if (validator.isEmpty(args.inputSignup.password)) {
     errors.push({ message: 'Password is too short' });
   }
   if (errors.length > 0) {
@@ -27,17 +28,19 @@ exports.createUser = async (parent, args, context, info) => {
     throw error;
   }
   // logic
-  const hashPw = await bcrypt.hash(args.password, 12);
+  const hashPw = await bcrypt.hash(args.inputSignup.password, 12);
   const user = await prisma.user.create({
     data: {
-      email: args.email,
+      email: args.inputSignup.email,
       password: hashPw,
     },
   });
   return user;
 },
+
 exports.login = async (parent, args, context, info) => {
   let userFind = null;
+  console.log(args);
   try {
     // findFirst = findOne
     userFind = await prisma.user.findFirst({
@@ -66,40 +69,42 @@ exports.login = async (parent, args, context, info) => {
 // eslint-disable-next-line consistent-return
 exports.changePassword = async (parent, args, context, info) => {
   try {
-    // console.log('context client', context);s
+    if (!args) {
+      throw new ApolloError('Fill in');
+    }
     if (!context.currentUser) {
       throw new ApolloError('You must login to change password');
     }
 
-    const foundUser = await prisma.user.findFirst({ where: { email: args.email } });
-    const isEqual = await helperFn.comparePassword(args.oldPassword, foundUser.password);
+    const foundUser = await prisma.user.findUnique({ where: { id: context.currentUser.userId } });
+    const isEqual = await helperFn.comparePassword(args.inputPassword.oldPassword, foundUser.password);
     if (!isEqual) {
-      return 'login failed';
+      throw new ApolloError('Wrong current password');
     }
-    const hashPass = await helperFn.hashPassword(args.newPassword);
+    const hashPass = await helperFn.hashPassword(args.inputPassword.newPassword);
     const newPassword = await prisma.user.update({
-      where: { email: args.email },
+      where: { id: context.currentUser.userId },
       data: {
         password: hashPass,
       },
     });
-    return newPassword;
+    return foundUser;
   } catch (err) {
     throw new ApolloError(err);
   }
 };
 exports.editProfile = async (parent, args, context, info) => {
   try {
+    const convertBirthday = new Date(args.inputProfile.birthday);
     const editProfile = await prisma.user.update({
       where: { id: context.currentUser.userId },
       data: {
-        email: args.email,
-        fullname: args.fullname,
-        address: args.address,
-        phone: args.phone,
-        gender: args.gender,
-        birthday: args.birthday,
-
+        email: args.inputProfile.email,
+        fullname: args.inputProfile.fullname,
+        address: args.inputProfile.address,
+        phone: args.inputProfile.phone,
+        gender: args.inputProfile.gender,
+        birthday: convertBirthday,
       },
     });
     return editProfile;

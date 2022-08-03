@@ -28,7 +28,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Link } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
 import {
   ButtonGroup,
   ClickAwayListener,
@@ -36,6 +35,8 @@ import {
   FormLabel,
   Grow,
   Input,
+  InputAdornment,
+  InputLabel,
   MenuList,
   Modal,
   Paper,
@@ -53,8 +54,15 @@ import {
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
@@ -83,27 +91,210 @@ const PROFILE = gql`
     }
   }
 `;
+const EDITPROFILE = gql`
+  mutation editProfile($input: InputProfile) {
+    editProfile(inputProfile: $input) {
+      fullname
+      email
+      address
+      phone
+      gender
+      avatar
+      birthday
+    }
+  }
+`;
+
+const CHANGEPASSWORD = gql`
+  mutation changePassword($input: InputPassword) {
+    changePassword(inputPassword: $input) {
+      email
+    }
+  }
+`;
 
 export default function Album(props, { setLogin }) {
+  const [inputUpdateUser, setUpdatedUser] = React.useState();
+  const [inputUpdatePassword, setUpdatedPassword] = React.useState({
+    oldPassword: '',
+    newPassword: '',
+  });
+  const [selectedFile, setSelectedFile] = React.useState();
+  const [avatar, setAvatar] = React.useState('');
+
+  const convertBase64 = (file, cb) => {
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      cb(reader.result);
+    };
+    reader.onerror = function (error) {
+      console.log('Error: ', error);
+    };
+  };
+
+  const navigate = useNavigate();
+  const [editProfile] = useMutation(EDITPROFILE);
+  const [changePassword] = useMutation(CHANGEPASSWORD);
+
+  // open/hide password input
+  const handleClickShowPassword = () => {
+    setValues({
+      ...values,
+      showPassword: !values.showPassword,
+    });
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+  const [values, setValues] = React.useState({
+    amount: '',
+    password: '',
+    weight: '',
+    weightRange: '',
+    showPassword: false,
+  });
+  const handleChange = (prop) => (event) => {
+    setValues({ ...values, [prop]: event.target.value });
+  };
+
+  // Upload Avatar
   const TOKEN = JSON.parse(localStorage.getItem('user')).token;
+
+  const userId = JSON.parse(localStorage.getItem('user')).userId;
+
+  const uploadAvatar = async () => {
+    const formData = new FormData();
+    formData.append('avatar', selectedFile);
+    console.log('formData', formData);
+    axios({
+      method: 'patch',
+      url: `http://localhost:4007/user/${userId}/changeAvatar`,
+      data: formData,
+      headers: { authorization: `Bearer ${TOKEN}` },
+    })
+      .then((res) =>
+        toast.success('Update avatar successfully', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+      )
+      .catch((error) =>
+        toast.error('Upload avatar unsuccessfully', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+      );
+  };
+
+  // handleUpdateUser
+  const handleUpdateUser = async () => {
+    try {
+      const { data } = await editProfile({
+        variables: {
+          input: {
+            email: inputUpdateUser.email,
+            fullname: inputUpdateUser.fullname,
+            address: inputUpdateUser.address,
+            phone: inputUpdateUser.phone,
+            gender: inputUpdateUser.gender,
+            birthday: inputUpdateUser.birthday,
+          },
+        },
+      });
+      if (data) {
+        console.log(data);
+        toast.success('Update information successfully', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (
+      inputUpdatePassword.newPassword === '' ||
+      inputUpdatePassword.oldPassword === ''
+    ) {
+      toast.warn('Fill in. Please', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } else {
+      try {
+        const { data } = await changePassword({
+          variables: {
+            input: {
+              oldPassword: inputUpdatePassword.oldPassword,
+              newPassword: inputUpdatePassword.newPassword,
+            },
+          },
+        });
+        if (data) {
+          console.log(data);
+          toast.success('Update password successfully', {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
   const { loading, error, data } = useQuery(PROFILE);
 
-  const [birthday, setBirthday] = React.useState();
+  const [birthday, setBirthday] = React.useState('');
   // setBirthday(data.user.birthday);
   // const a = moment(new Date()).format('DD-MM-YYYY');
   //
   React.useEffect(() => {
     if (data) {
-      const a = moment(data.user.birthday).format('YYYY-MM-DD');
-      setBirthday(a.toString());
+      const date = moment(data.user.birthday ? data.user.birthday : '').format(
+        'YYYY-MM-DD'
+      );
+      setBirthday(date);
     }
   }, [data]);
 
   React.useEffect(() => {
-    console.log(birthday);
-  }, [birthday]);
+    if (selectedFile) {
+      convertBase64(selectedFile, (result) => {
+        setAvatar(result);
+        console.log(avatar);
+      });
+    }
+  }, [selectedFile]);
 
-  console.log(birthday);
   if (loading) return 'Loading...';
   if (error) return `Error! ${error.message}`;
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -143,6 +334,12 @@ export default function Album(props, { setLogin }) {
                         fullWidth
                         variant="standard"
                         defaultValue={data.user.email}
+                        onChange={(e) =>
+                          setUpdatedUser({
+                            ...inputUpdateUser,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -154,6 +351,12 @@ export default function Album(props, { setLogin }) {
                         autoComplete="given-name"
                         variant="standard"
                         defaultValue={data.user.fullname}
+                        onChange={(e) =>
+                          setUpdatedUser({
+                            ...inputUpdateUser,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -164,6 +367,12 @@ export default function Album(props, { setLogin }) {
                         fullWidth
                         variant="standard"
                         defaultValue={data.user.phone}
+                        onChange={(e) =>
+                          setUpdatedUser({
+                            ...inputUpdateUser,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={4}>
@@ -171,24 +380,36 @@ export default function Album(props, { setLogin }) {
                         id="date"
                         label="Birthday"
                         type="date"
-                        value={birthday}
+                        name="birthday"
+                        defaultValue={birthday}
                         sx={{ width: 270 }}
                         InputLabelProps={{
                           shrink: true,
                         }}
+                        onChange={(e) =>
+                          setUpdatedUser((preUser) => ({
+                            ...preUser,
+                            [e.target.name]: e.target.value,
+                          }))
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={12}>
                       <TextField
-                        id="address1"
-                        name="address1"
+                        id="address"
+                        name="address"
                         label="Address line 1"
                         fullWidth
                         variant="standard"
                         defaultValue={data.user.address}
+                        onChange={(e) =>
+                          setUpdatedUser({
+                            ...inputUpdateUser,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
                       />
                     </Grid>
-
                     <Grid item xs={12} sm={3}>
                       <FormControl>
                         <FormLabel id="demo-radio-buttons-group-label">
@@ -196,21 +417,27 @@ export default function Album(props, { setLogin }) {
                         </FormLabel>
                         <RadioGroup
                           aria-labelledby="demo-radio-buttons-group-label"
-                          defaultValue="female"
-                          name="radio-buttons-group"
+                          name="gender"
+                          defaultValue={data.user.gender}
+                          onChange={(e) =>
+                            setUpdatedUser({
+                              ...inputUpdateUser,
+                              [e.target.name]: e.target.value,
+                            })
+                          }
                         >
                           <FormControlLabel
-                            value="female"
+                            value="Female"
                             control={<Radio />}
                             label="Female"
                           />
                           <FormControlLabel
-                            value="male"
+                            value="Male"
                             control={<Radio />}
                             label="Male"
                           />
                           <FormControlLabel
-                            value="other"
+                            value="Other"
                             control={<Radio />}
                             label="Other"
                           />
@@ -218,7 +445,9 @@ export default function Album(props, { setLogin }) {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={12}>
-                      <Button variant="outlined">Update Profile</Button>
+                      <Button variant="outlined" onClick={handleUpdateUser}>
+                        Update Profile
+                      </Button>
                     </Grid>
                     <Grid item xs={12} sm={12}>
                       <Typography variant="h6" gutterBottom>
@@ -227,25 +456,78 @@ export default function Album(props, { setLogin }) {
                     </Grid>
 
                     <Grid item xs={12} sm={6}>
-                      <TextField
-                        id="password"
-                        name="password"
-                        label="Current Password"
+                      <InputLabel htmlFor="standard-adornment-password">
+                        Password
+                      </InputLabel>
+                      <Input
+                        id="oldPassword"
+                        type={values.showPassword ? 'text' : 'password'}
+                        value={values.oldPassword}
+                        name="oldPassword"
                         fullWidth
                         variant="standard"
+                        onChange={(e) =>
+                          setUpdatedPassword({
+                            ...inputUpdatePassword,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={handleClickShowPassword}
+                              onMouseDown={handleMouseDownPassword}
+                            >
+                              {values.showPassword ? (
+                                <Visibility />
+                              ) : (
+                                <VisibilityOff />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <TextField
-                        id="password"
-                        name="password"
-                        label="New Password"
+                      <InputLabel htmlFor="standard-adornment-password">
+                        Password
+                      </InputLabel>
+                      <Input
+                        id="newPassword"
+                        name="newPassword"
+                        type={values.showPassword ? 'text' : 'password'}
                         fullWidth
                         variant="standard"
+                        value={values.newPassword}
+                        onChange={(e) =>
+                          setUpdatedPassword({
+                            ...inputUpdatePassword,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={handleClickShowPassword}
+                              onMouseDown={handleMouseDownPassword}
+                            >
+                              {values.showPassword ? (
+                                <Visibility />
+                              ) : (
+                                <VisibilityOff />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={12}>
-                      <Button variant="outlined">Change Password</Button>
+                      <Button variant="outlined" onClick={handleUpdatePassword}>
+                        Change Password
+                      </Button>
+                      <ToastContainer />
                     </Grid>
                   </Grid>
                 </React.Fragment>
@@ -262,9 +544,10 @@ export default function Album(props, { setLogin }) {
                         component="img"
                         height="140"
                         // image="http://placehold.it/"
-                        src={data.user.avatar}
+                        src={!selectedFile ? data.user.avatar : avatar}
                         alt={data.user.avatar}
                       />
+                      {console.log(selectedFile)}
                       <CardContent>
                         <Typography
                           gutterBottom
@@ -283,12 +566,22 @@ export default function Album(props, { setLogin }) {
                         </Typography>
                       </CardContent>
                       <CardContent sx={{ padding: '0', marginLeft: '7px' }}>
-                        <Typography variant="body2">Upload Image</Typography>
+                        <Typography variant="body2">
+                          Upload Profile Image
+                        </Typography>
                         <CardActions>
-                          <Input type="file" sx={{ focused: 'true' }}></Input>
+                          <Input
+                            type="file"
+                            sx={{ focused: 'true' }}
+                            onChange={(e) => setSelectedFile(e.target.files[0])}
+                          ></Input>
                         </CardActions>
-                        <Button variant="outlined" size="small">
-                          Update
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={uploadAvatar}
+                        >
+                          Update Image
                         </Button>
                       </CardContent>
                     </Card>
