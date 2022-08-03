@@ -62,11 +62,14 @@ exports.sendMail = async (
       pass: process.env.AUTH_PASS,
     },
   });
+  const link = `${domain + endpoint + token}`;
+  const data = await ejs.renderFile('views/createVerifyNoti/verify.ejs', { link });
+
   const mailOption = {
     from: process.env.EMAIL,
     to: email,
     subject,
-    html: `<a href=${domain + endpoint + token} target="_blank">${text}</a>`,
+    html: data,
   };
   await transporter.sendMail(mailOption);
 };
@@ -118,11 +121,14 @@ exports.createOrder = async (to, orders) => {
 };
 
 exports.forgotPassword = async (to, token) => {
+  const link = `http://localhost:${process.env.PORT}/user/${to}/${token}/reset-password`;
+  const data = await ejs.renderFile('views/createForgotPassNoti/forgotPassword.ejs', { link });
+
   await transport.sendMail({
     from: 'critdang@gmail.com',
     to,
     subject: 'Reset Password',
     text: 'Dear customer',
-    html: `<h2><a href='http://localhost:${process.env.PORT}/user/${to}/${token}/reset-password'>click here to reset password</a></h2>`,
+    html: data,
   });
 };

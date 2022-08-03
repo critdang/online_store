@@ -20,22 +20,22 @@ const createUser = async (req, res, next) => {
     const existUser = await prisma.user.findFirst({
       where: { email },
     });
-    if (existUser.is_active == true) {
-      return next(new AppError(constants.EXIST_ACCOUNT, 400));
-    }
-    if (existUser.is_active == false) {
-      return next(new AppError('The account have been created but not active yet', 400));
+    if (existUser) {
+      if (existUser.is_active == true) {
+        return next(new AppError(constants.EXIST_ACCOUNT, 400));
+      }
+      if (existUser.is_active == false) {
+        return next(new AppError('The account have been created but not active yet', 400));
+      }
     }
     const hashPass = (await helperFn.hashPassword(password)).toString();
-    const uploadedAvatar = await uploadImg(req.file.path);
-    if (!uploadedAvatar) return helperFn.returnFail(req, res, 'upload avatar failed');
+    if (req.file) await uploadImg(req.file.path);
     await prisma.user.create({
       data: {
         email,
         fullname,
         password: hashPass,
         address,
-        avatar: uploadedAvatar,
         phone,
         gender,
       },
@@ -54,11 +54,12 @@ const createUser = async (req, res, next) => {
   }
 };
 const changeAvatar = async (req, res, next) => {
-  const { id } = req.user;
+  const { userId } = req.params;
+
   const changedAvatar = await uploadImg(req.file.path);
   if (!changedAvatar) return helperFn.returnFail(req, res, 'upload avatar failed');
-  await prisma.user.updateMany({
-    where: { id },
+  await prisma.user.update({
+    where: { id: +userId },
     data: { avatar: changedAvatar },
   });
   helperFn.returnSuccess(req, res, 'Change avatar successfully');

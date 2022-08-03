@@ -58,7 +58,7 @@ export default function Checkout() {
       >
         <Toolbar>
           <Typography variant="h6" color="inherit" noWrap>
-            Company name
+            Your cart
           </Typography>
         </Toolbar>
       </AppBar>

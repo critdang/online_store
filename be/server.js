@@ -51,12 +51,16 @@ const apolloServer = new ApolloServer({
   context,
   playground: true,
   introspection: true,
+
   formatError(err) {
+    if (err.message.startsWith('Database Error: ')) {
+      return new Error('Internal server error');
+    }
     if (!err.originalError) {
       return err;
     }
     const { data } = err.originalError;
-    const message = err.message || 'An error occurred ';
+    const message = err.message || 'An error occurred.';
     const code = err.originalError.code || 500;
     return { message, status: code, data };
   },

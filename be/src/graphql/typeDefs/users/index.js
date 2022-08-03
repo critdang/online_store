@@ -82,27 +82,12 @@ module.exports = gql`
   }
 
   type Mutation {
-    createUser(
-      email: String!
-      password: String!
-    ): User!
+    createUser(inputSignup: InputSignup): User!
     login(inputLogin: InputLogin): AuthDataResponse!
-    changePassword(
-      email: String!
-      oldPassword: String!
-      newPassword: String!
-    ): User!
-    editProfile(
-      fullname: String!
-      address: String!
-      phone: String!
-      gender: String!
-    ):User!
-    addToCart(quantity:Int,productId:Int)
-    : Cart!
-    deleteItemCart(deleteItem: Int)
-    : Cart!
-    
+    changePassword(inputPassword: InputPassword): User!
+    editProfile( inputProfile : InputProfile): User!
+    addToCart(quantity:Int,productId:Int): Cart!
+    deleteItemCart(deleteItem: Int): Cart!
     changeOrderStatus(
       orderId: Int
       payment: String
@@ -112,12 +97,30 @@ module.exports = gql`
       cartId: Int
     ): Order!
   }
-
+  
+  input InputSignup {
+    email: String!
+    password: String!
+  }
+  
+  input InputPassword {
+    oldPassword: String!
+    newPassword: String!
+  }
   input InputLogin {
     email: String!
     password: String!
   }
 
+  input InputProfile {
+    email: String
+    fullname: String
+    address: String
+    phone: String
+    gender: String
+    birthday: String
+  }
+  
   type AuthDataResponse {
     token: String!
     userId: String!

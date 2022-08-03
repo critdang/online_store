@@ -6,7 +6,7 @@ const validate = require('../../validate/validate');
 const router = express.Router();
 
 router.post('/', upload.single('avatar'), userController.createUser);
-router.post('/changeAvatar', upload.single('avatar'), userController.changeAvatar);
+router.patch('/:userId/changeAvatar', upload.single('avatar'), userController.changeAvatar);
 router.get('/verify/:token', userController.verifyUser);
 router.post('/forgotPassword', userController.forgotPassword);
 router.get('/:email/:token/reset-password', userController.verifyResetPassword);
