@@ -13,11 +13,11 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import axios from 'axios';
 import { useMutation, gql } from '@apollo/client';
 import { Link } from 'react-router-dom';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const theme = createTheme();
 
 const LOGIN = gql`
@@ -33,7 +33,19 @@ export default function SignInSide() {
   const [input, setInput] = useState();
   const navigate = useNavigate();
 
-  const [login] = useMutation(LOGIN);
+  const [login] = useMutation(LOGIN, {
+    onError: (err) => {
+      toast.error(err.message, {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    },
+  });
 
   const handleLogin = async () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -135,15 +147,25 @@ export default function SignInSide() {
               >
                 Sign In
               </Button>
+              <ToastContainer />
+
               {/* </form> */}
               <Grid container>
                 <Grid item xs>
-                  <Link to="/forgotPassword" variant="body2">
+                  <Link
+                    to="/forgotPassword"
+                    variant="body2"
+                    style={{ textDecoration: 'none' }}
+                  >
                     Forgot password?
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link to="/signup" variant="body2">
+                  <Link
+                    to="/signup"
+                    variant="body2"
+                    style={{ textDecoration: 'none' }}
+                  >
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>

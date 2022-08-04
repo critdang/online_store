@@ -4,6 +4,7 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
 const jwt = require('jsonwebtoken');
+const rs = require('randomstring');
 const AppError = require('../utils/ErrorHandler/appError');
 const helperFn = require('../../utils/helperFn');
 const constants = require('../../constants');
@@ -14,7 +15,7 @@ const createUser = async (req, res, next) => {
     const {
       email, fullname, password, address, avatar, phone, gender,
     } = req.body;
-    if (!email || !fullname || !password || !address || !phone || !gender) {
+    if (!email || !fullname || !password) {
       return next(new AppError(constants.FILL_OUT, 400));
     }
     const existUser = await prisma.user.findFirst({
@@ -22,14 +23,18 @@ const createUser = async (req, res, next) => {
     });
     if (existUser) {
       if (existUser.is_active == true) {
-        return next(new AppError(constants.EXIST_ACCOUNT, 400));
+        // return next(new AppError(constants.EXIST_ACCOUNT, 400));
+        helperFn.returnFail(req, res, constants.EXIST_ACCOUNT);
       }
       if (existUser.is_active == false) {
-        return next(new AppError('The account have been created but not active yet', 400));
+        // return next(new AppError('The account have been created but not active yet', 400));
+        helperFn.returnFail(req, res, 'The account have been created but not active yet');
       }
     }
     const hashPass = (await helperFn.hashPassword(password)).toString();
     if (req.file) await uploadImg(req.file.path);
+    const validToken = rs.generate('23');
+
     await prisma.user.create({
       data: {
         email,
@@ -38,17 +43,17 @@ const createUser = async (req, res, next) => {
         address,
         phone,
         gender,
+        resetToken: validToken,
       },
     });
-    const token = helperFn.generateToken({ email }, '15m');
     helperFn.sendMail(
       email,
       constants.SUCCESS_EMAIL,
       constants.SUCCESS_EMAIL_DES,
       constants.SUCCESS_EMAIL_ENDPOINT,
-      token,
+      validToken,
     );
-    helperFn.returnSuccess(req, res, 'check your mail to verify account');
+    helperFn.returnSuccess(req, res, 'Check your mail to verify account');
   } catch (err) {
     console.log(err);
   }
@@ -67,14 +72,19 @@ const changeAvatar = async (req, res, next) => {
 
 const verifyUser = async (req, res, next) => {
   const { token } = req.params;
+  console.log(token);
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    const updateUser = await prisma.user.update({
-      where: { email: decodedToken.email },
-      data: { is_active: true },
+    const foundUser = await prisma.user.findFirst({ where: { resetToken: token } });
+    console.log(foundUser);
+    if (!foundUser) helperFn.returnFail(req, res, 'User not found');
+
+    const updateUser = await prisma.user.updateMany({
+      where: { resetToken: token },
+      data: { resetToken: null, is_active: true },
     });
     if (!updateUser) {
-      return next(new AppError(constants.EMAIL_NOT_AVA, 401));
+      // return next(new AppError(constants.EMAIL_NOT_AVA, 401));
+      helperFn.returnFail(req, res, constants.EMAIL_NOT_AVA);
     }
     helperFn.returnSuccess(req, res, constants.SUCCESS_VERIFY);
   } catch (err) {
@@ -85,7 +95,7 @@ const verifyUser = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   try {
-    const result = await prisma.user.findFirst({ where: { email, is_active: true } });
+    const result = await prisma.user.findFirst({ where: { email, is_active: false } });
     if (!result) return helperFn.returnFail(req, res, 'User not found or not active yet');
     const token = helperFn.generateToken({ email }, '15m');
     await prisma.user.updateMany({

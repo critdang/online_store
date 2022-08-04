@@ -11,9 +11,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const theme = createTheme();
 const SIGNUP = gql`
@@ -25,29 +26,51 @@ const SIGNUP = gql`
 `;
 export default function SignUp() {
   const [input, setInput] = React.useState();
+  const [rePassword, setRePassword] = React.useState();
   console.log(input);
-  const [signup] = useMutation(SIGNUP);
-  const handleSignup = async () => {
+  console.log(rePassword);
+  const navigate = useNavigate();
+
+  const validPassword = (password) => {
+    return password
+      .trim()
+      .match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/);
+  };
+  const handleSignup = async (e) => {
+    e.preventDefault();
     try {
-      const { data } = await signup({
-        variables: {
-          input: {
-            email: input.email,
-            password: input.password,
-          },
-        },
-      });
-      if (data) {
-        console.log(data);
-        Swal.fire({
-          title: 'Success create account',
-          text: 'Please check your email to verify',
-          icon: 'success',
-          confirmButtonText: 'Resend email',
-        }).then(function () {
-          window.location = 'http://localhost:3000/login';
+      console.log(rePassword.rePassword);
+      console.log(input.password);
+      if (!input.email || !input.password || !input.fullname || !rePassword)
+        return Swal.fire({ icon: 'error', text: 'Please fill all the fields' });
+      if (rePassword.rePassword !== input.password)
+        return Swal.fire({ icon: 'error', text: 'Passwords must match' });
+      if (!validPassword(input.password))
+        return Swal.fire({
+          icon: 'error',
+          text: 'Password contains atleast 1 special character, 1 number, 1 character',
         });
-      }
+      axios
+        .post('http://localhost:4007/user', input)
+        .then((res) => {
+          console.log(res);
+          if (res.data.status === 200) {
+            Swal.fire({ icon: 'success', text: res.data.message }).then(() => {
+              navigate('/login');
+            });
+          } else if (res.data.status === 400)
+            Swal.fire({
+              icon: 'error',
+              html:
+                `User exist: ` +
+                '<a href="/forgotPassword">Forgot password</a>',
+            });
+          else Swal.fire({ icon: 'error', text: res.data.message });
+        })
+        .catch(
+          (error) => console.log(error)
+          // Swal.fire({ icon: 'error', text: 'Something went wrong' })
+        );
     } catch (e) {
       console.log(e);
     }
@@ -58,7 +81,7 @@ export default function SignUp() {
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 2,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -91,8 +114,56 @@ export default function SignUp() {
                   fullWidth
                   name="password"
                   label="Password"
-                  type="password"
                   id="password"
+                  onChange={(e) =>
+                    setInput({ ...input, [e.target.name]: e.target.value })
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="rePassword"
+                  label="Re-Password"
+                  id="rePassword"
+                  onChange={(e) =>
+                    setRePassword({
+                      ...rePassword,
+                      [e.target.name]: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  name="fullname"
+                  label="Full Name"
+                  id="fullname"
+                  onChange={(e) =>
+                    setInput({ ...input, [e.target.name]: e.target.value })
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  name="address"
+                  label="Address"
+                  id="address"
+                  onChange={(e) =>
+                    setInput({ ...input, [e.target.name]: e.target.value })
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  name="phone"
+                  label="Phone Number"
+                  id="phone"
                   onChange={(e) =>
                     setInput({ ...input, [e.target.name]: e.target.value })
                   }
@@ -127,7 +198,11 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link to="/login" variant="body2">
+                <Link
+                  to="/login"
+                  variant="body2"
+                  style={{ textDecoration: 'none' }}
+                >
                   Already have an account? Sign in
                 </Link>
               </Grid>

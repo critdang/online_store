@@ -167,7 +167,6 @@ export default function Album(props, { setLogin }) {
   const uploadAvatar = async () => {
     const formData = new FormData();
     formData.append('avatar', selectedFile);
-    console.log('formData', formData);
     axios({
       method: 'patch',
       url: `http://localhost:4007/user/${userId}/changeAvatar`,

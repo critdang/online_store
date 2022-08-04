@@ -3,7 +3,6 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
-const jwt = require('jsonwebtoken');
 const { ApolloError } = require('apollo-server-express');
 
 const bcrypt = require('bcryptjs');
@@ -40,14 +39,13 @@ exports.createUser = async (parent, args, context, info) => {
 
 exports.login = async (parent, args, context, info) => {
   let userFind = null;
-  console.log(args);
   try {
     // findFirst = findOne
     userFind = await prisma.user.findFirst({
-      where: { email: args.inputLogin.email },
+      where: { email: args.inputLogin.email, is_active: true },
     });
     if (!userFind) {
-      throw new Error('User not found');
+      throw new Error('User not found or not active yet');
     }
     const isEqual = await helperFn.comparePassword(args.inputLogin.password, userFind.password);
     if (!isEqual) {
@@ -59,13 +57,12 @@ exports.login = async (parent, args, context, info) => {
       userId: userFind.id,
       email: userFind.email,
     }, '1h');
-    console.log(token);
     return { token, userId: userFind.id };
   } catch (err) {
-    console.log(err);
     throw new Error(err);
   }
 },
+
 // eslint-disable-next-line consistent-return
 exports.changePassword = async (parent, args, context, info) => {
   try {
@@ -125,13 +122,13 @@ exports.getUser = async (parent, args, context, info) => {
 
 exports.products = async (parent, args, context, info) => {
   try {
-    const { is_default } = args;
-    if (is_default) {
+    const { isDefault } = args;
+    if (isDefault) {
       const data = await prisma.product.findMany({
         include: {
           productImage: {
             where: {
-              is_default,
+              isDefault,
             },
           },
         },
@@ -150,6 +147,7 @@ exports.products = async (parent, args, context, info) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
 exports.listProducts = async (parent, args, context, info) => {
   try {
     const { name } = args.input;
@@ -195,6 +193,7 @@ exports.listProducts = async (parent, args, context, info) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
 exports.productDetail = async (parent, args, context, info) => {
   const { productId } = args.productId;
   console.log(args.productId.productId);
@@ -234,6 +233,7 @@ exports.cartProduct = async (parent, args, context, info) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
 exports.listCategories = async (parent, args, context, info) => {
   try {
     const { name } = args.input;
@@ -268,7 +268,7 @@ exports.listCategories = async (parent, args, context, info) => {
 
 exports.listCategory = async (parent, args, context, info) => {
   try {
-    id = args.id;
+    const { id } = args;
     const data = await prisma.category.findFirst({
       where: { id },
       include: {
@@ -284,6 +284,14 @@ exports.listCategory = async (parent, args, context, info) => {
       },
     });
     return data;
+  } catch (err) {
+    throw new ApolloError(err);
+  }
+};
+exports.categories = async (parent, args, context, info) => {
+  try {
+    const categories = await prisma.category.findMany({});
+    return categories;
   } catch (err) {
     throw new ApolloError(err);
   }
@@ -336,6 +344,7 @@ exports.getListItemInCart = async (parent, args, context, info) => {
   return cartItems;
 };
 
+// eslint-disable-next-line consistent-return
 exports.addToCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
   const { quantity } = args;
@@ -398,8 +407,6 @@ exports.createOrder = async (parent, args, context, info) => {
   try {
     const { userId } = context.currentUser;
     const { payment } = args;
-    const { cartId } = args;
-    const errors = [];
 
     const foundCarts = await prisma.cart.findFirst({
       where: { userId, id: cartId },
@@ -543,6 +550,7 @@ exports.listAllOrders = async (parent, args, context, info) => {
   return orders;
 };
 
+// eslint-disable-next-line consistent-return
 exports.changeOrderStatus = async (parent, args, context, info) => {
   const { orderId } = args;
   const payment = args.payment || 'pending';

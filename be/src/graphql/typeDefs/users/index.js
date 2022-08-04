@@ -69,7 +69,7 @@ module.exports = gql`
 
   type Query {
     user: User!
-    products(is_default: Boolean): [Product]
+    products(isDefault: Boolean): [Product]
     listProducts(input: ProductOrderBy): [Product]
     productDetail(productId: ProductId):Product!
     productImage: [ProductImage]
@@ -79,6 +79,7 @@ module.exports = gql`
     listAllOrders: Order!
     getListItemInCart: Cart!
     listCategories(input: listCategoriesBy): [Category]
+    categories: [Category]
   }
 
   type Mutation {

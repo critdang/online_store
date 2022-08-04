@@ -343,7 +343,7 @@
                 const linkImg = res.data.data.productImage[i].href;
                 const idImg = res.data.data.productImage[i].id;
                 let defaultImg = "";
-                if (res.data.data.productImage[i].is_default == true) {
+                if (res.data.data.productImage[i].isDefault == true) {
                     defaultImg = "borderImg";
                 }
                 insertImageProduct.append(`<img class='${defaultImg}' style="cursor: pointer" onclick="mainImg('mainImg-${idImg}')" id="mainImg-${idImg}" width="120px" src='${linkImg}'/>`)

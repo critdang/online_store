@@ -1,9 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const fs = require('fs');
 const ejs = require('ejs');
 const moment = require('moment');
+const Swal = require('sweetalert2');
+
 // eslint-disable-next-line arrow-body-style
 exports.comparePassword = async (inputPassword, outputPassword) => {
   return bcrypt.compare(inputPassword, outputPassword);
@@ -17,17 +18,34 @@ exports.verifyToken = (key) => jwt.verify(key, process.env.JWT_SECRET, (err, dec
   if (err) throw err;
 });
 
-exports.returnSuccess = (req, res, data = 'success') => {
-  res.status(200).json({
-    status: 'success',
-    data,
+exports.swalNoti = (title, text, icon, confirmButtonText = 'OK') => {
+  Swal.fire({
+    title,
+    text,
+    icon,
+    confirmButtonText,
   });
 };
 
-exports.returnFail = (req, res, err) => {
-  res.status(404).json({
-    status: 'fail',
-    err,
+exports.returnSuccess = (req, res, message = 'success') => {
+  // res.status(200).json({
+  //   status: 'success',
+  //   message,
+  // });
+  res.send({
+    status: 200,
+    message,
+  });
+};
+
+exports.returnFail = (req, res, message) => {
+  // res.status(400).json({
+  //   status: 'fail',
+  //   err,
+  // });
+  res.send({
+    status: 400,
+    message,
   });
 };
 

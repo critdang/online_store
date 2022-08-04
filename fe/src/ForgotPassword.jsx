@@ -46,7 +46,7 @@ export default function SignUp() {
         data: input,
       })
         .then(function (response) {
-          if (response.status == 200) {
+          if (response.data.status == 200) {
             Swal.fire({
               title: 'Success',
               text: 'Please check your email',
@@ -121,7 +121,11 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link to="/login" variant="body2">
+                <Link
+                  to="/login"
+                  variant="body2"
+                  style={{ textDecoration: 'none' }}
+                >
                   Already have an account? Sign in
                 </Link>
               </Grid>

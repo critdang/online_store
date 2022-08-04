@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/order
 const helperFn = require('../utils/helperFn');
 const { PrismaClient } = require('@prisma/client');
 
@@ -61,7 +62,7 @@ async function main() {
     data: {
       href: 'https://',
       productId: seedProduct.id,
-      is_default: false,
+      isDefault: false,
     },
   });
   const seedCategory = await prisma.category.create({

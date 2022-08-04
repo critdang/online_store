@@ -4,7 +4,7 @@ const {
 const {
   products, listProducts, productDetail, productImage, addToCart, cartProduct,
 } = require('./services');
-const { listCategories, listCategory } = require('./services');
+const { listCategories, listCategory, categories } = require('./services');
 const { getCart, getListItemInCart, deleteItemCart } = require('./services');
 const { createOrder, listAllOrders, changeOrderStatus } = require('./services');
 
@@ -21,6 +21,7 @@ module.exports = {
     listAllOrders,
     productDetail,
     getListItemInCart,
+    categories,
   },
   Mutation: {
     login,

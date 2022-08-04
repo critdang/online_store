@@ -16,6 +16,8 @@
       "error",
       { "args": "none", "varsIgnorePattern": "seed" }
     ],
+    "linebreak-style": 0,
+    "no-unused-expressions": "off",
     "max-len": ["error", { "code": 200 }]
   }
 }

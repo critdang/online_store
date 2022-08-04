@@ -15,17 +15,44 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PersonIcon from '@mui/icons-material/Person';
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
+import { gql, useQuery } from '@apollo/client';
 
+const CATEGORIES = gql`
+  query {
+    categories {
+      id
+      name
+      thumbnail
+      description
+    }
+  }
+`;
 export default function NavBar(props) {
+  const checkLogin = localStorage.getItem('user');
+  console.log(checkLogin);
+  // if (!checkLogin) {
+  //   window.location.reload();
+  // }
+  React.useEffect(() => {
+    console.log(checkLogin);
+  }, [checkLogin]);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [categories, setCategories] = React.useState([]);
+
+  const { data, loading, error } = useQuery(CATEGORIES);
+  React.useEffect(() => {
+    if (data) {
+      setCategories(data.categories);
+    }
+  }, [data]);
   const open = Boolean(anchorEl);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-
   const itemCart = props.itemCart;
 
   // style badgeContent
@@ -50,6 +77,7 @@ export default function NavBar(props) {
   function handleLogout() {
     localStorage.removeItem('user');
   }
+
   return (
     <AppBar
       position="sticky"
@@ -106,27 +134,31 @@ export default function NavBar(props) {
                 'aria-labelledby': 'basic-button',
               }}
             >
-              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
-                Profile
-              </MenuItem>
-              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
-                My account
-              </MenuItem>
-              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
-                Logout
-              </MenuItem>
+              {categories.map((category, index) => (
+                <MenuItem
+                  onClick={handleClose}
+                  sx={{ color: 'black' }}
+                  key={index}
+                >
+                  {category.name}
+                </MenuItem>
+              ))}
             </Menu>
+            {checkLogin && (
+              <div>
+                <Link to="/order" style={{ textDecoration: 'none' }}>
+                  <Button sx={{ color: 'black', textDecoration: 'none' }}>
+                    Orders
+                  </Button>
+                </Link>
+                <Link to="/profile">
+                  <Button underline="none" sx={{ color: 'black' }}>
+                    <PersonIcon></PersonIcon>
+                  </Button>
+                </Link>
+              </div>
+            )}
 
-            <Link to="/order" style={{ textDecoration: 'none' }}>
-              <Button sx={{ color: 'black', textDecoration: 'none' }}>
-                Orders
-              </Button>
-            </Link>
-            <Link to="/profile">
-              <Button underline="none" sx={{ color: 'black' }}>
-                <PersonIcon></PersonIcon>
-              </Button>
-            </Link>
             <Link to="/checkout">
               <IconButton aria-label={notificationsLabel(100)}>
                 <StyledBadge badgeContent={itemCart} color="success">
@@ -144,14 +176,16 @@ export default function NavBar(props) {
                 </StyledBadge>
               </IconButton>
             </Link>
-            <Link
-              to="/login"
-              style={{ textDecoration: 'none', paddingLeft: '30px' }}
-            >
-              <Button variant="outlined" color="error" onClick={handleLogout}>
-                Log out
-              </Button>
-            </Link>
+            {checkLogin && (
+              <Link
+                to="/login"
+                style={{ textDecoration: 'none', paddingLeft: '30px' }}
+              >
+                <Button variant="outlined" color="error" onClick={handleLogout}>
+                  Log out
+                </Button>
+              </Link>
+            )}
           </div>
         </Container>
       </Toolbar>

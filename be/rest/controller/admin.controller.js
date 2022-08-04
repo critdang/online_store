@@ -6,12 +6,8 @@ const prisma = new PrismaClient({
 
 require('dotenv').config();
 // set up for uploading Images
-const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
-const { promisify } = require('util');
 const Promise = require('bluebird');
 const helperFn = require('../utils/helperFn');
-const { formatDay } = require('../../validate/validate');
 const { uploadImg } = require('../../utils/uploadImg');
 const AppError = require('../utils/ErrorHandler/appError');
 const constants = require('../../constants');
@@ -22,6 +18,7 @@ const getUsers = async (req, res, next) => {
   res.render('details/user.ejs', { users });
 };
 
+// eslint-disable-next-line consistent-return
 const login = async (req, res, next) => {
   const { email: inputEmail, password: inputPassword } = req.body;
   try {
@@ -129,6 +126,7 @@ const getUser = async (req, res, next) => {
   helperFn.returnSuccess(req, res, data);
 };
 
+// eslint-disable-next-line consistent-return
 const deleteUser = async (req, res, next) => {
   const idUser = +req.params.id;
   try {
@@ -405,8 +403,11 @@ const uploadImageProduct = async (req, res, next) => {
   const { productId } = req.params;
   if (!req.files) return helperFn.returnFail(req, res, 'No file provided');
   try {
+    // eslint-disable-next-line no-restricted-syntax
     for (const file of req.files) {
+      // eslint-disable-next-line no-await-in-loop
       const link = await uploadImg(file.path);
+      // eslint-disable-next-line no-await-in-loop
       await prisma.productImage.create({
         data: {
           productId: +productId,
@@ -424,8 +425,8 @@ const defaultImage = async (req, res, next) => {
   try {
     const foundProduct = await prisma.productImage.findMany({ where: { id: +imgId } });
     if (!foundProduct) return helperFn.returnFail(req, res, 'No product image found');
-    const { productId, id } = await prisma.productImage.update({ where: { id: +imgId }, data: { is_default: true } });
-    const removeIsDefault = await prisma.productImage.updateMany({ where: { productId, NOT: { id } }, data: { is_default: false } });
+    const { productId, id } = await prisma.productImage.update({ where: { id: +imgId }, data: { isDefault: true } });
+    const removeIsDefault = await prisma.productImage.updateMany({ where: { productId, NOT: { id } }, data: { isDefault: false } });
     helperFn.returnSuccess(req, res, 'Update default product image');
   } catch (err) {
     console.log(err);

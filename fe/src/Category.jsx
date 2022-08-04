@@ -256,23 +256,38 @@ export default function Home(props, { setLogin }) {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'end',
             }}
           >
-            {/* <div style={{position:'absolute', right:'40px', top: '9px'}}>
-              <span style={{color:'white'}}>{itemCart}</span>
-            </div> */}
-            <Button
-              sx={{ alignItems: 'right', cursor: 'pointer', float: 'right' }}
-              onClick={() => {
-                displaySearch === 'none'
-                  ? setDisplaySearch('flex')
-                  : setDisplaySearch('none');
+            <Typography
+              variant="h3"
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'center',
               }}
             >
               {' '}
-              Filter
-            </Button>
+              Trang phuc
+            </Typography>
+            <div>
+              <Button
+                sx={{
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  justifyContent: 'end',
+                  display: 'flex',
+                  width: '5%',
+                }}
+                onClick={() => {
+                  displaySearch === 'none'
+                    ? setDisplaySearch('flex')
+                    : setDisplaySearch('none');
+                }}
+              >
+                {' '}
+                Filter
+              </Button>
+            </div>
             <div
               style={{
                 display: displaySearch,
