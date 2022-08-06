@@ -2,7 +2,6 @@
 const { ApolloServer } = require('apollo-server-express');
 const context = require('./services/context.services');
 const express = require('express');
-const { createServer } = require('http');
 const cors = require('cors');
 const cron = require('node-cron');
 // import all type definitions
@@ -16,7 +15,6 @@ const typeDefs = require('./src/graphql/typeDefs');
 const routes = require('./rest/routes');
 const viewEngine = require('./rest/config/viewEngine');
 require('dotenv').config();
-const userRoutes = require('./rest/routes/user.route');
 const reminder = require('./utils/reminder');
 // reminder
 // cron.schedule('*/3 * * * * *', reminder);
@@ -59,10 +57,11 @@ const apolloServer = new ApolloServer({
     if (!err.originalError) {
       return err;
     }
-    const { data } = err.originalError;
-    const message = err.message || 'An error occurred.';
-    const code = err.originalError.code || 500;
-    return { message, status: code, data };
+    // const { data } = err.originalError;
+    // const message = err.message || 'An error occurred.';
+    // const code = err.originalError.code || 400;
+    // return { message, status: code, data };
+    return err;
   },
 });
 

@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import {
   ButtonGroup,
@@ -95,47 +95,6 @@ const theme = createTheme();
 
 const options = ['A-Z', 'Z-A'];
 
-const PRODUCTS = gql`
-  query {
-    products(isDefault: true) {
-      id
-      name
-      description
-      amount
-      price
-      productImage {
-        id
-        href
-      }
-      categoryProduct {
-        category {
-          name
-        }
-      }
-    }
-  }
-`;
-const PRODUCTSIMAGES = gql`
-  query {
-    products {
-      id
-      name
-      description
-      amount
-      price
-      productImage {
-        id
-        href
-      }
-      categoryProduct {
-        category {
-          name
-        }
-      }
-    }
-  }
-`;
-
 const PRODUCTDETAIL = gql`
   query productDetail($input: ProductId) {
     productDetail(productId: $input) {
@@ -151,17 +110,45 @@ const PRODUCTDETAIL = gql`
     }
   }
 `;
+
+const PRODUCTBYCATEGORY = gql`
+  query listProduct($input: ProductOrderBy) {
+    listProducts(productOrderBy: $input) {
+      id
+      name
+      categoryProduct {
+        product {
+          name
+          productImage {
+            href
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default function Home(props, { setLogin }) {
   const [input, setInput] = React.useState();
-  const { loading, error, data } = useQuery(PRODUCTS);
-
   const [products, setProducts] = React.useState([]);
+  let { categoryId } = useParams();
+  console.log(categoryId);
+  categoryId = parseInt(categoryId);
+  const { loading, error, data } = useQuery(PRODUCTBYCATEGORY, {
+    variables: {
+      input: {
+        categoryId,
+      },
+    },
+  });
   React.useEffect(() => {
     if (data) {
-      // console.log(data);
-      setProducts(data.products);
+      console.log(data);
+      setProducts(data.listProducts[0]);
     }
   }, [data]);
+  console.log(products.categoryProduct);
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -228,7 +215,6 @@ export default function Home(props, { setLogin }) {
     refetch();
   };
   const handleCloseModal = () => setOpenModal(false);
-
   //setting slick
   var settings = {
     dots: true,
@@ -252,12 +238,7 @@ export default function Home(props, { setLogin }) {
           }}
         >
           {/* End hero unit */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
+          <div>
             <Typography
               variant="h3"
               sx={{
@@ -267,15 +248,18 @@ export default function Home(props, { setLogin }) {
               }}
             >
               {' '}
-              Trang phuc
+              Ten o day
             </Typography>
-            <div>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'end',
+              }}
+            >
               <Button
                 sx={{
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  justifyContent: 'end',
-                  display: 'flex',
+                  float: 'right',
                   width: '5%',
                 }}
                 onClick={() => {
@@ -366,7 +350,7 @@ export default function Home(props, { setLogin }) {
             </div>
           </div>
           <Grid container spacing={3} marginTop={5}>
-            {products.map((product, index) => (
+            {products.categoryProduct.map((product, index) => (
               <Grid item key={index} xs={12} sm={6} md={3}>
                 <Card
                   sx={{

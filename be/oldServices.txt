@@ -3,7 +3,6 @@ exports.createOrder = async(parent,args,context,info) => {
     const userId = context.currentUser.userId;
     const payment = args.payment;
     const cartId = args.cartId;
-    const errors = [];
   
     let foundCarts = await prisma.cart.findFirst({
       where: {userId, id: cartId},

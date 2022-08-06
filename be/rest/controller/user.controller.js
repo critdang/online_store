@@ -3,7 +3,6 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
-const jwt = require('jsonwebtoken');
 const rs = require('randomstring');
 const AppError = require('../utils/ErrorHandler/appError');
 const helperFn = require('../../utils/helperFn');
@@ -13,7 +12,7 @@ const { uploadImg } = require('../../utils/uploadImg');
 const createUser = async (req, res, next) => {
   try {
     const {
-      email, fullname, password, address, avatar, phone, gender,
+      email, fullname, password, address, phone, gender,
     } = req.body;
     if (!email || !fullname || !password) {
       return next(new AppError(constants.FILL_OUT, 400));
@@ -58,6 +57,7 @@ const createUser = async (req, res, next) => {
     console.log(err);
   }
 };
+
 const changeAvatar = async (req, res, next) => {
   const { userId } = req.params;
 

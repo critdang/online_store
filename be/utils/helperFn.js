@@ -116,7 +116,6 @@ exports.reminderCart = async (username, to, products) => {
 };
 
 exports.createOrder = async (to, orders) => {
-  const style = 'border:1px solid #bbbbbb';
   const parseOrder = orders.map((item) => ({
     ...item,
     paymentDate: moment(item.paymentDate).format('YYYY-MM-DD'),

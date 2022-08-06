@@ -28,14 +28,6 @@ const CATEGORIES = gql`
   }
 `;
 export default function NavBar(props) {
-  const checkLogin = localStorage.getItem('user');
-  console.log(checkLogin);
-  // if (!checkLogin) {
-  //   window.location.reload();
-  // }
-  React.useEffect(() => {
-    console.log(checkLogin);
-  }, [checkLogin]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [categories, setCategories] = React.useState([]);
 
@@ -140,24 +132,30 @@ export default function NavBar(props) {
                   sx={{ color: 'black' }}
                   key={index}
                 >
-                  {category.name}
+                  <Link
+                    to={`/category/${category.name}`}
+                    style={{ textDecoration: 'none', color: 'black' }}
+                  >
+                    {category.name}
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
-            {checkLogin && (
-              <div>
-                <Link to="/order" style={{ textDecoration: 'none' }}>
-                  <Button sx={{ color: 'black', textDecoration: 'none' }}>
-                    Orders
-                  </Button>
-                </Link>
-                <Link to="/profile">
-                  <Button underline="none" sx={{ color: 'black' }}>
-                    <PersonIcon></PersonIcon>
-                  </Button>
-                </Link>
-              </div>
-            )}
+            <div>
+              <Link
+                to="/order"
+                style={{ textDecoration: 'none', color: 'black' }}
+              >
+                <Button sx={{ color: 'black', textDecoration: 'none' }}>
+                  Orders
+                </Button>
+              </Link>
+              <Link to="/profile">
+                <Button underline="none" sx={{ color: 'black' }}>
+                  <PersonIcon></PersonIcon>
+                </Button>
+              </Link>
+            </div>
 
             <Link to="/checkout">
               <IconButton aria-label={notificationsLabel(100)}>
@@ -176,16 +174,14 @@ export default function NavBar(props) {
                 </StyledBadge>
               </IconButton>
             </Link>
-            {checkLogin && (
-              <Link
-                to="/login"
-                style={{ textDecoration: 'none', paddingLeft: '30px' }}
-              >
-                <Button variant="outlined" color="error" onClick={handleLogout}>
-                  Log out
-                </Button>
-              </Link>
-            )}
+            <Link
+              to="/login"
+              style={{ textDecoration: 'none', paddingLeft: '30px' }}
+            >
+              <Button variant="outlined" color="error" onClick={handleLogout}>
+                Log out
+              </Button>
+            </Link>
           </div>
         </Container>
       </Toolbar>

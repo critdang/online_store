@@ -10,7 +10,7 @@ import SignUp from './Signup';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
 import Category from './Category';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import './mainStyle.css';
 import NavBar from './components/NavBar';
 
@@ -39,7 +39,7 @@ function App() {
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/category" element={<Category />} />
+          <Route path="/category/:categoryId" element={<Category />} />
         </Routes>
       </BrowserRouter>
     </>

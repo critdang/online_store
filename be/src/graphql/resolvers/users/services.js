@@ -11,23 +11,21 @@ const helperFn = require('../../../../utils/helperFn');
 const validate = require('../../../../validate/validate');
 
 exports.createUser = async (parent, args, context, info) => {
-  // validator
-  console.log(args);
   const errors = [];
   if (!validator.isEmail(args.inputSignup.email)) {
-    errors.push({ message: 'Email is invalid' });
+    throw new Error('Email is invalid');
   }
   if (validator.isEmpty(args.inputSignup.password)) {
-    errors.push({ message: 'Password is too short' });
+    throw new Error('Password is too short');
   }
   if (errors.length > 0) {
-    const error = new Error('Invalid input');
-    error.data = errors;
-    error.code = 401;
-    throw error;
+    throw new Error('Invalid input');
   }
-  // logic
   const hashPw = await bcrypt.hash(args.inputSignup.password, 12);
+
+  const foundUser = await prisma.user.findFirst({ where: { email: args.inputSignup.email } });
+  if (foundUser) { throw new Error('User already exists'); }
+
   const user = await prisma.user.create({
     data: {
       email: args.inputSignup.email,
@@ -35,23 +33,21 @@ exports.createUser = async (parent, args, context, info) => {
     },
   });
   return user;
-},
+};
 
 exports.login = async (parent, args, context, info) => {
   let userFind = null;
   try {
-    // findFirst = findOne
     userFind = await prisma.user.findFirst({
       where: { email: args.inputLogin.email, is_active: true },
     });
     if (!userFind) {
       throw new Error('User not found or not active yet');
     }
+
     const isEqual = await helperFn.comparePassword(args.inputLogin.password, userFind.password);
     if (!isEqual) {
-      const error = new Error('Password is incorrect.');
-      error.code = 401;
-      throw error;
+      throw new Error('Password is incorrect.');
     }
     const token = helperFn.generateToken({
       userId: userFind.id,
@@ -61,25 +57,26 @@ exports.login = async (parent, args, context, info) => {
   } catch (err) {
     throw new Error(err);
   }
-},
+};
 
 // eslint-disable-next-line consistent-return
 exports.changePassword = async (parent, args, context, info) => {
   try {
-    if (!args) {
-      throw new ApolloError('Fill in');
+    if (!args.inputPassword) {
+      throw new Error('Fill in');
     }
     if (!context.currentUser) {
-      throw new ApolloError('You must login to change password');
+      throw new Error('You must login to change password');
     }
 
     const foundUser = await prisma.user.findUnique({ where: { id: context.currentUser.userId } });
     const isEqual = await helperFn.comparePassword(args.inputPassword.oldPassword, foundUser.password);
     if (!isEqual) {
-      throw new ApolloError('Wrong current password');
+      throw new Error('Wrong current password');
     }
+
     const hashPass = await helperFn.hashPassword(args.inputPassword.newPassword);
-    const newPassword = await prisma.user.update({
+    await prisma.user.update({
       where: { id: context.currentUser.userId },
       data: {
         password: hashPass,
@@ -87,12 +84,14 @@ exports.changePassword = async (parent, args, context, info) => {
     });
     return foundUser;
   } catch (err) {
-    throw new ApolloError(err);
+    throw new Error(err);
   }
 };
+
 exports.editProfile = async (parent, args, context, info) => {
   try {
     const convertBirthday = new Date(args.inputProfile.birthday);
+
     const editProfile = await prisma.user.update({
       where: { id: context.currentUser.userId },
       data: {
@@ -109,6 +108,7 @@ exports.editProfile = async (parent, args, context, info) => {
     throw new ApolloError(err);
   }
 };
+
 exports.getUser = async (parent, args, context, info) => {
   try {
     const result = await prisma.user.findUnique({
@@ -137,8 +137,7 @@ exports.products = async (parent, args, context, info) => {
     }
     const data = await prisma.product.findMany({
       include: {
-        productImage: {
-        },
+        productImage: true,
       },
     });
     return data;
@@ -150,7 +149,8 @@ exports.products = async (parent, args, context, info) => {
 // eslint-disable-next-line consistent-return
 exports.listProducts = async (parent, args, context, info) => {
   try {
-    const { name } = args.input;
+    const { name, price, categoryId } = args.productOrderBy;
+
     if (name) {
       const data = await prisma.product.findMany({
         include: {
@@ -160,7 +160,7 @@ exports.listProducts = async (parent, args, context, info) => {
       });
       return data;
     }
-    const { price } = args.input;
+
     if (price) {
       const data = await prisma.product.findMany({
         include: {
@@ -170,18 +170,20 @@ exports.listProducts = async (parent, args, context, info) => {
       });
       return data;
     }
-    const { category } = args.input;
-    if (category) {
-      const data = await prisma.category.findMany({
 
+    if (categoryId) {
+      const data = await prisma.category.findMany({
         where: {
-          name: category,
+          id: +categoryId,
         },
         include: {
-          productImage: true,
           categoryProduct: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  productImage: true,
+                },
+              },
             },
           },
         },
@@ -269,7 +271,7 @@ exports.listCategories = async (parent, args, context, info) => {
 exports.listCategory = async (parent, args, context, info) => {
   try {
     const { id } = args;
-    const data = await prisma.category.findFirst({
+    const data = await prisma.category.findUnique({
       where: { id },
       include: {
         categoryProduct: {
@@ -298,29 +300,6 @@ exports.categories = async (parent, args, context, info) => {
 };
 
 exports.getCart = async (parent, args, context, info) => {
-  const { userId } = context.currentUser;
-  const data = await prisma.cart.findFirst({
-    where: {
-      userId,
-    },
-    include: {
-      cartProduct: {
-        include: {
-          product: {
-            select: {
-              name: true,
-              description: true,
-              price: true,
-              amount: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return data;
-};
-exports.getListItemInCart = async (parent, args, context, info) => {
   const cartItems = await prisma.cart.findFirst({
     where: { userId: context.currentUser.userId },
     include: {
@@ -339,33 +318,26 @@ exports.getListItemInCart = async (parent, args, context, info) => {
       },
     },
   });
-  console.log(cartItems);
-  console.log(cartItems.cartProduct);
   return cartItems;
 };
 
 // eslint-disable-next-line consistent-return
 exports.addToCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
-  const { quantity } = args;
-  const { productId } = args;
+  const { quantity, productId } = args;
   try {
     const checkProduct = await prisma.product.findUnique({ where: { id: productId } });
-    const errors = [];
     if (!checkProduct) {
-      const error = new Error('Product not found');
-      error.data = errors;
-      error.code = 422;
-      throw error;
+      throw new Error('Product not found');
     }
+
     if (quantity > checkProduct.amount) {
-      const error = new Error('Product quantity exceed');
-      error.data = errors;
-      error.code = 422;
-      throw error;
+      throw new Error('Product quantity exceed');
     }
+
     const cartItem = await prisma.cart.findFirst({ where: { userId }, include: { cartProduct: true } });
     const productInCart = await prisma.cartProduct.findFirst({ where: { productId, cartId: cartItem.id } });
+
     let run = [];
     if (!cartItem) {
       const createCartItem = prisma.cart.createMany({ data: { userId } });
@@ -374,40 +346,43 @@ exports.addToCart = async (parent, args, context, info) => {
     if (productInCart) {
       const updateCartItem = prisma.cartProduct.updateMany({
         where: { productId, cartId: cartItem.id },
-        data: { amount: quantity },
+        data: { quantity },
       });
       run = [updateCartItem];
     } else {
-      const createCartProduct = prisma.cartProduct.create({ data: { cartId: cartItem.id, productId, amount: quantity } });
+      const createCartProduct = prisma.cartProduct.createMany({ data: { cartId: cartItem.id, productId, quantity } });
       run = [createCartProduct];
     }
     await prisma.$transaction([...run]);
-    return cartItem;
+    return run;
   } catch (err) {
     console.log(err);
+    throw new Error(err);
   }
 };
 
 exports.deleteItemCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
-  const { deleteItem } = args;
+  const { productId } = args;
+
   const findCart = await prisma.cart.findFirst({
     where: {
       userId,
     },
   });
+
   await prisma.cartProduct.deleteMany({
     where: {
       cartId: findCart.id,
-      productId: deleteItem,
+      productId,
     },
   });
 };
 exports.createOrder = async (parent, args, context, info) => {
   try {
     const { userId } = context.currentUser;
-    const { payment } = args;
-
+    const { cartId } = args;
+    let { paymentMethod } = args;
     const foundCarts = await prisma.cart.findFirst({
       where: { userId, id: cartId },
       include: {
@@ -418,26 +393,30 @@ exports.createOrder = async (parent, args, context, info) => {
         },
       },
     });
+
     const orders = [];
     if (foundCarts.cartProduct) {
-      const temp = new Date();
-      let paymentDate = null;
-      if (payment === 'visa') {
-        paymentDate = validate.formatDay(temp);
+      let paymentDate;
+      let statusPayment = 'Pending';
+
+      if (paymentMethod === 'VISA') {
+        paymentMethod = 'Visa';
+        paymentDate = validate.formatDay(new Date());
+        statusPayment = 'Completed';
       }
       const order = await prisma.order.create({
         data: {
           userId,
-          status: 'pending',
+          status: statusPayment,
           paymentDate,
-          paymentMethod: payment,
+          paymentMethod: paymentMethod || 'Pending',
           createdAt: validate.formatDay(new Date()),
           updatedAt: validate.formatDay(new Date()),
         },
       });
-      console.log('order', order);
+
       const run = [];
-      const promises = [];
+      // const promises = [];
       // load foundCarts
       foundCarts.cartProduct.map(async (item) => {
         if (item.quantity > item.product.amount) {
@@ -451,17 +430,17 @@ exports.createOrder = async (parent, args, context, info) => {
         obj.productId = item.product.id;
         obj.productName = item.product.name;
         obj.paymentDate = paymentDate;
-        obj.payment = payment;
+        obj.paymentMethod = paymentMethod;
         obj.price = item.product.price;
         orders.push(obj);
 
         const checkProduct = await prisma.product.findFirst({ where: { id: item.product.id } });
-        console.log('checkProduct', checkProduct);
+
         const amount = checkProduct.amount - item.quantity;
-        console.log('amount', amount);
+
         const updateProductAmount = prisma.product.update({ where: { id: item.product.id }, data: { amount } });
         run.push(updateProductAmount);
-        console.log(item);
+
         const createProductInOrder = prisma.productInOrder.create({
           data: {
             orderId: obj.orderId,
@@ -471,8 +450,10 @@ exports.createOrder = async (parent, args, context, info) => {
           },
         });
         run.push(createProductInOrder);
+
         const deleteCartProduct = prisma.cartProduct.deleteMany({ where: { productId: obj.productId } });
         run.push(deleteCartProduct);
+
         await prisma.$transaction(run);
 
         // const p = new Promise((resolve, reject) => {
@@ -520,56 +501,61 @@ exports.createOrder = async (parent, args, context, info) => {
   }
 };
 
-exports.listAllOrders = async (parent, args, context, info) => {
+exports.listOrders = async (parent, args, context, info) => {
+  const { userId } = context.currentUser;
   const orders = await prisma.order.findMany({
-    include: {
-      user: {
-        select: {
-          id: true,
-          fullname: true,
-          address: true,
-          phone: true,
-        },
-      },
-      productInOrder: {
-        select: {
-          quantity: true,
-          total: true,
-          price: true,
-          product: {
-            select: {
-              description: true,
-              price: true,
-              name: true,
-            },
-          },
-        },
-      },
-    },
+    where: { userId },
+    // include: {
+    //   user: {
+    //     select: {
+    //       id: true,
+    //       fullname: true,
+    //       address: true,
+    //       phone: true,
+    //     },
+    //   },
+    //   productInOrder: {
+    //     select: {
+    //       quantity: true,
+    //       total: true,
+    //       price: true,
+    //       product: {
+    //         select: {
+    //           description: true,
+    //           price: true,
+    //           name: true,
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
   });
   return orders;
 };
 
 // eslint-disable-next-line consistent-return
 exports.changeOrderStatus = async (parent, args, context, info) => {
-  const { orderId } = args;
-  const payment = args.payment || 'pending';
-  const { userId } = context.currentUser;
+  const { orderId, status } = args;
+  let { paymentMethod } = args;
+  if (paymentMethod === 'CASH') paymentMethod = 'Cash';
   try {
     const order = await prisma.order.findFirst({
-      userId,
-      id: orderId,
+      where: {
+        id: orderId,
+        paymentMethod: 'Pending',
+        status: 'Pending',
+      },
     });
     if (!order) {
       return new ApolloError('Order not found');
     }
     await prisma.order.update({
       where: {
-        userId,
         id: orderId,
       },
       data: {
-        status: payment,
+        paymentMethod,
+        status,
         paymentDate: validate.formatDay(new Date()),
       },
     });

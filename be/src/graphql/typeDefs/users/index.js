@@ -26,8 +26,6 @@ module.exports = gql`
     id: ID
     userId: String
     cartProduct: [CartProduct]
-    product: Product!
-
   }
 
   type Category {
@@ -43,7 +41,7 @@ module.exports = gql`
     productId: Int
     categoryId: Int
     category: Category
-    product: Product
+    product: [Product]
   }
 
   type CartProduct {
@@ -70,14 +68,13 @@ module.exports = gql`
   type Query {
     user: User!
     products(isDefault: Boolean): [Product]
-    listProducts(input: ProductOrderBy): [Product]
+    listProducts(productOrderBy: ProductOrderBy): [Product]
     productDetail(productId: ProductId):Product!
     productImage: [ProductImage]
     cartProduct: [CartProduct]
-    listCategory(id: ID!): Category
+    listCategory(id: Int): Category
     getCart: Cart!
-    listAllOrders: Order!
-    getListItemInCart: Cart!
+    listOrders: [Order]!
     listCategories(input: listCategoriesBy): [Category]
     categories: [Category]
   }
@@ -87,15 +84,14 @@ module.exports = gql`
     login(inputLogin: InputLogin): AuthDataResponse!
     changePassword(inputPassword: InputPassword): User!
     editProfile( inputProfile : InputProfile): User!
-    addToCart(quantity:Int,productId:Int): Cart!
+    addToCart(quantity:Int,productId:Int): Cart
     deleteItemCart(deleteItem: Int): Cart!
     changeOrderStatus(
       orderId: Int
-      payment: String
+      paymentMethod: PaymentMethod
     ): Order!
     createOrder(
-      payment: String
-      cartId: Int
+      inputOrder: InputOrder
     ): Order!
   }
   
@@ -122,6 +118,11 @@ module.exports = gql`
     birthday: String
   }
   
+  input InputOrder {
+    paymentMethod: PaymentMethod
+    cartId: Int
+  }
+
   type AuthDataResponse {
     token: String!
     userId: String!
@@ -134,12 +135,12 @@ module.exports = gql`
   input ProductOrderBy {
     name: OrderType
     price: OrderType
-    category: String
+    categoryId: Int
   }
 
   enum OrderType {
-    asc
-    desc
+    ASC
+    DESC
   }
 
   input listCategoriesBy {
@@ -148,14 +149,19 @@ module.exports = gql`
   }
 
   enum CategoryType {
-    asc
-    desc
+    ASC
+    DESC
   }
 
 
   enum OrderStatus {
-    pending
-    success
+    PENDING
+    SUCCESS
+  }
+
+  enum PaymentMethod {
+    VISA
+    CASH
   }
 
 `;
