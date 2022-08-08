@@ -1,5 +1,7 @@
+// eslint-disable-next-line import/no-unresolved
+const { GraphQLUpload } = require('graphql-upload');
 const {
-  createUser, login, changePassword, editProfile, getUser,
+  createUser, login, changePassword, editProfile, uploadAvatar, getUser,
 } = require('./services');
 const {
   products, listProducts, productDetail, productImage, addToCart, cartProduct,
@@ -9,6 +11,7 @@ const { getCart, deleteItemCart } = require('./services');
 const { createOrder, listOrders, changeOrderStatus } = require('./services');
 
 module.exports = {
+  UploadImg: GraphQLUpload,
   Query: {
     user: getUser,
     products,
@@ -27,6 +30,7 @@ module.exports = {
     createUser,
     changePassword,
     editProfile,
+    uploadAvatar,
     addToCart,
     deleteItemCart,
     changeOrderStatus,

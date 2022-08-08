@@ -32,6 +32,7 @@ async function main() {
       avatar: 'mac dinh',
       phone: '0945246026',
       gender: 'Female',
+      isActive: true,
     },
   });
   const seedProduct = await prisma.product.create({

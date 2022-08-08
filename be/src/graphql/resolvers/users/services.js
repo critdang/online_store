@@ -7,8 +7,11 @@ const { ApolloError } = require('apollo-server-express');
 
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const { parse } = require('path');
 const helperFn = require('../../../../utils/helperFn');
 const validate = require('../../../../validate/validate');
+const cloundinary = require('../../../../utils/uploadImg');
+const { uploadImageFunc } = require('./fileUpload');
 
 exports.createUser = async (parent, args, context, info) => {
   const errors = [];
@@ -39,7 +42,7 @@ exports.login = async (parent, args, context, info) => {
   let userFind = null;
   try {
     userFind = await prisma.user.findFirst({
-      where: { email: args.inputLogin.email, is_active: true },
+      where: { email: args.inputLogin.email, isActive: true },
     });
     if (!userFind) {
       throw new Error('User not found or not active yet');
@@ -107,6 +110,13 @@ exports.editProfile = async (parent, args, context, info) => {
   } catch (err) {
     throw new ApolloError(err);
   }
+};
+
+exports.uploadAvatar = async (parent, args, context, info) => {
+  console.log('uploadAvatar', args.file);
+  const result = await uploadImageFunc(args.file);
+  if (result) return result;
+  return 'fail';
 };
 
 exports.getUser = async (parent, args, context, info) => {

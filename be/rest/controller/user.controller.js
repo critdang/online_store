@@ -4,7 +4,7 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
 const rs = require('randomstring');
-const AppError = require('../utils/ErrorHandler/appError');
+const AppError = require('../../utils/ErrorHandler/appError');
 const helperFn = require('../../utils/helperFn');
 const constants = require('../../constants');
 const { uploadImg } = require('../../utils/uploadImg');
@@ -21,11 +21,11 @@ const createUser = async (req, res, next) => {
       where: { email },
     });
     if (existUser) {
-      if (existUser.is_active == true) {
+      if (existUser.isActive == true) {
         // return next(new AppError(constants.EXIST_ACCOUNT, 400));
         helperFn.returnFail(req, res, constants.EXIST_ACCOUNT);
       }
-      if (existUser.is_active == false) {
+      if (existUser.isActive == false) {
         // return next(new AppError('The account have been created but not active yet', 400));
         helperFn.returnFail(req, res, 'The account have been created but not active yet');
       }
@@ -80,7 +80,7 @@ const verifyUser = async (req, res, next) => {
 
     const updateUser = await prisma.user.updateMany({
       where: { resetToken: token },
-      data: { resetToken: null, is_active: true },
+      data: { resetToken: null, isActive: true },
     });
     if (!updateUser) {
       // return next(new AppError(constants.EMAIL_NOT_AVA, 401));
@@ -95,13 +95,13 @@ const verifyUser = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   try {
-    const result = await prisma.user.findFirst({ where: { email, is_active: false } });
+    const result = await prisma.user.findFirst({ where: { email, isActive: false } });
     if (!result) return helperFn.returnFail(req, res, 'User not found or not active yet');
     const token = helperFn.generateToken({ email }, '15m');
     await prisma.user.updateMany({
       where: {
         email,
-        is_active: true,
+        isActive: true,
       },
       data: { resetToken: token },
     });

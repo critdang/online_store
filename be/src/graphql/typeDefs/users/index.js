@@ -1,11 +1,13 @@
 const { gql } = require('apollo-server');
 
 module.exports = gql`
+scalar UploadImg
+
   type User {
     id: ID
     fullname: String
     email: String
-    is_active: Boolean
+    isActive: Boolean
     address: String
     phone: String
     gender: String
@@ -93,7 +95,9 @@ module.exports = gql`
     createOrder(
       inputOrder: InputOrder
     ): Order!
+    uploadAvatar(file: Upload!): String!
   }
+
   
   input InputSignup {
     email: String!

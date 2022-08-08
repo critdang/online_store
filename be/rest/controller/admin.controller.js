@@ -8,15 +8,15 @@ const prisma = new PrismaClient({
 require('dotenv').config();
 // set up for uploading Images
 const Promise = require('bluebird');
-const helperFn = require('../utils/helperFn');
-const { uploadImg } = require('../../utils/uploadImg');
-const AppError = require('../utils/ErrorHandler/appError');
+const helperFn = require('../../utils/helperFn');
+const { upload, uploadImg } = require('../../utils/uploadImg');
+const AppError = require('../../utils/ErrorHandler/appError');
 const constants = require('../../constants');
 
 const getUsers = async (req, res, next) => {
   const users = await prisma.user.findMany();
-  // helperFn.returnSuccess(req, res, data);
-  res.render('details/user.ejs', { users });
+  helperFn.returnSuccess(req, res, users);
+  // res.render('details/user.ejs', { users });
 };
 
 // eslint-disable-next-line consistent-return
@@ -41,8 +41,8 @@ const login = async (req, res, next) => {
       return next(new AppError(constants.PASS_NOT_CORRECT, 400));
     }
     req.user = admin;
-    // helperFn.returnSuccess(req, res, "Login successfully");
-    res.redirect('/admin/dashboard');
+    helperFn.returnSuccess(req, res, 'Login successfully');
+    // res.redirect('/admin/dashboard');
   } catch (err) {
     console.log(err);
   }
@@ -98,18 +98,17 @@ const forgotPasswordView = async (req, res, next) => {
 };
 
 const uploadAdminAvatar = async (req, res, next) => {
-  console.log(req.user);
   const { id } = req.user;
   try {
-    const avatar = await uploadImg(req.file.path);
-    if (!avatar) return helperFn.returnFail(req, res, 'upload avatar failed');
+    const avatar = await req.file.path;
+    if (!avatar) return helperFn.returnFail(req, res, constants.PROVIDE_ADMIN_AVA);
     await prisma.admin.update({
       where: { id },
       data: {
         avatar,
       },
     });
-    return helperFn.returnSuccess(req, res, 'Upload admin avatar successfully');
+    return helperFn.returnSuccess(req, res, constants.AVA_SUC);
   } catch (err) {
     console.log(err);
   }
@@ -118,18 +117,26 @@ const uploadAdminAvatar = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   const idUser = +req.params.id;
-  const data = await prisma.user.findUnique({
-    where: { id: idUser },
-  });
-  helperFn.returnSuccess(req, res, data);
+  if (!idUser) return helperFn.returnFail(req, res, constants.PROVIDE_ID);
+
+  try {
+    const data = await prisma.user.findUnique({
+      where: { id: idUser },
+    });
+    helperFn.returnSuccess(req, res, data);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 // eslint-disable-next-line consistent-return
 const deleteUser = async (req, res, next) => {
   const idUser = +req.params.id;
+  if (!idUser) return helperFn.returnFail(req, res, constants.PROVIDE_ID);
+
   try {
     const data = await prisma.user.deleteMany({
-      where: { id: idUser, is_active: false },
+      where: { id: idUser, isActive: false },
     });
     if (!data) return res.send('User not found or activated');
     helperFn.returnSuccess(req, res, 'Deleted user successfully');
@@ -140,10 +147,14 @@ const deleteUser = async (req, res, next) => {
 
 const changeBlockUserStt = async (req, res, next) => {
   const idUser = +req.params.id;
+  if (!idUser) return helperFn.returnFail(req, res, constants.PROVIDE_ID);
+
   try {
     const existStatus = await prisma.user.findFirst({
       where: { id: idUser },
     });
+    if (!existStatus) return helperFn.returnFail(req, res, constants.NO_USER);
+
     await prisma.user.update({
       where: { id: idUser },
       data: { is_blocked: !existStatus.is_blocked },
@@ -156,16 +167,17 @@ const changeBlockUserStt = async (req, res, next) => {
 
 const addCategory = async (req, res, next) => {
   const { name, description } = req.body;
-  if (!name || !description) { return helperFn.returnFail(req, res, 'Missing input data'); }
+  let image;
+
   const existCategory = await prisma.category.findFirst({ where: { name } });
   if (existCategory) {
-    return helperFn.returnFail(req, res, 'Category already exists');
+    return helperFn.returnFail(req, res, constants.EXIST_CATE);
   }
-  let image;
+
   if (req.file) {
     image = await uploadImg(req.file.path);
   } else {
-    return helperFn.returnFail(req, res, 'No image uploaded');
+    return helperFn.returnFail(req, res, constants.ERROR_IMG);
   }
   try {
     await prisma.category.create({
@@ -175,7 +187,7 @@ const addCategory = async (req, res, next) => {
         thumbnail: image,
       },
     });
-    helperFn.returnSuccess(req, res, 'Category created successfully');
+    helperFn.returnSuccess(req, res, constants.CREATE_SUC);
   } catch (e) {
     console.log(e);
   }
@@ -184,8 +196,9 @@ const addCategory = async (req, res, next) => {
 const getCategories = async (req, res, next) => {
   try {
     const categories = await prisma.category.findMany({});
-    // helperFn.returnSuccess(req, res, data);
-    res.render('details/category.ejs', { categories });
+    if (!categories) helperFn.returnFail(req, res, constants.NO_CATEGORIES);
+    helperFn.returnSuccess(req, res, categories);
+    // res.render('details/category.ejs', { categories });
   } catch (err) {
     console.log(err);
   }
@@ -193,20 +206,25 @@ const getCategories = async (req, res, next) => {
 
 const getCategory = async (req, res, next) => {
   const id = +req.params.id;
-  const newCategory = await prisma.category.findUnique({
+  if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_CATE_ID);
+
+  const foundCategory = await prisma.category.findUnique({
     where: { id },
   });
-  helperFn.returnSuccess(req, res, newCategory);
+  if (!foundCategory) return helperFn.returnFail(req, res, constants.NO_FOUND_CATE);
+  helperFn.returnSuccess(req, res, foundCategory);
 };
 
 const editCategory = async (req, res, next) => {
-  const data = req.body;
+  const { name, description } = req.body;
   const id = +req.params.id;
+  if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_CATE_ID);
+
   const updateCategory = await prisma.category.update({
     where: { id },
     data: {
-      name: data.name,
-      description: data.description,
+      name,
+      description,
     },
   });
   helperFn.returnSuccess(req, res, updateCategory);
@@ -215,6 +233,8 @@ const editCategory = async (req, res, next) => {
 const editThumbnail = async (req, res, next) => {
   try {
     const { id } = req.params;
+    if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_CATE_ID);
+
     const thumbnail = await uploadImg(req.file.path);
     await prisma.category.update({
       where: { id: +id },
@@ -230,18 +250,18 @@ const editThumbnail = async (req, res, next) => {
 const deleteCategory = async (req, res, next) => {
   try {
     const id = +req.params.id;
+    if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_CATE_ID);
+
     const existCategoryProduct = await prisma.categoryProduct.findFirst({
       where: { categoryId: id },
     });
     if (existCategoryProduct) {
-      return next(
-        new AppError('Have product in category. Can not delete', 400),
-      );
+      return helperFn.returnFail(req, res, constants.HAVE_PRODUCT);
     }
     await prisma.category.delete({
       where: { id },
     });
-    return helperFn.returnSuccess(req, res, 'Category deleted successfully!');
+    return helperFn.returnSuccess(req, res, constants.DELETE_SUC);
   } catch (err) {
     console.log(err);
   }
@@ -252,6 +272,7 @@ const addProduct = async (req, res, next) => {
     const {
       name, description, price, amount, categoryId,
     } = req.body;
+
     await prisma.$transaction(
       // eslint-disable-next-line no-shadow
       async (prisma) => {
@@ -286,24 +307,32 @@ const addProduct = async (req, res, next) => {
         timeout: 100000, // default: 5000
       },
     );
-    helperFn.returnSuccess(req, res, 'Add Product successfully');
+    helperFn.returnSuccess(req, res, constants.PRODUCT_SUC);
   } catch (err) {
     console.log(err);
   }
 };
 
 const getProducts = async (req, res, next) => {
-  const products = await prisma.product.findMany({
-    include: {
-      categoryProduct: true,
-      productImage: true,
-    },
-  });
-  helperFn.returnSuccess(req, res, products);
-  // res.render('details/product.ejs', {products})
+  try {
+    const products = await prisma.product.findMany({
+      include: {
+        categoryProduct: true,
+        productImage: true,
+      },
+    });
+    if (!products) return helperFn.returnFail(req, res, constants.NO_PRODUCT_FOUND);
+    return helperFn.returnSuccess(req, res, products);
+    // res.render('details/product.ejs', {products})
+  } catch (err) {
+    console.log(err);
+  }
 };
+
 const getProduct = async (req, res, next) => {
   const id = +req.params.id;
+  if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_PRODUCT_ID);
+
   const foundProduct = await prisma.product.findUnique({
     where: { id },
     include: {
@@ -315,8 +344,8 @@ const getProduct = async (req, res, next) => {
       productImage: true,
     },
   });
-  if (!foundProduct) { helperFn.returnFail(req, res, 'Product not found'); }
-  helperFn.returnSuccess(req, res, foundProduct);
+  if (!foundProduct) { return helperFn.returnFail(req, res, constants.NO_PRODUCT_FOUND); }
+  return helperFn.returnSuccess(req, res, foundProduct);
 };
 
 const editProduct = async (req, res, next) => {
@@ -405,9 +434,15 @@ const editProduct = async (req, res, next) => {
     console.log(err);
   }
 };
+
 const uploadImageProduct = async (req, res, next) => {
-  const { productId } = req.params;
-  if (!req.files) return helperFn.returnFail(req, res, 'No file provided');
+  const productId = +req.params.productId;
+  if (!productId) return helperFn.returnFail(req, res, constants.PROVIDE_PRODUCT_ID);
+
+  const foundProduct = await prisma.product.findUnique({ where: { id: productId } });
+  if (!foundProduct) return helperFn.returnFail(req, res, constants.NO_PRODUCT_FOUND);
+
+  if (!req.files) return helperFn.returnFail(req, res, constants.NO_IMAGE_UPLOADED);
   try {
     // eslint-disable-next-line no-restricted-syntax
     for (const file of req.files) {
@@ -426,11 +461,15 @@ const uploadImageProduct = async (req, res, next) => {
     console.log(err);
   }
 };
+
 const defaultImage = async (req, res, next) => {
   const { imgId } = req.params;
+  if (!imgId) return helperFn.returnFail(req, res, constants.PROVIDE_DEFAULT_IMAGE_ID);
+
   try {
     const foundProduct = await prisma.productImage.findMany({ where: { id: +imgId } });
-    if (!foundProduct) return helperFn.returnFail(req, res, 'No product image found');
+    if (!foundProduct) return helperFn.returnFail(req, res, constants.NO_IMAGE_FOUND);
+
     const { productId, id } = await prisma.productImage.update({ where: { id: +imgId }, data: { isDefault: true } });
     await prisma.productImage.updateMany({ where: { productId, NOT: { id } }, data: { isDefault: false } }); // removeIsDefault
     helperFn.returnSuccess(req, res, 'Update default product image');
@@ -441,11 +480,15 @@ const defaultImage = async (req, res, next) => {
 
 const deleteImage = async (req, res, next) => {
   const { productId, imgId } = req.params;
+  if (!req.params) return helperFn.returnFail(req, res, constants.PROVIDE_PRODUCTI_IMGID);
+
   try {
-    await prisma.productImage.deleteMany({
+    const foundImg = await prisma.productImage.deleteMany({
       where: { productId: +productId, id: +imgId },
     });
-    return helperFn.returnSuccess(req, res, 'Deleted image successfully!');
+    if (!foundImg) return helperFn.returnFail(req, res, constants.NO_IMAGE_FOUND);
+
+    return helperFn.returnSuccess(req, res, constants.DELETE_PRODUCT_IMAGE_SUC);
   } catch (err) {
     console.log(err);
   }
@@ -453,19 +496,21 @@ const deleteImage = async (req, res, next) => {
 
 const deleteProduct = async (req, res, next) => {
   const id = +req.params.id;
+  if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_PRODUCT_ID);
+
   try {
     // findProduct
-    const findProduct = await prisma.product.findUnique({
+    const foundProduct = await prisma.product.findUnique({
       where: { id },
     });
-    if (!findProduct) {
-      helperFn.returnFail(req, res, 'Product not found');
+    if (!foundProduct) {
+      helperFn.returnFail(req, res, constants.NO_PRODUCT_FOUND);
     }
     const findProductInOrder = await prisma.productInOrder.findMany({
       where: { productId: id },
     });
     if (findProductInOrder.length > 0) {
-      return helperFn.returnFail(req, res, 'Product in order.Can not deleted');
+      return helperFn.returnFail(req, res, constants.PRODUCT_IN_ORDER);
     }
 
     const deleteCategoryProduct = prisma.categoryProduct.deleteMany({
@@ -487,7 +532,7 @@ const deleteProduct = async (req, res, next) => {
       deleteCartProduct,
       deletedProduct,
     ]);
-    helperFn.returnSuccess(req, res, 'Deleted Product Successfully');
+    helperFn.returnSuccess(req, res, constants.DELETE_PRODUCT_SUC);
   } catch (err) {
     console.log(err);
   }
@@ -496,23 +541,33 @@ const deleteProduct = async (req, res, next) => {
 // Order
 const getOrders = async (req, res, next) => {
   const orders = await prisma.order.findMany({});
+  if (!orders) return helperFn.returnFail(req, res, constants.NO_ORDER_FOUND);
+
   helperFn.returnSuccess(req, res, orders);
   // res.render('details/order.ejs', {orders})
 };
 
 const getOrder = async (req, res, next) => {
   const id = +req.params.id;
-  const data = await prisma.order.findUnique({
+  if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_ORDER_ID);
+
+  const order = await prisma.order.findUnique({
     where: { id },
   });
-  helperFn.returnSuccess(req, res, data);
+  if (!order) return helperFn.returnFail(req, res, constants.NO_ORDER_FOUND);
+
+  helperFn.returnSuccess(req, res, order);
 };
 
 const changeStatus = async (req, res, next) => {
   const id = +req.params.id;
+  if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_ORDER_ID);
+
   const { newStatus } = req.body;
+  if (!newStatus) return helperFn.returnFail(req, res, constants.PROVIDE_ORDER_STATUS);
+
   try {
-    const data = await prisma.order.updateMany({
+    const order = await prisma.order.updateMany({
       where: {
         id,
         paymentMethod: 'cash',
@@ -522,7 +577,9 @@ const changeStatus = async (req, res, next) => {
         status: newStatus,
       },
     });
-    helperFn.returnSuccess(req, res, data);
+    if (!order) return helperFn.returnFail(req, res, constants.NO_ORDER_FOUND);
+
+    helperFn.returnSuccess(req, res, order);
   } catch (err) {
     console.log(err);
   }

@@ -6,18 +6,18 @@ const cors = require('cors');
 const cron = require('node-cron');
 // import all type definitions
 // import all resolvers
-const resolvers = require('./src/graphql/resolvers');
 
 const app = express();
 const passport = require('passport');
 const session = require('express-session');
+const { graphqlUploadExpress } = require('graphql-upload');
 const typeDefs = require('./src/graphql/typeDefs');
+const resolvers = require('./src/graphql/resolvers');
 const routes = require('./rest/routes');
 const viewEngine = require('./rest/config/viewEngine');
 require('dotenv').config();
 const reminder = require('./utils/reminder');
-// reminder
-// cron.schedule('*/3 * * * * *', reminder);
+// cron.schedule('*/3 * * * * *', reminder);// reminder
 
 // middleware
 app.use(express.urlencoded({ extended: true }));
@@ -64,7 +64,8 @@ const apolloServer = new ApolloServer({
     return err;
   },
 });
-
 apolloServer.applyMiddleware({ app, path: '/graphql' });
+// app.use(graphqlUploadExpress());
+app.use(graphqlUploadExpress({ maxFileSize: 1000000000, maxFiles: 10 }));
 const port = process.env.PORT || 4001;
 app.listen(port, () => console.log(`Server started at http://localhost:${port}`));

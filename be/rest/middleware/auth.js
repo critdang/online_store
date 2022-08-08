@@ -5,10 +5,10 @@ const prisma = new PrismaClient({
 });
 
 // const rateLimit = require('express-rate-limit');
-const catchAsync = require('../utils/ErrorHandler/catchAsync');
-const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const catchAsync = require('../../utils/ErrorHandler/catchAsync');
 require('dotenv').config();
 
 // exports.loginLimiter = rateLimit({
@@ -19,12 +19,13 @@ require('dotenv').config();
 //   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 // });
 
-exports.authUser = catchAsync(async (passport) => {
+exports.authUser = catchAsync(async (passsport) => {
   passport.serializeUser((user, done) => {
-    done(null, user.email);
+    done(null, user.id);
   });
-  passport.deserializeUser((email, done) => {
-    const existAdmin = prisma.admin.findFirst({ where: { email } }).then((user) => {
+  passport.deserializeUser(async (id, done) => {
+    // eslint-disable-next-line no-unused-vars
+    const existAdmin = await prisma.admin.findUnique({ where: { id } }).then((user) => {
       done(null, user);
     }).catch((err) => {
       console.log(err);

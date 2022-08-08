@@ -58,14 +58,14 @@
               <label for="recipient-name2" class="col-form-label">Active:</label>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="status_radio" id="status_radio_true" value="option1"
-                  <%=user.is_active=='1' ?'checked':''%>>
+                  <%=user.isActive=='1' ?'checked':''%>>
                 <label class="form-check-label" for="status_radio_true">
                   True
                 </label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="status_radio" id="status_radio_false" value="option2"
-                  <%=user.is_active=='0' ?'checked':''%>>
+                  <%=user.isActive=='0' ?'checked':''%>>
                 <label class="form-check-label" for="status_radio_false">
                   False
                 </label>
