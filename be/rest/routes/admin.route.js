@@ -10,7 +10,7 @@ require('../middleware/auth').authUser(passport);
 
 // Admin
 router.post('/', validate.loginValidate, passport.authenticate('login', { failureRedirect: '/loginerror' }), adminController.login);
-// router.get('/dashboard', passport.authenticate('login', { failureRedirect: '/loginerror' }), adminController.dashboard);
+router.get('/dashboard', adminController.dashboard);
 router.post('/avatar', auth.protectingRoutes, upload.single('avatar'), adminController.uploadAdminAvatar);
 
 // user

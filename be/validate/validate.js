@@ -34,27 +34,6 @@ const createCategory = Joi.object({
     ),
 });
 
-const createUserSchema = Joi.object({
-  email: Joi.string()
-    .email()
-    .required()
-    .error(
-      new AppError('invalid email. required com or net', 400),
-    ),
-
-  fullname: Joi.string(),
-  password: Joi.string()
-    .regex(/^[a-zA-Z0-9]{6,30}$/)
-    .required()
-    .error(
-      new AppError('invalid password , must contain at least 6 characters', 400),
-    ),
-  address: [Joi.string().empty()],
-  phone: [Joi.string(), Joi.number().empty()],
-  gender: [Joi.string().valid('Male', 'Female')],
-
-});
-
 const avatarSchema = Joi.object({
   avatar: Joi.required()
     .error(
@@ -117,24 +96,14 @@ exports.resetPasswordValidate = async (req, res, next) => {
     console.log(err);
   }
 };
-exports.createUserValidate = async (req, res, next) => {
-  try {
-    await createUserSchema.validate(req.body);
-    next();
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 exports.formatDay = (day) => moment(day, 'YYYY MM DD').utc(true).toDate();
 
 exports.createCategory = async (args) => {
-  try {
-    await createCategory.validateAsync(args);
-    next();
-  } catch (err) {
-    console.log(err);
-  }
+  console.log(args);
+  const { error } = await createCategory.validate(args);
+  if (error) throw error;
+  return true;
 };
 
 exports.loginValidate = async (req, res, next) => {

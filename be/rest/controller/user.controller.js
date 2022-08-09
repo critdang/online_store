@@ -21,11 +21,11 @@ const createUser = async (req, res, next) => {
       where: { email },
     });
     if (existUser) {
-      if (existUser.isActive == true) {
+      if (existUser.isActive === true) {
         // return next(new AppError(constants.EXIST_ACCOUNT, 400));
         helperFn.returnFail(req, res, constants.EXIST_ACCOUNT);
       }
-      if (existUser.isActive == false) {
+      if (existUser.isActive === false) {
         // return next(new AppError('The account have been created but not active yet', 400));
         helperFn.returnFail(req, res, 'The account have been created but not active yet');
       }

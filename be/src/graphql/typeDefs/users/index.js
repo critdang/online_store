@@ -1,7 +1,8 @@
 const { gql } = require('apollo-server');
 
+// scalar UploadImg
 module.exports = gql`
-scalar UploadImg
+  scalar Upload
 
   type User {
     id: ID
@@ -85,6 +86,8 @@ scalar UploadImg
     createUser(inputSignup: InputSignup): User!
     login(inputLogin: InputLogin): AuthDataResponse!
     changePassword(inputPassword: InputPassword): User!
+    requestReset(inputRequest: InputRequest): String
+    resetPassword(inputReset: InputReset): String
     editProfile( inputProfile : InputProfile): User!
     addToCart(quantity:Int,productId:Int): Cart
     deleteItemCart(deleteItem: Int): Cart!
@@ -92,16 +95,30 @@ scalar UploadImg
       orderId: Int
       paymentMethod: PaymentMethod
     ): Order!
-    createOrder(
-      inputOrder: InputOrder
-    ): Order!
+    createOrder(inputOrder: InputOrder): Order!
     uploadAvatar(file: Upload!): String!
   }
 
+  input InputReset {
+    token: String
+    password: String
+    confirmPassword: String
+  }
+
+  input InputRequest {
+    email: String
+  }
+  
+  type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
   
   input InputSignup {
-    email: String!
-    password: String!
+    email: String
+    password: String
+    fullname: String
   }
   
   input InputPassword {

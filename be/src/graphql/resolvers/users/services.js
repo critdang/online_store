@@ -3,60 +3,73 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
-const { ApolloError } = require('apollo-server-express');
+const { ApolloError, UserInputError } = require('apollo-server-express');
+const jwt = require('jsonwebtoken');
 
 const bcrypt = require('bcryptjs');
-const validator = require('validator');
-const { parse } = require('path');
 const helperFn = require('../../../../utils/helperFn');
-const validate = require('../../../../validate/validate');
-const cloundinary = require('../../../../utils/uploadImg');
+const validateUser = require('../../../../validate/validateUser');
 const { uploadImageFunc } = require('./fileUpload');
+const { errorName } = require('../../../../utils/ErrorHandler/constantsql');
+
+require('dotenv').config();
 
 exports.createUser = async (parent, args, context, info) => {
-  const errors = [];
-  if (!validator.isEmail(args.inputSignup.email)) {
-    throw new Error('Email is invalid');
+  // const errors = [];
+  // if (!validator.isEmail(args.inputSignup.email)) {
+  //   throw new Error('Email is invalid');
+  // }
+  // if (validator.isEmpty(args.inputSignup.password)) {
+  //   throw new Error('Password is too short');
+  // }
+  // if (errors.length > 0) {
+  //   throw new Error('Invalid input');
+  // }
+  const { email, password, fullname } = args.inputSignup;
+  const { error } = validateUser.createUserValidate(args.inputSignup);
+  if (error) {
+    throw new UserInputError('Fail to create a character', { validationError: error.message });
   }
-  if (validator.isEmpty(args.inputSignup.password)) {
-    throw new Error('Password is too short');
-  }
-  if (errors.length > 0) {
-    throw new Error('Invalid input');
-  }
-  const hashPw = await bcrypt.hash(args.inputSignup.password, 12);
+  const hashPw = await bcrypt.hash(password, 12);
 
-  const foundUser = await prisma.user.findFirst({ where: { email: args.inputSignup.email } });
+  const foundUser = await prisma.user.findFirst({ where: { email } });
   if (foundUser) { throw new Error('User already exists'); }
 
   const user = await prisma.user.create({
     data: {
-      email: args.inputSignup.email,
+      email,
       password: hashPw,
+      fullname,
     },
   });
   return user;
 };
 
 exports.login = async (parent, args, context, info) => {
-  let userFind = null;
+  let FoundUser = null;
+  const { email, password } = args.inputLogin;
+  const { error } = validateUser.loginUserSchema(args.inputLogin);
+  if (error) {
+    throw new UserInputError('Fail to create a character', { validationError: error.message });
+  }
   try {
-    userFind = await prisma.user.findFirst({
-      where: { email: args.inputLogin.email, isActive: true },
+    FoundUser = await prisma.user.findFirst({
+      where: { email, isActive: true },
     });
-    if (!userFind) {
-      throw new Error('User not found or not active yet');
+    if (!FoundUser) {
+      throw new Error(errorName.USER_ALREADY_EXISTS);
+      // throw new Error('User not found or not active yet');
     }
 
-    const isEqual = await helperFn.comparePassword(args.inputLogin.password, userFind.password);
+    const isEqual = await helperFn.comparePassword(password, FoundUser.password);
     if (!isEqual) {
       throw new Error('Password is incorrect.');
     }
     const token = helperFn.generateToken({
-      userId: userFind.id,
-      email: userFind.email,
+      userId: FoundUser.id,
+      email: FoundUser.email,
     }, '1h');
-    return { token, userId: userFind.id };
+    return { token, userId: FoundUser.id };
   } catch (err) {
     throw new Error(err);
   }
@@ -112,11 +125,84 @@ exports.editProfile = async (parent, args, context, info) => {
   }
 };
 
+exports.requestReset = async (parent, args, context, info) => {
+  let { email } = args.inputRequest;
+  email = email.toLowerCase();
+
+  // Check that user exists.
+  const user = await prisma.user.findFirst({
+    where: {
+      email,
+    },
+  });
+
+  if (!user) throw new Error('No user found with that email.');
+
+  // const resetToken = helperFn.generateToken({ email }, '15m');
+  const resetToken = jwt.sign({ email }, 'taskkhoqua');
+  console.log(resetToken);
+
+  // const resultToken = `Bearer ${resetToken}`;
+  // console.log(resultToken);
+  // const decodedToken = helperFn.verifyToken(resetToken);
+  // console.log('decoded token', decodedToken);
+
+  await prisma.user.update(
+    {
+      where: { email },
+      data: { resetToken },
+    },
+  );
+
+  // Email them the token
+  await helperFn.forgotPassword(email, resetToken);
+
+  return resetToken;
+};
+
+exports.resetPassword = async (parent, args, context, info) => {
+  // let { email } = args;
+  console.log('args.inputReset', args.inputReset);
+  const { token, password, confirmPassword } = args.inputReset;
+  // email = email.toLowerCase();
+
+  // check token
+  const decodedToken = jwt.verify(args.inputReset.token, 'taskkhoqua');
+  console.log('decodedToken', decodedToken);
+  const user = prisma.user.findFirst({
+    where: { email: decodedToken.token, resetToken: token },
+  });
+  if (!user) {
+    throw new Error(
+      'Your password reset token is either invalid or expired.',
+    );
+  }
+  // check if passwords match
+  if (password !== confirmPassword) {
+    throw new Error('Your passwords don\'t match');
+  }
+  const hashPass = await helperFn.hashPassword(password);
+  await prisma.user.updateMany({
+    where: { email: decodedToken.token },
+    data: {
+      password: hashPass,
+      resetToken: null,
+    },
+  });
+  return 'succesfully changed password';
+};
+
 exports.uploadAvatar = async (parent, args, context, info) => {
-  console.log('uploadAvatar', args.file);
-  const result = await uploadImageFunc(args.file);
-  if (result) return result;
-  return 'fail';
+  try {
+    const avatar = await uploadImageFunc(args.file);
+    if (!avatar) throw new ApolloError('Fail to upload avatar');
+    await prisma.user.update({
+      where: { id: context.currentUser.userId },
+      data: { avatar },
+    });
+  } catch (err) {
+    throw new ApolloError(err);
+  }
 };
 
 exports.getUser = async (parent, args, context, info) => {
@@ -411,7 +497,7 @@ exports.createOrder = async (parent, args, context, info) => {
 
       if (paymentMethod === 'VISA') {
         paymentMethod = 'Visa';
-        paymentDate = validate.formatDay(new Date());
+        paymentDate = validateUser.formatDay(new Date());
         statusPayment = 'Completed';
       }
       const order = await prisma.order.create({
@@ -420,8 +506,8 @@ exports.createOrder = async (parent, args, context, info) => {
           status: statusPayment,
           paymentDate,
           paymentMethod: paymentMethod || 'Pending',
-          createdAt: validate.formatDay(new Date()),
-          updatedAt: validate.formatDay(new Date()),
+          createdAt: validateUser.formatDay(new Date()),
+          updatedAt: validateUser.formatDay(new Date()),
         },
       });
 
@@ -566,7 +652,7 @@ exports.changeOrderStatus = async (parent, args, context, info) => {
       data: {
         paymentMethod,
         status,
-        paymentDate: validate.formatDay(new Date()),
+        paymentDate: validateUser.formatDay(new Date()),
       },
     });
   } catch (err) {
