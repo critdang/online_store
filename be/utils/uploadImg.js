@@ -5,7 +5,6 @@ const cloudinary = require('cloudinary').v2;
 // const { promisify } = require('util');
 // const moment = require('moment');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const AppError = require('./ErrorHandler/appError');
 require('dotenv').config();
 
 // config cloudinary

@@ -267,7 +267,7 @@
                                         <td>
                                             <%=users[i].address%>
                                         </td>
-                                        <td><img src="<%=users[i].avatar%>" alt=""></td>
+                                        <td><img style="width:130px" src="<%=users[i].avatar%>" alt=""></td>
                                         <td>
                                             <%=users[i].birthday%>
                                         </td>
@@ -329,7 +329,7 @@
         const insertImageProduct = $('.image-product-' + id);
         axios.get('/admin/product/' + id).then(res => {
             var checkCategoryProduct = document.getElementsByClassName(`form-check-input-category` + id);
-            // console.log('checkExistCategory', res.data.data.categoryProduct[0].categoryId)
+            console.log('checkExistCategory', res.data.data)
             // console.log('checkCategoryProduct', checkCategoryProduct)
             for (let j = 0; j < checkCategoryProduct.length; j++) {
                 for (let i = 0; i < res.data.data.categoryProduct.length; i++) {
@@ -341,6 +341,7 @@
             //neu co anh
             for (let i = 0; i < res.data.data.productImage.length; i++) {
                 const linkImg = res.data.data.productImage[i].href;
+                consle.log(linkImg)
                 const idImg = res.data.data.productImage[i].id;
                 let defaultImg = "";
                 if (res.data.data.productImage[i].isDefault == true) {
@@ -509,7 +510,7 @@
         const categoryName = $('#category-name').val();
         const categoryDescription = $('#category-description').val();
         console.log(categoryName, categoryDescription)
-        axios.post('/admin/editCategory/' + id, {
+        axios.post('/admin/edit_category/' + id, {
             name: categoryName,
             description: categoryDescription
         })

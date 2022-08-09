@@ -75,14 +75,14 @@
               <label for="recipient-name" class="col-form-label">Block:</label>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="block_radio" id="block_radio_true" value="option1"
-                  <%=user.is_blocked=='1' ?'checked':''%>>
+                  <%=user.isBlocked=='1' ?'checked':''%>>
                 <label class="form-check-label" for="block_radio_true">
                   True
                 </label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="block_radio" id="block_radio_false" value="option2"
-                  <%=user.is_blocked=='0' ?'checked':''%>>
+                  <%=user.isBlocked=='0' ?'checked':''%>>
                 <label class="form-check-label" for="block_radio_false">
                   False
                 </label>
@@ -93,7 +93,7 @@
         <div class="modal-footer">
           <button type="button" onclick="changeBlockUserStt('<%=user.id%>')" class="btn btn-danger"
             style="justify-content: left;">
-            <%=user.is_blocked== 0 ? 'Block' : 'Unblock' %>
+            <%=user.isBlocked== 0 ? 'Block' : 'Unblock' %>
           </button>
           <button type="button" onclick="deleteUser('<%=user.id%>')" class="btn btn-danger"
             style="justify-content: left;">

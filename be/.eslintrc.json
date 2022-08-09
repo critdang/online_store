@@ -20,6 +20,6 @@
     "no-unused-expressions": "off",
     "max-len": ["error", { "code": 200 }],
     "sort-imports": ["error"],
-    "consistent-return": ["error", { "treatUndefinedAsUnspecified": true }]
+    "consistent-return": "off"
   }
 }

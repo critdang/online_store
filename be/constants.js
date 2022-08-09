@@ -59,8 +59,12 @@ const constants = {
   TOKEN_EXPIRED: 'Your token has expired',
   SUCCESS_VERIFY: 'success. Your email has been actived',
 
-  // Provide avatar
-  PROVIDE_AVA: 'Please provide your avatar',
+  // Input
+  PROVIDE_INPUT_EMAIL: 'invalid email. required com or net',
+  PROVIDE_INPUT_FULLNAME: 'Provided fullname',
+  PROVIDE_INPUT_PASSWORD: 'Provided password',
+  FORM_INPUT_PASSWORD: 'invalid password , must contain at least 6 characters',
+
   // Update Password
   CHECK_PASS: 'please try the right old password',
 

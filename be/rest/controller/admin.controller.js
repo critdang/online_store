@@ -9,7 +9,7 @@ require('dotenv').config();
 // set up for uploading Images
 const Promise = require('bluebird');
 const helperFn = require('../../utils/helperFn');
-const { upload, uploadImg } = require('../../utils/uploadImg');
+const { upload } = require('../../utils/uploadImg');
 const AppError = require('../../utils/ErrorHandler/appError');
 const constants = require('../../constants');
 
@@ -70,6 +70,7 @@ const dashboard = async (req, res, next) => {
   const fetchOrders = await prisma.order.findMany();
   console.log(fetchOrders[0].paymentDate);
   const categoryProductResult = fetchProducts.map((product) => {
+    // eslint-disable-next-line no-unused-vars
     const { categoryProduct, ...obj } = product;
     obj.categories = product.categoryProduct.map((item) => ({
       id: item.categoryId,
@@ -235,7 +236,8 @@ const editThumbnail = async (req, res, next) => {
     const { id } = req.params;
     if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_CATE_ID);
 
-    const thumbnail = await uploadImg(req.file.path);
+    const thumbnail = await req.file.path;
+    console.log(thumbnail);
     await prisma.category.update({
       where: { id: +id },
       data: { thumbnail },
@@ -356,37 +358,40 @@ const editProduct = async (req, res, next) => {
     const id = +req.params.id;
     const initialCheck = await prisma.categoryProduct.findMany({ where: { productId: id } });
     const submitCheck = categoryId;
+    let diffCategory;
     if (submitCheck) {
-      const diffCategory = initialCheck.filter((x) => !submitCheck.includes(x.categoryId.toString()));
+      diffCategory = initialCheck.filter((x) => !submitCheck.includes(x.categoryId.toString()));
     }
-
+    console.log(categoryId);
     const foundProduct = await prisma.product.findFirst({ where: { id } });
     if (!foundProduct) { return helperFn.returnFail(req, res, 'Product not found'); }
 
     const result = await prisma.$transaction(
+      // eslint-disable-next-line no-shadow
       async (prisma) => {
-        const updateProduct = await prisma.product.update({
+        await prisma.product.update({
           where: { id },
           data: {
             name,
             description,
             price: +price,
             amount: +amount,
-            categoryId,
           },
         });
-        // categoryId.forEach(async(item) => {
-        //   const ctgProduct = await prisma.categoryProduct.findFirst({where: {
-        //     productId: foundProduct.id,
-        //     categoryId: +item
-        //   }})
-        //   if(!ctgProduct) {
+        // categoryId.forEach(async (item) => {
+        //   const ctgProduct = await prisma.categoryProduct.findFirst({
+        //     where: {
+        //       productId: foundProduct.id,
+        //       categoryId: +item,
+        //     },
+        //   });
+        //   if (!ctgProduct) {
         //     await prisma.categoryProduct.createMany({
         //       data: {
         //         productId: foundProduct.id,
-        //         categoryId: +item
-        //       }
-        //     })
+        //         categoryId: +item,
+        //       },
+        //     });
         //   }
         // });
 
@@ -397,7 +402,7 @@ const editProduct = async (req, res, next) => {
               categoryId: +item,
             },
           });
-          if (!ctgProduct) {
+          if (!ctgProduct || ctgProduct === null) {
             await prisma.categoryProduct.createMany({
               data: {
                 productId: foundProduct.id,
@@ -414,21 +419,22 @@ const editProduct = async (req, res, next) => {
             },
           });
         });
-        // diffCategory.forEach(async(item) => {
-        //   // delete unchecked categoryProduct
-        //   await prisma.categoryProduct.deleteMany({
-        //     where: {
-        //       productId: id,
-        //       categoryId: +item.categoryId
-        //     }
-        //   })
-        // });
+      //   diffCategory.forEach(async (item) => {
+      //     // delete unchecked categoryProduct
+      //     await prisma.categoryProduct.deleteMany({
+      //       where: {
+      //         productId: id,
+      //         categoryId: +item.categoryId,
+      //       },
+      //     });
+      //   });
       },
       {
         maxWait: 100000, // default: 2000
         timeout: 100000, // default: 5000
       },
     );
+    if (!result) helperFn.returnFail(req, res, 'Product have not been updated');
     helperFn.returnSuccess(req, res, 'Product have been updated successfully!');
   } catch (err) {
     console.log(err);

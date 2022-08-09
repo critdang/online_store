@@ -16,20 +16,18 @@ const uploadStreamOneImg = async (file) => new Promise(async (resolve, reject) =
   const { name } = parse(filename);
   const imageName = `${name}-${Date.now()}`;
 
-  const cld_upload_stream = cloudinary.uploader.upload_stream(
+  const cldUploadStream = cloudinary.uploader.upload_stream(
     {
       folder: 'foo',
       public_id: imageName,
       format: 'jpg',
     },
     (error, result) => {
-      console.log(error);
       if (result) resolve(result);
       if (error) reject(error);
     },
   );
-  stream.pipe(cld_upload_stream);
-  console.log('ggygvy', file);
+  stream.pipe(cldUploadStream);
 });
 
 module.exports.uploadImageFunc = async (file) => {

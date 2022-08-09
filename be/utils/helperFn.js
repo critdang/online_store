@@ -138,6 +138,7 @@ exports.createOrder = async (to, orders) => {
 };
 
 exports.forgotPassword = async (to, token) => {
+  // const link = `http://localhost:${process.env.PORT}/user/${to}/${token}/reset-password`;
   const link = `http://localhost:${process.env.PORT}/user/${to}/${token}/reset-password`;
   const data = await ejs.renderFile('views/createForgotPassNoti/forgotPassword.ejs', { link });
 

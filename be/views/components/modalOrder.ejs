@@ -21,14 +21,14 @@
                         <label for="recipient-name" class="col-form-label">Payment Method:</label>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="payment_method" id="payment_method_visa"
-                                value="Visa" <%=order.paymentMethod=='visa' ? 'checked' : '' %>>
+                                value="Visa" <%=order.paymentMethod=='Visa' ? 'checked' : '' %>>
                             <label class="form-check-label" for="payment_method_visa">
                                 Visa
                             </label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="payment_method" id="payment_method_cash"
-                                value="Cash" <%=order.paymentMethod=='cash' ? 'checked' : '' %>>
+                                value="Cash" <%=order.paymentMethod=='Cash' ? 'checked' : '' %>>
                             <label class="form-check-label" for="payment_method_cash">
                                 Cash
                             </label>
@@ -39,7 +39,7 @@
                         <label for="recipient-name" class="col-form-label">Status:</label>
                         <div class="form-check">
                             <input class="form-check-input-order-status" type="radio" name="order_radio"
-                                id="order_radio_completed" value="completed" <%=order.status=='completed' ? 'checked'
+                                id="order_radio_completed" value="completed" <%=order.status=='Completed' ? 'checked'
                                 : '' %> >
                             <label class="form-check-label" for="order_radio_completed">
                                 Completed
@@ -47,14 +47,14 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input-order-status" type="radio" name="order_radio"
-                                id="order_radio_pending" value="pending" <%=order.status=='pending' ? 'checked' : '' %>>
+                                id="order_radio_pending" value="pending" <%=order.status=='Pending' ? 'checked' : '' %>>
                             <label class="form-check-label" for="order_radio_pending">
                                 Pending
                             </label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input-order-status" type="radio" name="order_radio"
-                                id="order_radio_cancel" value="Cancel" <%=order.status=='cancel' ? 'checked' : '' %>>
+                                id="order_radio_cancel" value="Cancel" <%=order.status=='Cancel' ? 'checked' : '' %>>
                             <label class="form-check-label" for="order_radio_cancel">
                                 Cancel
                             </label>
