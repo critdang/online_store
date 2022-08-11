@@ -44,6 +44,7 @@ const constants = {
   PROVIDE_PRODUCT_ID: 'Please provide product ID',
   NO_IMAGE_UPLOADED: ' No images uploaded',
   PROVIDE_DEFAULT_IMAGE_ID: 'Please provide default image ID',
+  PROVIDE_PRODUCT_CATEGORY: 'Please chose a category for the product',
   NO_IMAGE_FOUND: 'No image found',
   PROVIDE_PRODUCTI_IMGID: 'Provide product ID and image ID',
   DELETE_PRODUCT_IMAGE_SUC: 'Deleted image successfully!',

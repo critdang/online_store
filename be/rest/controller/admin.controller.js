@@ -47,7 +47,12 @@ const login = async (req, res, next) => {
     console.log(err);
   }
 };
-
+const logout = async (req, res) => {
+  req.logout((err) => {
+    if (err) { return next(err); }
+    res.redirect('/admin/loginView');
+  });
+};
 const getLoginView = async (req, res, next) => {
   res.render('auth/login');
 };
@@ -56,7 +61,7 @@ const dashboard = async (req, res, next) => {
 //  global.user=req.user
   const fetchProducts = await prisma.product.findMany({
     include: {
-      productImage: true,
+      productImage: { where: { isDefault: true } },
       categoryProduct: {
         include: {
           category: true,
@@ -98,6 +103,10 @@ const forgotPasswordView = async (req, res, next) => {
   res.render('auth/forgotPassword');
 };
 
+const error = async (req, res, next) => {
+  res.render('components/error');
+};
+
 const uploadAdminAvatar = async (req, res, next) => {
   const { id } = req.user;
   try {
@@ -128,6 +137,10 @@ const getUser = async (req, res, next) => {
   } catch (err) {
     console.log(err);
   }
+};
+const userView = async (req, res, next) => {
+  const fetchUsers = await prisma.user.findMany();
+  res.render('details/user', { users: fetchUsers });
 };
 
 // eslint-disable-next-line consistent-return
@@ -168,16 +181,13 @@ const changeBlockUserStt = async (req, res, next) => {
 
 const addCategory = async (req, res, next) => {
   const { name, description } = req.body;
-  let image;
-
+  console.log('req.body category', req.body);
   const existCategory = await prisma.category.findFirst({ where: { name } });
   if (existCategory) {
     return helperFn.returnFail(req, res, constants.EXIST_CATE);
   }
-
-  if (req.file) {
-    image = await uploadImg(req.file.path);
-  } else {
+  const thumbnail = await req.file.path;
+  if (!thumbnail) {
     return helperFn.returnFail(req, res, constants.ERROR_IMG);
   }
   try {
@@ -185,7 +195,7 @@ const addCategory = async (req, res, next) => {
       data: {
         name,
         description,
-        thumbnail: image,
+        thumbnail,
       },
     });
     helperFn.returnSuccess(req, res, constants.CREATE_SUC);
@@ -215,7 +225,12 @@ const getCategory = async (req, res, next) => {
   if (!foundCategory) return helperFn.returnFail(req, res, constants.NO_FOUND_CATE);
   helperFn.returnSuccess(req, res, foundCategory);
 };
-
+const categoryView = async (req, res, next) => {
+  const fetchCategories = await prisma.category.findMany();
+  res.render('details/category', {
+    categories: fetchCategories,
+  });
+};
 const editCategory = async (req, res, next) => {
   const { name, description } = req.body;
   const id = +req.params.id;
@@ -292,14 +307,14 @@ const addProduct = async (req, res, next) => {
           },
         });
         const idNewProduct = newProduct.id;
-        for (const file of req.files) {
+        const { files } = req;
+        for (const file of files) {
+          const { path } = file;
           // eslint-disable-next-line no-await-in-loop
-          const link = await uploadImg(file.path);
-          // eslint-disable-next-line no-await-in-loop, no-unused-vars
-          const createImage = await prisma.productImage.create({
+          await prisma.productImage.createMany({
             data: {
               productId: +idNewProduct,
-              href: link,
+              href: path,
             },
           });
         }
@@ -350,6 +365,36 @@ const getProduct = async (req, res, next) => {
   return helperFn.returnSuccess(req, res, foundProduct);
 };
 
+const productView = async (req, res, next) => {
+  const fetchProducts = await prisma.product.findMany({
+    include: {
+      productImage: { where: { isDefault: true } },
+      categoryProduct: {
+        include: {
+          category: true,
+        },
+      },
+    },
+  });
+  const fetchCategories = await prisma.category.findMany();
+  const categoryProductResult = fetchProducts.map((product) => {
+    // eslint-disable-next-line no-unused-vars
+    const { categoryProduct, ...obj } = product;
+    obj.categories = product.categoryProduct.map((item) => ({
+      id: item.categoryId,
+      ctgName: item.category.name,
+      thumbnail: item.category.thumbnail,
+    }));
+
+    return obj;
+  });
+  res.render('details/product', {
+    products: fetchProducts,
+    categories: fetchCategories,
+    categoryProductResult,
+  });
+};
+
 const editProduct = async (req, res, next) => {
   const {
     name, description, price, amount, categoryId,
@@ -369,7 +414,7 @@ const editProduct = async (req, res, next) => {
     const result = await prisma.$transaction(
       // eslint-disable-next-line no-shadow
       async (prisma) => {
-        await prisma.product.update({
+        const updatedProduct = await prisma.product.update({
           where: { id },
           data: {
             name,
@@ -378,24 +423,7 @@ const editProduct = async (req, res, next) => {
             amount: +amount,
           },
         });
-        // categoryId.forEach(async (item) => {
-        //   const ctgProduct = await prisma.categoryProduct.findFirst({
-        //     where: {
-        //       productId: foundProduct.id,
-        //       categoryId: +item,
-        //     },
-        //   });
-        //   if (!ctgProduct) {
-        //     await prisma.categoryProduct.createMany({
-        //       data: {
-        //         productId: foundProduct.id,
-        //         categoryId: +item,
-        //       },
-        //     });
-        //   }
-        // });
-
-        await Promise.mapSeries(categoryId, async (item) => {
+        const updateCtg = await Promise.mapSeries(categoryId, async (item) => {
           const ctgProduct = await prisma.categoryProduct.findFirst({
             where: {
               productId: foundProduct.id,
@@ -411,7 +439,7 @@ const editProduct = async (req, res, next) => {
             });
           }
         });
-        await Promise.mapSeries(diffCategory, async (item) => {
+        const deletedCtg = await Promise.mapSeries(diffCategory, async (item) => {
           await prisma.categoryProduct.deleteMany({
             where: {
               productId: id,
@@ -419,23 +447,16 @@ const editProduct = async (req, res, next) => {
             },
           });
         });
-      //   diffCategory.forEach(async (item) => {
-      //     // delete unchecked categoryProduct
-      //     await prisma.categoryProduct.deleteMany({
-      //       where: {
-      //         productId: id,
-      //         categoryId: +item.categoryId,
-      //       },
-      //     });
-      //   });
+        return { updatedProduct, updateCtg, deletedCtg };
       },
-      {
-        maxWait: 100000, // default: 2000
-        timeout: 100000, // default: 5000
-      },
+      // {
+      //   maxWait: 100000, // default: 2000
+      //   timeout: 100000, // default: 5000
+      // },
     );
-    if (!result) helperFn.returnFail(req, res, 'Product have not been updated');
-    helperFn.returnSuccess(req, res, 'Product have been updated successfully!');
+    if (!result) return helperFn.returnFail(req, res, 'Product have not been updated.Please login again');
+
+    return helperFn.returnSuccess(req, res, 'Product have been updated successfully!');
   } catch (err) {
     console.log(err);
   }
@@ -565,6 +586,11 @@ const getOrder = async (req, res, next) => {
   helperFn.returnSuccess(req, res, order);
 };
 
+const orderView = async (req, res, next) => {
+  const fetchOrders = await prisma.order.findMany();
+  res.render('details/order', { orders: fetchOrders });
+};
+
 const changeStatus = async (req, res, next) => {
   const id = +req.params.id;
   if (!id) return helperFn.returnFail(req, res, constants.PROVIDE_ORDER_ID);
@@ -576,8 +602,8 @@ const changeStatus = async (req, res, next) => {
     const order = await prisma.order.updateMany({
       where: {
         id,
-        paymentMethod: 'cash',
-        status: 'pending',
+        paymentMethod: 'Cash',
+        status: 'Pending',
       },
       data: {
         status: newStatus,
@@ -593,6 +619,8 @@ const changeStatus = async (req, res, next) => {
 
 module.exports = {
   login,
+  logout,
+  error,
   getLoginView,
   dashboard,
   profile,
@@ -600,23 +628,27 @@ module.exports = {
   uploadAdminAvatar,
   getUsers,
   getUser,
+  userView,
   deleteUser,
   changeBlockUserStt,
   addCategory,
   getCategories,
   getCategory,
+  categoryView,
   editCategory,
   editThumbnail,
   deleteCategory,
   addProduct,
   getProducts,
   getProduct,
+  productView,
   editProduct,
   uploadImageProduct,
   defaultImage,
   deleteProduct,
   getOrders,
   getOrder,
+  orderView,
   changeStatus,
   deleteImage,
 };

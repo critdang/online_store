@@ -85,7 +85,11 @@ const productSchema = Joi.object({
     .error(
       new AppError(constants.PROVIDE_PRODUCT_AMOUNT, 400),
     ),
-  categoryId: Joi.number(),
+  categoryId: Joi.required()
+    .error(
+      new AppError(constants.PROVIDE_PRODUCT_CATEGORY, 400),
+    )
+  ,
 });
 
 exports.resetPasswordValidate = async (req, res, next) => {
@@ -99,11 +103,13 @@ exports.resetPasswordValidate = async (req, res, next) => {
 
 exports.formatDay = (day) => moment(day, 'YYYY MM DD').utc(true).toDate();
 
-exports.createCategory = async (args) => {
-  console.log(args);
-  const { error } = await createCategory.validate(args);
-  if (error) throw error;
-  return true;
+exports.createCategory = async (req, res, next) => {
+  try {
+    await createCategory.validate(req.body);
+    next();
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 exports.loginValidate = async (req, res, next) => {
@@ -135,6 +141,7 @@ exports.categoryValidate = async (req, res, next) => {
 
 exports.productValidate = async (req, res, next) => {
   try {
+    console.log('🚀 ~ file: validate.js ~ line 142 ~ exports.productValidate= ~ req.body', req.body);
     await productSchema.validateAsync(req.body);
     next();
   } catch (err) {

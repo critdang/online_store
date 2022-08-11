@@ -57,13 +57,12 @@ exports.login = async (parent, args, context, info) => {
       where: { email, isActive: true },
     });
     if (!FoundUser) {
-      throw new Error(errorName.USER_ALREADY_EXISTS);
-      // throw new Error('User not found or not active yet');
+      throw new Error(errorName.USER_NOT_FOUND);
     }
 
     const isEqual = await helperFn.comparePassword(password, FoundUser.password);
     if (!isEqual) {
-      throw new Error('Password is incorrect.');
+      throw new Error(errorName.WRONG_PASS);
     }
     const token = helperFn.generateToken({
       userId: FoundUser.id,
@@ -81,14 +80,11 @@ exports.changePassword = async (parent, args, context, info) => {
     if (!args.inputPassword) {
       throw new Error('Fill in');
     }
-    if (!context.currentUser) {
-      throw new Error('You must login to change password');
-    }
 
     const foundUser = await prisma.user.findUnique({ where: { id: context.currentUser.userId } });
     const isEqual = await helperFn.comparePassword(args.inputPassword.oldPassword, foundUser.password);
     if (!isEqual) {
-      throw new Error('Wrong current password');
+      throw new Error(errorName.WRONG_CURRENT_PASS);
     }
 
     const hashPass = await helperFn.hashPassword(args.inputPassword.newPassword);

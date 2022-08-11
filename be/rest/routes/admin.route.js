@@ -12,6 +12,7 @@ require('../middleware/auth').authUser(passport);
 router.post('/', validate.loginValidate, passport.authenticate('login', { failureRedirect: '/loginerror' }), adminController.login);
 router.get('/dashboard', adminController.dashboard);
 router.post('/avatar', auth.protectingRoutes, upload.single('avatar'), adminController.uploadAdminAvatar);
+router.get('/logout', adminController.logout);
 
 // user
 router.get('/users', auth.protectingRoutes, adminController.getUsers);
@@ -38,15 +39,21 @@ router.delete('/product/:id', auth.protectingRoutes, adminController.deleteProdu
 router.post('/product_images/:productId', auth.protectingRoutes, upload.array('images'), adminController.uploadImageProduct);
 router.post('/default_image/:imgId', auth.protectingRoutes, adminController.defaultImage);
 router.delete('/product/:productId/:imgId', auth.protectingRoutes, adminController.deleteImage);
+
 // order
 router.get('/orders', auth.protectingRoutes, adminController.getOrders);
 router.get('/order/:id', auth.protectingRoutes, adminController.getOrder);
-router.post('/changeStatus/:id', auth.protectingRoutes, adminController.changeStatus);
+router.post('/change_order_status/:id', auth.protectingRoutes, adminController.changeStatus);
 
 // ejs
 router.get('/loginView', adminController.getLoginView);
 router.get('/forgotPassword', adminController.forgotPasswordView);
 router.get('/profile', adminController.profile);
 router.get('/products', adminController.getProducts);
+router.get('/error', adminController.error);
+router.get('/productView', adminController.productView);
+router.get('/userView', adminController.userView);
+router.get('/orderView', adminController.orderView);
+router.get('/categoryView', adminController.categoryView);
 
 module.exports = router;

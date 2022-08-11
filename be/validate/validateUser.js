@@ -30,11 +30,10 @@ const loginUserSchema = Joi.object({
     .messages({
       'any.required': 'Provided email address',
     }),
+  // .error(() => new Error('Format email is not correct. Please try again')),
   password: Joi.string()
-    .required()
-    .messages({
-      'any.required': 'Provided password',
-    }),
+    .required(),
+  // .error(() => new Error('Format password is not correct. Please try again')),
 });
 exports.formatDay = (day) => moment(day, 'YYYY MM DD').utc(true).toDate();
 

@@ -21,12 +21,13 @@ const app = express();
 // cron.schedule('*/3 * * * * *', reminder);// reminder
 
 // middleware
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: '50mb' }));
 app.use(session({
   secret: 'key',
   resave: false,
   saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 },
 }));
 
 // passport
@@ -56,22 +57,19 @@ const apolloServer = new ApolloServer({
     ApolloServerPluginLandingPageLocalDefault({ embed: true }),
   ],
   formatError(err) {
+    console.log('🚀 ~ file: server.js ~ line 59 ~ formatError ~ err', err[0]);
     if (err.message.startsWith('Database Error: ')) {
       return new Error('Internal server error');
     }
     if (!err.originalError) {
       return err;
     }
-    // const { data } = err.originalError;
-    // const message = err.message || 'An error occurred.';
-    // const code = err.originalError.code || 400;
-    // return { message, status: code, data };
+    // error code
     const customError = err.message.slice(7);
-    console.log('🚀 ~ file: server.js ~ line 70 ~ formatError ~ customError', customError);
-
-    const error = getErrorCode(customError);
-    console.log('err message', err.message);
-    return ({ message: error.message, statusCode: error.statusCode });
+    const error = getErrorCode(customError) || err.extensions.validationError || err;
+    // error in validation
+    console.log('err.extensions.validationError', err.extensions.validationError);
+    return ({ message: error.message || error, statusCode: error.statusCode });
     // return err;
   },
 });

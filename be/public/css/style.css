@@ -180,6 +180,8 @@ select {
   background: white;
   border-radius: 25px;
   padding: 15px 10px 20px 10px;
+  position: fixed;
+  width: 15%;
 }
 
 .menu-heading {
@@ -248,14 +250,15 @@ select {
 
 .total_item--detail {
   width: 50%;
-  line-height: 19px;
 }
 .total_item--p {
   display: flex;
   letter-spacing: 1px;
   flex-direction: column;
 }
-
+.total_item--des {
+  font-size: 30px;
+}
 .total_item a {
   margin-top: 15px;
 }
@@ -269,10 +272,11 @@ select {
   align-items: center;
   display: flex;
   margin-right: 10px;
+  height: 100%;
 }
 
 .total_item--img i {
-  font-size: 26px;
+  font-size: 45px;
 }
 
 .product-list {

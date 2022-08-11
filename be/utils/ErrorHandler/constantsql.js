@@ -1,12 +1,22 @@
 exports.errorName = {
-  USER_ALREADY_EXISTS: 'USER_ALREADY_EXISTS',
+  USER_NOT_FOUND: 'USER_NOT_FOUND',
+  WRONG_PASS: 'WRONG_PASS',
+  WRONG_CURRENT_PASS: 'WRONG_CURRENT_PASS',
   SERVER_ERROR: 'SERVER_ERROR',
 };
 
 exports.errorType = {
-  USER_ALREADY_EXISTS: {
-    message: 'User is already exists.',
-    statusCode: 403,
+  USER_NOT_FOUND: {
+    message: 'User not found or not active yet',
+    statusCode: 400,
+  },
+  WRONG_PASS: {
+    message: 'Password is incorrect',
+    statusCode: 400,
+  },
+  WRONG_CURRENT_PASS: {
+    message: 'Wrong current password',
+    statusCode: 400,
   },
   SERVER_ERROR: {
     message: 'Server error.',
