@@ -9,7 +9,6 @@ require('dotenv').config();
 // set up for uploading Images
 const Promise = require('bluebird');
 const helperFn = require('../../utils/helperFn');
-const { upload } = require('../../utils/uploadImg');
 const AppError = require('../../utils/ErrorHandler/appError');
 const constants = require('../../constants');
 
@@ -47,7 +46,7 @@ const login = async (req, res, next) => {
     console.log(err);
   }
 };
-const logout = async (req, res) => {
+const logout = async (req, res, next) => {
   req.logout((err) => {
     if (err) { return next(err); }
     res.redirect('/admin/loginView');
@@ -463,23 +462,23 @@ const editProduct = async (req, res, next) => {
 };
 
 const uploadImageProduct = async (req, res, next) => {
-  const productId = +req.params.productId;
-  if (!productId) return helperFn.returnFail(req, res, constants.PROVIDE_PRODUCT_ID);
-
-  const foundProduct = await prisma.product.findUnique({ where: { id: productId } });
-  if (!foundProduct) return helperFn.returnFail(req, res, constants.NO_PRODUCT_FOUND);
-
-  if (!req.files) return helperFn.returnFail(req, res, constants.NO_IMAGE_UPLOADED);
   try {
+    const productId = +req.params.productId;
+    if (!productId) return helperFn.returnFail(req, res, constants.PROVIDE_PRODUCT_ID);
+
+    const foundProduct = await prisma.product.findUnique({ where: { id: productId } });
+    if (!foundProduct) return helperFn.returnFail(req, res, constants.NO_PRODUCT_FOUND);
+
+    if (!req.files) return helperFn.returnFail(req, res, constants.NO_IMAGE_UPLOADED);
+
     // eslint-disable-next-line no-restricted-syntax
     for (const file of req.files) {
-      // eslint-disable-next-line no-await-in-loop
-      const link = await uploadImg(file.path);
+      const { path } = file;
       // eslint-disable-next-line no-await-in-loop
       await prisma.productImage.create({
         data: {
           productId: +productId,
-          href: link,
+          href: path,
         },
       });
     }
