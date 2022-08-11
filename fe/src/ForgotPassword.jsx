@@ -13,8 +13,16 @@ import { useState } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
+import { gql, useMutation } from '@apollo/client';
+import { toast, ToastContainer } from 'react-toastify';
+import helperFn from './utils/helperFn';
 const theme = createTheme();
+
+const REQUESTRESET = gql`
+  mutation Mutation($inputRequest: InputRequest) {
+    requestReset(inputRequest: $inputRequest)
+  }
+`;
 
 export default function SignUp() {
   const [input, setInput] = useState();
@@ -27,38 +35,29 @@ export default function SignUp() {
       confirmButtonText: 'OK',
     });
   };
+  const [requestReset] = useMutation(REQUESTRESET, {
+    onError: (err) => {
+      helperFn.toastAlertFail(err.message);
+    },
+  });
   const handleSubmit = async () => {
-    // setLoading(true);
     try {
-      if (!input) {
-        Swal.fire({ icon: 'error', text: 'Error', title: 'Missing data' });
+      const { data } = await requestReset({
+        variables: {
+          inputRequest: {
+            email: input.email,
+          },
+        },
+      });
+      if (data) {
+        console.log(data);
+        helperFn.toastAlertSuccess(
+          'Submit successfully. Please check your email'
+        );
       }
-      // axios({
-      //   method: 'POST',
-      //   url: 'http://localhost:4007/user/forgotPassword',
-      //   data: input,
-      // })
-      axios('http://localhost:4007/user/forgotPassword', {
-        method: 'POST',
-        data: input,
-      })
-        .then(function (response) {
-          if (response.data.status === 200) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Please check your email',
-              icon: 'success',
-              confirmButtonText: 'Resend email',
-            }).then(function () {
-              window.location = 'http://localhost:3000/forgotPassword';
-            });
-          } else {
-            fire('Error', response.data.message, 'error');
-          }
-        })
-        .catch((err) => console.log(err));
     } catch (err) {
       console.log(err);
+      helperFn.toastAlertFail('Input your email address');
     }
   };
   return (
@@ -100,6 +99,7 @@ export default function SignUp() {
                   }
                 />
               </Grid>
+              <ToastContainer />
             </Grid>
             <Button
               // type="submit"
