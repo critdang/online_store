@@ -540,7 +540,7 @@
         const categoryName = $('#category-name').val();
         const categoryDescription = $('#category-description').val();
         console.log(categoryName, categoryDescription)
-        axios.post('/admin/edit_category/' + id, {
+        axios.post('/admin/editCategory/' + id, {
             name: categoryName,
             description: categoryDescription
         })

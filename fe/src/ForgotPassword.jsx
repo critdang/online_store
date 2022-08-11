@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -14,7 +12,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import ModalLoading from './components/ModalLoading';
 import { Link } from 'react-router-dom';
 
 const theme = createTheme();
@@ -46,7 +43,7 @@ export default function SignUp() {
         data: input,
       })
         .then(function (response) {
-          if (response.data.status == 200) {
+          if (response.data.status === 200) {
             Swal.fire({
               title: 'Success',
               text: 'Please check your email',
@@ -58,15 +55,9 @@ export default function SignUp() {
           } else {
             fire('Error', response.data.message, 'error');
           }
-          // setTimeout(function () {
-          //   setLoading(false);
-          // }, 1000);
         })
         .catch((err) => console.log(err));
     } catch (err) {
-      // setTimeout(function () {
-      //   setLoading(false);
-      // }, 1000);
       console.log(err);
     }
   };
