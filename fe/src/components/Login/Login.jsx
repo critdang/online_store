@@ -153,7 +153,7 @@ export default function SignInSide() {
               <Grid container>
                 <Grid item xs>
                   <Link
-                    to="/forgotPassword"
+                    to="/requestReset"
                     variant="body2"
                     style={{ textDecoration: 'none' }}
                   >

@@ -132,7 +132,10 @@ export default function Home(props, { setLogin }) {
   const [input, setInput] = React.useState();
   const [products, setProducts] = React.useState([]);
   let { categoryId } = useParams();
-  console.log(categoryId);
+  console.log(
+    '🚀 ~ file: Category.jsx ~ line 135 ~ Home ~ categoryId',
+    categoryId
+  );
   categoryId = parseInt(categoryId);
   const { loading, error, data } = useQuery(PRODUCTBYCATEGORY, {
     variables: {

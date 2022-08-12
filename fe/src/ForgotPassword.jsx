@@ -3,61 +3,74 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useState } from 'react';
-import Swal from 'sweetalert2';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { gql, useMutation } from '@apollo/client';
-import { toast, ToastContainer } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 import helperFn from './utils/helperFn';
+import { gql, useMutation } from '@apollo/client';
+import { ToastContainer } from 'react-toastify';
+
+function Copyright(props) {
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
+
 const theme = createTheme();
 
-const REQUESTRESET = gql`
-  mutation Mutation($inputRequest: InputRequest) {
-    requestReset(inputRequest: $inputRequest)
+const RESETPASSWORD = gql`
+  mutation ResetPassword($inputReset: InputReset) {
+    resetPassword(inputReset: $inputReset)
   }
 `;
 
-export default function SignUp() {
-  const [input, setInput] = useState();
-  // const [loading, setLoading] = useState(false);
-  const fire = (title, text, icon) => {
-    Swal.fire({
-      title: title,
-      text: text,
-      icon: icon,
-      confirmButtonText: 'OK',
-    });
-  };
-  const [requestReset] = useMutation(REQUESTRESET, {
+export default function UpdatePassword() {
+  const [resetPassword] = useMutation(RESETPASSWORD, {
     onError: (err) => {
       helperFn.toastAlertFail(err.message);
     },
   });
-  const handleSubmit = async () => {
+  let { tokenId } = useParams();
+  const [input, setInput] = React.useState();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const { data } = await requestReset({
+      if (!input) {
+        helperFn.toastAlertFail('Please fill your form');
+      }
+      const { data } = await resetPassword({
         variables: {
-          inputRequest: {
-            email: input.email,
+          inputReset: {
+            token: tokenId,
+            password: input.password,
+            confirmPassword: input.confirmPassword,
           },
         },
       });
+
       if (data) {
-        console.log(data);
-        helperFn.toastAlertSuccess(
-          'Submit successfully. Please check your email'
-        );
+        helperFn.toastAlertSuccess(data.resetPassword);
       }
     } catch (err) {
       console.log(err);
-      helperFn.toastAlertFail('Input your email address');
+      helperFn.toastAlertFail(err);
     }
   };
   return (
@@ -76,55 +89,55 @@ export default function SignUp() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Forgot Password
+            Update Password
           </Typography>
           <Box
-            // component="form"
-            // noValidate
-            // onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ mt: 1 }}
           >
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  sx={{ width: '300px' }}
-                  onChange={(e) =>
-                    setInput({ ...input, [e.target.name]: e.target.value })
-                  }
-                />
-              </Grid>
-              <ToastContainer />
-            </Grid>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="password"
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete="password"
+              autoFocus
+              onChange={(e) =>
+                setInput({ ...input, [e.target.name]: e.target.value })
+              }
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              id="confirmPassword"
+              autoComplete="confirm-password"
+              onChange={(e) =>
+                setInput({ ...input, [e.target.name]: e.target.value })
+              }
+            />
             <Button
-              // type="submit"
-              onClick={handleSubmit}
+              type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
-              Submit
+              Update Password
             </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link
-                  to="/login"
-                  variant="body2"
-                  style={{ textDecoration: 'none' }}
-                >
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
+            <ToastContainer />
           </Box>
         </Box>
+        <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
-      {/* <ModalLoading isOpen={loading} /> */}
     </ThemeProvider>
   );
 }

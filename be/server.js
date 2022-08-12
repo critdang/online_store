@@ -57,18 +57,16 @@ const apolloServer = new ApolloServer({
     ApolloServerPluginLandingPageLocalDefault({ embed: true }),
   ],
   formatError(err) {
-    console.log('🚀 ~ file: server.js ~ line 59 ~ formatError ~ err', err[0]);
     if (err.message.startsWith('Database Error: ')) {
       return new Error('Internal server error');
     }
     if (!err.originalError) {
       return err;
     }
-    // error code
+    // error code/validation
     const customError = err.message.slice(7);
     const error = getErrorCode(customError) || err.extensions.validationError || err;
-    // error in validation
-    console.log('err.extensions.validationError', err.extensions.validationError);
+
     return ({ message: error.message || error, statusCode: error.statusCode });
     // return err;
   },

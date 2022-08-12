@@ -157,14 +157,10 @@ exports.requestReset = async (parent, args, context, info) => {
 };
 
 exports.resetPassword = async (parent, args, context, info) => {
-  // let { email } = args;
-  console.log('args.inputReset', args.inputReset);
   const { token, password, confirmPassword } = args.inputReset;
-  // email = email.toLowerCase();
 
   // check token
   const decodedToken = jwt.verify(args.inputReset.token, 'taskkhoqua');
-  console.log('decodedToken', decodedToken);
   const user = prisma.user.findFirst({
     where: { email: decodedToken.token, resetToken: token },
   });
@@ -185,7 +181,7 @@ exports.resetPassword = async (parent, args, context, info) => {
       resetToken: null,
     },
   });
-  return 'succesfully changed password';
+  return 'Your password has been updated successfully';
 };
 
 exports.uploadAvatar = async (parent, args, context, info) => {

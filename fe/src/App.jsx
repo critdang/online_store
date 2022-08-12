@@ -7,8 +7,9 @@ import Checkout from './Cart/Checkout';
 import Profile from './Profile';
 import Order from './Order';
 import SignUp from './Signup';
-import ForgotPassword from './ForgotPassword';
+import RequestReset from './RequestReset';
 import ResetPassword from './ResetPassword';
+import ForgotPassword from './ForgotPassword';
 import Category from './Category';
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import './mainStyle.css';
@@ -36,8 +37,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/order" element={<Order />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgotPassword" element={<ForgotPassword />} />
+          <Route path="/requestReset" element={<RequestReset />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
+          <Route path="/forgotPassword/:tokenId" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/category/:categoryId" element={<Category />} />
         </Routes>
