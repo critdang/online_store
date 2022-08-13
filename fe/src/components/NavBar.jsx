@@ -126,6 +126,14 @@ export default function NavBar(props) {
                 'aria-labelledby': 'basic-button',
               }}
             >
+              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
+                <Link
+                  to={`/categories`}
+                  style={{ textDecoration: 'none', color: 'black' }}
+                >
+                  All
+                </Link>
+              </MenuItem>
               {categories.map((category, index) => (
                 <MenuItem
                   onClick={handleClose}

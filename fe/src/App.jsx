@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Button from '@mui/material/Button';
 import Home from './Home';
 import Login from './components/Login/Login';
 import PaymentForm from './Cart/PaymentForm';
@@ -11,9 +10,10 @@ import RequestReset from './RequestReset';
 import ResetPassword from './ResetPassword';
 import ForgotPassword from './ForgotPassword';
 import Category from './Category';
-import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './mainStyle.css';
 import NavBar from './components/NavBar';
+import Categories from './Categories';
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -42,6 +42,7 @@ function App() {
           <Route path="/forgotPassword/:tokenId" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/category/:categoryId" element={<Category />} />
+          <Route path="/categories" element={<Categories />} />
         </Routes>
       </BrowserRouter>
     </>

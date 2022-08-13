@@ -237,14 +237,16 @@ exports.products = async (parent, args, context, info) => {
 // eslint-disable-next-line consistent-return
 exports.listProducts = async (parent, args, context, info) => {
   try {
-    const { name, price, categoryId } = args.productOrderBy;
-
+    const { price, categoryId } = args.productOrderBy;
+    // eslint-disable-next-line prefer-const
+    let { name } = args.productOrderBy;
     if (name) {
+      name = name.toLowerCase();
       const data = await prisma.product.findMany({
         include: {
           productImage: true,
         },
-        orderBy: [{ name }],
+        orderBy: { name },
       });
       return data;
     }

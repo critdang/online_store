@@ -62,6 +62,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import helperFn from './utils/helperFn';
 
 function Copyright() {
   return (
@@ -173,30 +174,10 @@ export default function Album(props, { setLogin }) {
       data: formData,
       headers: { authorization: `Bearer ${TOKEN}` },
     })
-      .then((res) =>
-        toast.success('Update avatar successfully', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        })
-      )
-      .catch((error) =>
-        toast.error('Upload avatar unsuccessfully', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        })
-      );
+      .then((res) => helperFn.toastAlertSuccess('Update avatar successfully'))
+      .catch((error) => helperFn.toastAlertFail(error.message));
   };
-
+  console.log(inputUpdateUser);
   // handleUpdateUser
   const handleUpdateUser = async () => {
     try {
@@ -214,15 +195,7 @@ export default function Album(props, { setLogin }) {
       });
       if (data) {
         console.log(data);
-        toast.success('Update information successfully', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        helperFn.toastAlertSuccess('Update information successfully');
       }
     } catch (err) {
       console.log(err);
@@ -255,15 +228,7 @@ export default function Album(props, { setLogin }) {
         });
         if (data) {
           console.log(data);
-          toast.success('Update password successfully', {
-            position: 'top-right',
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
+          helperFn.toastAlertSuccess('Update password successfully');
         }
       } catch (err) {
         console.log(err);
@@ -343,8 +308,8 @@ export default function Album(props, { setLogin }) {
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        id="fullName"
-                        name="fullName"
+                        id="fullname"
+                        name="fullname"
                         label="Full name"
                         fullWidth
                         autoComplete="given-name"
