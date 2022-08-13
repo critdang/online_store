@@ -33,6 +33,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
 import { gql, useMutation, useQuery } from '@apollo/client';
+import helperFn from './utils/helperFn';
 
 function Copyright() {
   return (
@@ -151,17 +152,19 @@ const PRODUCTDETAIL = gql`
     }
   }
 `;
-export default function Home(props, { setLogin }) {
-  const [input, setInput] = React.useState();
-  const { loading, error, data } = useQuery(PRODUCTS);
 
-  const [products, setProducts] = React.useState([]);
-  React.useEffect(() => {
-    if (data) {
-      // console.log(data);
-      setProducts(data.products);
+const PRODUCTSBYNAME = gql`
+  query listProducts($input: ProductOrderBy) {
+    listProducts(productOrderBy: $input) {
+      id
+      name
+      productImage {
+        href
+      }
     }
-  }, [data]);
+  }
+`;
+export default function Home(props, { setLogin }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -174,7 +177,6 @@ export default function Home(props, { setLogin }) {
   const addToCart = () => {
     props.addToCart();
   };
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [displaySearch, setDisplaySearch] = React.useState('none');
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -187,11 +189,59 @@ export default function Home(props, { setLogin }) {
   const handleClickOptions = () => {
     console.info(`You clicked ${options[selectedIndex]}`);
   };
+  // ##################################################################
+
+  const [input, setInput] = React.useState();
+  const [productByName, setProductByName] = React.useState();
+  const [orderProductByName, setOrderProductByName] = React.useState('A-Z');
+  const [products, setProducts] = React.useState([]);
+  const { loading, error, data } = useQuery(PRODUCTS, {
+    onError: (err) => {
+      helperFn.toastAlertFail(err.message);
+    },
+  });
+  React.useEffect(() => {
+    if (data) {
+      // console.log(data);
+      setProducts(data.products);
+    }
+  }, [data]);
 
   const handleMenuItemClick = (event, index) => {
+    event.preventDefault();
     setSelectedIndex(index);
     setOpenButton(false);
+    let orderBy = `${options[selectedIndex]}`;
+    if (orderBy === 'A-Z') {
+      orderBy = 'ASC';
+    } else {
+      orderBy = 'DESC';
+    }
+    setOrderProductByName(orderBy);
   };
+
+  const { data: dataProductByName } = useQuery(
+    PRODUCTSBYNAME,
+    {
+      variables: {
+        input: {
+          name: orderProductByName,
+        },
+      },
+    },
+    {
+      onError: (err) => {
+        helperFn.toastAlertFail(err.message);
+      },
+    }
+  );
+  React.useEffect(() => {
+    if (dataProductByName) {
+      setProducts(dataProductByName.listProducts);
+    }
+  });
+
+  console.log('🚀 ~ file: Home.jsx ~ line 178 ~ Home ~ products', products);
 
   const handleToggle = () => {
     openButton ? setOpenButton(false) : setOpenButton(true);
@@ -207,6 +257,7 @@ export default function Home(props, { setLogin }) {
 
   //lisen toggle modal
   // eslint-disable-next-line react-hooks/rules-of-hooks
+
   const [openModal, setOpenModal] = React.useState(false);
   const [idProduct, setIdProduct] = React.useState();
   const {
@@ -222,6 +273,7 @@ export default function Home(props, { setLogin }) {
     },
   });
   if (detailData) console.log(detailData);
+
   const handleOpenModal = (id) => {
     setOpenModal(true);
     setIdProduct(parseInt(id));
@@ -240,8 +292,6 @@ export default function Home(props, { setLogin }) {
   };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error! {error.message}</div>;
-  // if (loadingProductId) return <div>Loading...</div>;
-  // if (errorProductId) return <div>Error! {errorProductId.message}</div>;
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
