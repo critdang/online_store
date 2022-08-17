@@ -12,7 +12,7 @@ import ForgotPassword from './components/forgot-password';
 import Category from './components/category';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './mainStyle.css';
-import NavBar from './components/navbar';
+import NavBar from './components/navbar/index';
 import Categories from './components/categories';
 import VerifyUser from './components/verify-user';
 function App() {
@@ -41,7 +41,10 @@ function App() {
           <Route path="/verify/:tokenId" element={<VerifyUser />} />
           <Route path="/forgotPassword/:tokenId" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/category/:categoryId" element={<Category />} />
+          <Route
+            path="/category/:categoryName:categoryId"
+            element={<Category />}
+          />
           <Route path="/categories" element={<Categories />} />
         </Routes>
       </BrowserRouter>

@@ -112,17 +112,14 @@ const PRODUCTDETAIL = gql`
 `;
 
 const PRODUCTBYCATEGORY = gql`
-  query listProduct($input: ProductOrderBy) {
-    listProducts(productOrderBy: $input) {
+  query FilterProductByCategory($input: CategoryId) {
+    filterProductByCategory(categoryId: $input) {
       id
       name
-      categoryProduct {
-        product {
-          name
-          productImage {
-            href
-          }
-        }
+      price
+      description
+      productImage {
+        href
       }
     }
   }
@@ -131,12 +128,9 @@ const PRODUCTBYCATEGORY = gql`
 export default function Home(props, { setLogin }) {
   const [input, setInput] = React.useState();
   const [products, setProducts] = React.useState([]);
-  let { categoryId } = useParams();
-  console.log(
-    '🚀 ~ file: Category.jsx ~ line 135 ~ Home ~ categoryId',
-    categoryId
-  );
+  let { categoryId, categoryName } = useParams();
   categoryId = parseInt(categoryId);
+
   const { loading, error, data } = useQuery(PRODUCTBYCATEGORY, {
     variables: {
       input: {
@@ -146,12 +140,9 @@ export default function Home(props, { setLogin }) {
   });
   React.useEffect(() => {
     if (data) {
-      console.log(data);
-      setProducts(data.listProducts[0]);
+      setProducts(data.filterProductByCategory);
     }
   }, [data]);
-  console.log(products.categoryProduct);
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -211,7 +202,6 @@ export default function Home(props, { setLogin }) {
       },
     },
   });
-  if (detailData) console.log(detailData);
   const handleOpenModal = (id) => {
     setOpenModal(true);
     setIdProduct(parseInt(id));
@@ -228,7 +218,7 @@ export default function Home(props, { setLogin }) {
     adaptiveHeight: true,
   };
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error! {error.message}</div>;
+  if (error) console.log(error.message);
   // if (loadingProductId) return <div>Loading...</div>;
   // if (errorProductId) return <div>Error! {errorProductId.message}</div>;
   return (
@@ -250,8 +240,7 @@ export default function Home(props, { setLogin }) {
                 justifyContent: 'center',
               }}
             >
-              {' '}
-              Ten o day
+              {categoryName}
             </Typography>
             <div
               style={{
@@ -352,158 +341,169 @@ export default function Home(props, { setLogin }) {
               </React.Fragment>
             </div>
           </div>
-          <Grid container spacing={3} marginTop={5}>
-            {products.categoryProduct.map((product, index) => (
-              <Grid item key={index} xs={12} sm={6} md={3}>
-                <Card
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    boxShadow: 'none',
-                    position: 'relative',
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    sx={{
-                      // 16:9
-                      pt: '30%',
-                    }}
-                    image={
-                      product.productImage[0]
-                        ? product.productImage[0].href
-                        : 'https://source.unsplash.com/random'
-                    }
-                    alt="random"
-                  />
-                  <AddCircleOutlineIcon
-                    sx={{
-                      position: 'absolute',
-                      bottom: '14%',
-                      width: '100%',
-                      cursor: 'pointer',
-                      fontSize: '30px',
-                      '&:hover': {
-                        color: 'white',
-                      },
-                    }}
-                    onClick={addToCart}
-                  ></AddCircleOutlineIcon>
-                  <Container>
-                    <Typography variant="body2" component="h2">
-                      {product.name}
-                    </Typography>
-                  </Container>
-                  <Container
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <CardActions>
-                      <Button
-                        size="small"
-                        key={index}
-                        onClick={() => handleOpenModal(product.id)}
-                      >
-                        View
-                      </Button>
-                    </CardActions>
-                    <Modal
-                      open={openModal}
-                      onClose={handleCloseModal}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
-                      BackdropProps={{
-                        style: { backgroundColor: 'rgba(0,0,0,0.1)' },
+          {data === undefined ? (
+            <Typography sx={{ marginTop: '100px' }} align="center" variant="h4">
+              {' '}
+              Updating Product soon ...
+            </Typography>
+          ) : (
+            <Grid container spacing={3} marginTop={5}>
+              {products.length > 0 &&
+                products.map((product, index) => (
+                  <Grid item key={index} xs={12} sm={6} md={3}>
+                    <Card
+                      sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        boxShadow: 'none',
+                        position: 'relative',
                       }}
                     >
-                      <Box sx={styleModal}>
-                        <Grid container>
-                          <Grid item xs={8} align="center">
-                            <Typography
-                              variant="h5"
-                              sx={{
-                                backgroundColor: '#f3f3f3',
-                                color: '#009688',
-                              }}
-                            >
-                              Product's Image Detail
-                            </Typography>
-                            <Slider {...settings}>
-                              <div>
-                                <h2>hi</h2>
-                              </div>
-                              <div>
-                                <img
-                                  src="https://source.unsplash.com/random"
-                                  alt="anh"
-                                  style={{ width: '60%' }}
-                                />
-                              </div>
-                            </Slider>
-                          </Grid>
-                          <Grid
-                            item
-                            xs={4}
-                            align="left"
-                            sx={{ backgroundColor: '#dedede' }}
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          // 16:9
+                          pt: '30%',
+                        }}
+                        image={
+                          product.productImage[0]
+                            ? product.productImage[0].href
+                            : 'https://source.unsplash.com/random'
+                        }
+                        alt="random"
+                      />
+                      <AddCircleOutlineIcon
+                        sx={{
+                          position: 'absolute',
+                          bottom: '14%',
+                          width: '100%',
+                          cursor: 'pointer',
+                          fontSize: '30px',
+                          '&:hover': {
+                            color: 'white',
+                          },
+                        }}
+                        onClick={addToCart}
+                      ></AddCircleOutlineIcon>
+                      <Container>
+                        <Typography variant="body2" component="h2">
+                          {product.name}
+                        </Typography>
+                      </Container>
+                      <Container
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <CardActions>
+                          <Button
+                            size="small"
+                            key={index}
+                            onClick={() => handleOpenModal(product.id)}
                           >
-                            {detailData && (
-                              <Container>
+                            View
+                          </Button>
+                        </CardActions>
+                        <Modal
+                          open={openModal}
+                          onClose={handleCloseModal}
+                          aria-labelledby="modal-modal-title"
+                          aria-describedby="modal-modal-description"
+                          BackdropProps={{
+                            style: { backgroundColor: 'rgba(0,0,0,0.1)' },
+                          }}
+                        >
+                          <Box sx={styleModal}>
+                            <Grid container>
+                              <Grid item xs={8} align="center">
                                 <Typography
                                   variant="h5"
-                                  sx={{ color: '#009688' }}
+                                  sx={{
+                                    backgroundColor: '#f3f3f3',
+                                    color: '#009688',
+                                  }}
                                 >
-                                  Detail product
+                                  Product's Image Detail
                                 </Typography>
-                                <Typography>
-                                  <strong>Name:</strong>{' '}
-                                  {detailData.productDetail.name}
-                                </Typography>
-                                <Typography>
-                                  <strong>Price:</strong>{' '}
-                                  {detailData.productDetail.price}
-                                </Typography>
-                                <Typography>
-                                  <strong>Description:</strong>{' '}
-                                  {detailData.productDetail.description}
-                                </Typography>
-                                <Typography>
-                                  <strong>Remaining amount:</strong>{' '}
-                                  {detailData.productDetail.amount}
-                                </Typography>
-                                <Button variant="contained" onClick={addToCart}>
-                                  Add
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={handleCloseModal}
-                                >
-                                  Close
-                                </Button>
-                              </Container>
-                            )}
-                          </Grid>
-                        </Grid>
-                      </Box>
-                    </Modal>
-                    <Typography
-                      sx={{
-                        fontSize: '14px',
-                        backgroundColor: 'yellow',
-                      }}
-                    >
-                      {product.price}
-                    </Typography>
-                  </Container>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                                <Slider {...settings}>
+                                  <div>
+                                    <h2>hi</h2>
+                                  </div>
+                                  <div>
+                                    <img
+                                      src="https://source.unsplash.com/random"
+                                      alt="anh"
+                                      style={{ width: '60%' }}
+                                    />
+                                  </div>
+                                </Slider>
+                              </Grid>
+                              <Grid
+                                item
+                                xs={4}
+                                align="left"
+                                sx={{ backgroundColor: '#dedede' }}
+                              >
+                                {detailData && (
+                                  <Container>
+                                    <Typography
+                                      variant="h5"
+                                      sx={{ color: '#009688' }}
+                                    >
+                                      Detail product
+                                    </Typography>
+                                    <Typography>
+                                      <strong>Name:</strong>{' '}
+                                      {detailData.productDetail.name}
+                                    </Typography>
+                                    <Typography>
+                                      <strong>Price:</strong>{' '}
+                                      {detailData.productDetail.price}
+                                    </Typography>
+                                    <Typography>
+                                      <strong>Description:</strong>{' '}
+                                      {detailData.productDetail.description}
+                                    </Typography>
+                                    <Typography>
+                                      <strong>Remaining amount:</strong>{' '}
+                                      {detailData.productDetail.amount}
+                                    </Typography>
+                                    <Button
+                                      variant="contained"
+                                      onClick={addToCart}
+                                    >
+                                      Add
+                                    </Button>
+                                    <Button
+                                      variant="outlined"
+                                      color="error"
+                                      onClick={handleCloseModal}
+                                    >
+                                      Close
+                                    </Button>
+                                  </Container>
+                                )}
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        </Modal>
+                        <Typography
+                          sx={{
+                            fontSize: '14px',
+                            backgroundColor: 'yellow',
+                          }}
+                        >
+                          {product.price}
+                        </Typography>
+                      </Container>
+                    </Card>
+                  </Grid>
+                ))}
+            </Grid>
+          )}
         </Container>
       </main>
       {/* Footer */}

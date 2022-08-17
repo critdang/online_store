@@ -8,7 +8,6 @@ import {
   Menu,
   MenuItem,
   Toolbar,
-  Typography,
 } from '@mui/material';
 import { Container } from '@mui/system';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -126,27 +125,27 @@ export default function NavBar(props) {
                 'aria-labelledby': 'basic-button',
               }}
             >
-              <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
+              <Link
+                to={`/categories`}
+                style={{ textDecoration: 'none', color: 'black' }}
+              >
+                <MenuItem onClick={handleClose} sx={{ color: 'black' }}>
+                  All
+                </MenuItem>
+              </Link>
+              {categories.map((category, index) => (
                 <Link
-                  to={`/categories`}
+                  to={`/category/${category.name}${category.id}`}
                   style={{ textDecoration: 'none', color: 'black' }}
                 >
-                  All
-                </Link>
-              </MenuItem>
-              {categories.map((category, index) => (
-                <MenuItem
-                  onClick={handleClose}
-                  sx={{ color: 'black' }}
-                  key={index}
-                >
-                  <Link
-                    to={`/category/${category.name}`}
-                    style={{ textDecoration: 'none', color: 'black' }}
+                  <MenuItem
+                    onClick={handleClose}
+                    sx={{ color: 'black' }}
+                    key={index}
                   >
                     {category.name}
-                  </Link>
-                </MenuItem>
+                  </MenuItem>
+                </Link>
               ))}
             </Menu>
             <div>

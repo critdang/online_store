@@ -272,14 +272,14 @@ export default function Album() {
                         )}
                       </Box>
                     </Modal>
-                    <Typography
+                    {/* <Typography
                       sx={{
                         fontSize: '14px',
                         backgroundColor: 'yellow',
                       }}
                     >
-                      {category.price}
-                    </Typography>
+                      Show Products
+                    </Typography> */}
                   </Container>
                 </Card>
               </Grid>

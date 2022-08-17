@@ -229,7 +229,6 @@ export default function Home(props, { setLogin }) {
   });
   React.useEffect(() => {
     if (data) {
-      // console.log(data);
       setProducts(data.products);
     }
   }, [data]);
@@ -268,8 +267,6 @@ export default function Home(props, { setLogin }) {
     }
   });
 
-  console.log('🚀 ~ file: Home.jsx ~ line 178 ~ Home ~ products', products);
-
   const handleToggle = () => {
     openButton ? setOpenButton(false) : setOpenButton(true);
   };
@@ -299,6 +296,7 @@ export default function Home(props, { setLogin }) {
       },
     },
   });
+  if (detailData) console.log(detailData.productDetail);
 
   const handleOpenModal = (id) => {
     setOpenModal(true);
@@ -307,16 +305,16 @@ export default function Home(props, { setLogin }) {
   };
   const handleCloseModal = () => setOpenModal(false);
   const [optionSort, setOptionSort] = React.useState(0);
-  console.log(products);
   //setting slick
   var settings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 300,
     slidesToShow: 1,
     slidesToScroll: 1,
     adaptiveHeight: true,
   };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error! {error.message}</div>;
 
@@ -367,7 +365,7 @@ export default function Home(props, { setLogin }) {
               <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
                 <SearchIcon />
               </IconButton>
-              <Typography>Sort By Name:</Typography>
+              <Typography>Sort By &nbsp;</Typography>
               {/* <React.Fragment>
                 <ButtonGroup
                   variant="contained"
@@ -528,16 +526,22 @@ export default function Home(props, { setLogin }) {
                               Product's Image Detail
                             </Typography>
                             <Slider {...settings}>
-                              <div>
-                                <h2>hi</h2>
-                              </div>
-                              <div>
-                                <img
-                                  src="https://source.unsplash.com/random"
-                                  alt="anh"
-                                  style={{ width: '60%' }}
-                                />
-                              </div>
+                              {detailData
+                                ? detailData.productDetail.productImage.map(
+                                    (img, key) => {
+                                      return (
+                                        <div>
+                                          <img
+                                            id={key}
+                                            src={img.href}
+                                            alt="anh"
+                                            style={{ width: '60%' }}
+                                          />
+                                        </div>
+                                      );
+                                    }
+                                  )
+                                : null}
                             </Slider>
                           </Grid>
                           <Grid
