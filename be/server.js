@@ -8,9 +8,9 @@ const express = require('express');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const cors = require('cors');
 const context = require('./services/context.services');
-const typeDefs = require('./src/graphql/typeDefs');
-const resolvers = require('./src/graphql/resolvers');
-const routes = require('./rest/routes');
+const typeDefs = require('./src/graphql/typeDefs/users');
+const resolvers = require('./src/graphql/resolvers/users');
+const adminRoutes = require('./rest/routes/admin.route');
 const getErrorCode = require('./utils/ErrorHandler/getCodeError');
 const viewEngine = require('./rest/config/viewEngine');
 require('dotenv').config();
@@ -44,7 +44,7 @@ app.use(cors(corsOptions));
 viewEngine(app);
 
 // route REST
-app.use('/', routes);
+app.use('/', adminRoutes);
 
 // Mount GraphQL
 const apolloServer = new ApolloServer({

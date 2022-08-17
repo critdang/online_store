@@ -5,7 +5,6 @@ const verify = promisify(jwt.verify);
 const decodedToken = async (bearer) => {
   const token = bearer.split(' ')[1];
   const temp = await verify(token, process.env.JWT_SECRET);
-
   return temp;
 };
 // Authorization Bearer + token

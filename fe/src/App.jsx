@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import Home from './Home';
-import Login from './components/Login/Login';
-import PaymentForm from './Cart/PaymentForm';
-import Checkout from './Cart/Checkout';
-import Profile from './Profile';
-import Order from './Order';
-import SignUp from './Signup';
-import RequestReset from './RequestReset';
-import ResetPassword from './ResetPassword';
-import ForgotPassword from './ForgotPassword';
-import Category from './Category';
+import Home from './components/home';
+import Login from './components/login';
+import PaymentForm from './components/cart/PaymentForm';
+import Checkout from './components/cart/Checkout';
+import Profile from './components/profile';
+import Order from './components/order';
+import SignUp from './components/signup';
+import RequestReset from './components/reset-password/RequestReset';
+import ResetPassword from './components/reset-password/ResetPassword';
+import ForgotPassword from './components/forgot-password';
+import Category from './components/category';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './mainStyle.css';
-import NavBar from './components/NavBar';
-import Categories from './Categories';
-
+import NavBar from './components/navbar';
+import Categories from './components/categories';
+import VerifyUser from './components/verify-user';
 function App() {
-  const [login, setLogin] = useState(false);
   const [itemCart, setItemCart] = useState(0);
 
   //ham tang cap
@@ -39,6 +38,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/requestReset" element={<RequestReset />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
+          <Route path="/verify/:tokenId" element={<VerifyUser />} />
           <Route path="/forgotPassword/:tokenId" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/category/:categoryId" element={<Category />} />

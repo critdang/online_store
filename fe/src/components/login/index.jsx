@@ -18,6 +18,7 @@ import { useMutation, gql } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import helperFn from '../../utils/helperFn';
 const theme = createTheme();
 
 const LOGIN = gql`
@@ -35,15 +36,7 @@ export default function SignInSide() {
 
   const [login] = useMutation(LOGIN, {
     onError: (err) => {
-      toast.error(err.message, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      helperFn.toastAlertFail(err.message);
     },
   });
 

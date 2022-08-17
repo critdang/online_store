@@ -13,66 +13,63 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
-import Swal from 'sweetalert2';
-import axios from 'axios';
-
+import helperFn from '../../utils/helperFn';
+import { ToastContainer } from 'react-toastify';
 const theme = createTheme();
 const SIGNUP = gql`
-  mutation createUser($input: InputSignup) {
+  mutation ($input: InputSignup) {
     createUser(inputSignup: $input) {
       id
+      fullname
+      email
+      isActive
+      address
+      phone
+      gender
+      avatar
+      birthday
     }
   }
 `;
 export default function SignUp() {
   const [input, setInput] = React.useState();
   const [rePassword, setRePassword] = React.useState();
-  console.log(input);
-  console.log(rePassword);
   const navigate = useNavigate();
-
   const validPassword = (password) => {
-    return password
-      .trim()
-      .match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/);
+    return password.trim().match(/^[a-zA-Z0-9]{6,30}$/);
   };
+  const [signup] = useMutation(SIGNUP, {
+    onError: (err) => {
+      helperFn.toastAlertFail(err.message);
+    },
+  });
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      console.log(rePassword.rePassword);
-      console.log(input.password);
       if (!input.email || !input.password || !input.fullname || !rePassword)
-        return Swal.fire({ icon: 'error', text: 'Please fill all the fields' });
-      if (rePassword.rePassword !== input.password)
-        return Swal.fire({ icon: 'error', text: 'Passwords must match' });
+        return helperFn.toastAlertFail('Please fill all the fields');
+      if (rePassword.rePassword !== input.password) {
+        return helperFn.toastAlertFail('Passwords must match');
+      }
       if (!validPassword(input.password))
-        return Swal.fire({
-          icon: 'error',
-          text: 'Password contains atleast 1 special character, 1 number, 1 character',
-        });
-      axios
-        .post('http://localhost:4007/user', input)
-        .then((res) => {
-          console.log(res);
-          if (res.data.status === 200) {
-            Swal.fire({ icon: 'success', text: res.data.message }).then(() => {
-              navigate('/login');
-            });
-          } else if (res.data.status === 400)
-            Swal.fire({
-              icon: 'error',
-              html:
-                `User exist: ` +
-                '<a href="/forgotPassword">Forgot password</a>',
-            });
-          else Swal.fire({ icon: 'error', text: res.data.message });
-        })
-        .catch(
-          (error) => console.log(error)
-          // Swal.fire({ icon: 'error', text: 'Something went wrong' })
-        );
-    } catch (e) {
-      console.log(e);
+        return helperFn.toastAlertFail('Password contains the length 6-30');
+      const { data } = await signup({
+        variables: {
+          input: {
+            email: input.email,
+            password: input.password,
+            fullname: input.fullname,
+            address: input.address,
+            phone: input.phone,
+          },
+        },
+      });
+      if (data) {
+        console.log(data);
+        helperFn.toastAlertSuccess('Please check your email');
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
   return (
@@ -112,6 +109,7 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
+                  type="password"
                   name="password"
                   label="Password"
                   id="password"
@@ -124,6 +122,7 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
+                  type="password"
                   name="rePassword"
                   label="Re-Password"
                   id="rePassword"
@@ -196,6 +195,7 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
+            <ToastContainer />
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link

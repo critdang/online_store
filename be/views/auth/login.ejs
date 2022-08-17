@@ -153,7 +153,7 @@
           <i class="fas fa-lock"></i>
           <input type="password" placeholder="Password" name="password" id="password" required>
         </div>
-        <div class="pass"><a href="/admin/forgotPassword">Forgot password?</a></div>
+        <div class="pass"><a href="/forgotPassword">Forgot password?</a></div>
 
       </form>
       <div class="d-flex justify-content-center mb-2">
@@ -177,7 +177,7 @@
   function submitLogin() {
     const email = $('#email').val();
     const password = $('#password').val();
-    axios.post('/admin/', {
+    axios.post('/', {
       email: email,
       password: password
     })
@@ -189,7 +189,7 @@
           showConfirmButton: false
         });
         setTimeout(function () {
-          window.location.href = '/admin/dashboard';
+          window.location.href = '/dashboard';
         }, 1500);
       })
   }

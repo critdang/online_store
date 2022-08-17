@@ -1,16 +1,26 @@
-// eslint-disable-next-line import/no-unresolved
 const { GraphQLUpload } = require('graphql-upload');
-const {
-  createUser, login, changePassword, requestReset, resetPassword, editProfile, uploadAvatar, getUser,
-} = require('./services');
-const {
-  products, listProducts, productDetail, productImage, addToCart, cartProduct,
-} = require('./services');
-const { listCategories, listCategory, categories } = require('./services');
-const { getCart, deleteItemCart } = require('./services');
-const { createOrder, listOrders, changeOrderStatus } = require('./services');
 
-module.exports = {
+const {
+  filterProductByCategory, productImage, productDetail, listProducts, products,
+} = require('./product');
+
+const {
+  listCategories, listCategory, categories,
+} = require('./category');
+
+const {
+  createUser, verify, login, changePassword, requestReset, resetPassword, editProfile, uploadAvatar, getUser,
+} = require('./user');
+
+const {
+  addToCart, cartProduct, getCart, deleteItemCart,
+} = require('./cart');
+
+const {
+  createOrder, listOrders, changeOrderStatus,
+} = require('./order');
+
+const resolvers = {
   Upload: GraphQLUpload,
   Query: {
     user: getUser,
@@ -19,6 +29,7 @@ module.exports = {
     productImage,
     cartProduct,
     listCategories,
+    filterProductByCategory,
     listCategory,
     getCart,
     listOrders,
@@ -28,6 +39,7 @@ module.exports = {
   Mutation: {
     login,
     createUser,
+    verify,
     changePassword,
     requestReset,
     resetPassword,
@@ -39,3 +51,5 @@ module.exports = {
     createOrder,
   },
 };
+
+module.exports = resolvers;

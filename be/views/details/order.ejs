@@ -97,7 +97,7 @@
                 newStatus = orderStatus[i].value;
             }
         }
-        axios.post('/admin/changeOrderStatus/' + id, {
+        axios.post('/changeOrderStatus/' + id, {
             newStatus: newStatus
         })
             .then(function (response) {
