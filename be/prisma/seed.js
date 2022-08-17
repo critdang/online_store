@@ -21,6 +21,7 @@ async function main() {
       gender: 'Male',
     },
   });
+
   const seedUser = await prisma.user.upsert({
     where: { email: 'user@gmail.com' },
     update: {},
@@ -35,6 +36,7 @@ async function main() {
       isActive: true,
     },
   });
+
   const seedProduct = await prisma.product.create({
     data: {
       name: 'Shirt',
@@ -51,6 +53,7 @@ async function main() {
       paymentDate: new Date(),
     },
   });
+
   const seedProductInOrder = await prisma.productInOrder.create({
     data: {
       orderId: order.id,
@@ -59,13 +62,15 @@ async function main() {
       price: 200.000,
     },
   });
+
   const seedProductImage = await prisma.productImage.create({
     data: {
       href: 'https://',
       productId: seedProduct.id,
-      isDefault: false,
+      isDefault: true,
     },
   });
+
   const seedCategory = await prisma.category.create({
     data: {
       name: 'Trang phuc',
@@ -73,17 +78,20 @@ async function main() {
       description: 'Bo suu tap trang phuc',
     },
   });
+
   const seedCategoryProduct = await prisma.categoryProduct.create({
     data: {
       productId: seedProduct.id,
       categoryId: seedCategory.id,
     },
   });
+
   const seedCart = await prisma.cart.create({
     data: {
       userId: seedUser.id,
     },
   });
+
   const seedCartProduct = await prisma.cartProduct.create({
     data: {
       productId: seedProduct.id,
@@ -92,7 +100,7 @@ async function main() {
     },
   });
 
-  console.log({ seedUser });
+  console.log({ seedAmin });
 }
 
 main()

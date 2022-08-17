@@ -31,7 +31,7 @@
                                     <p class="total_item--des">
                                         <%=orders.length%>
                                     </p>
-                                    <a href="http://localhost:4007/admin/orderView">View more</a>
+                                    <a href="http://localhost:4007/orderView">View more</a>
                                 </div>
                             </div>
                             <div class="total_item--detail">
@@ -50,7 +50,7 @@
                                     <p class="total_item--des">
                                         <%=users.length %>
                                     </p>
-                                    <a href="http://localhost:4007/admin/userView">View more</a>
+                                    <a href="http://localhost:4007/userView">View more</a>
 
                                 </div>
                             </div>
@@ -71,7 +71,7 @@
                                     <p class="total_item--des">
                                         <%=categories.length%>
                                     </p>
-                                    <a href="http://localhost:4007/admin/categoryView">View more</a>
+                                    <a href="http://localhost:4007/categoryView">View more</a>
                                 </div>
                             </div>
                             <div class="total_item--detail">
@@ -91,7 +91,7 @@
                                     <p class="total_item--des">
                                         <%=products.length%>
                                     </p>
-                                    <a href="http://localhost:4007/admin/productView">View more</a>
+                                    <a href="http://localhost:4007/productView">View more</a>
                                 </div>
 
                             </div>
@@ -325,7 +325,7 @@
     function detailProduct(id) {
         //get Category Product to compare the exist account
         const insertImageProduct = $('.image-product-' + id);
-        axios.get('/admin/product/' + id).then(res => {
+        axios.get('/product/' + id).then(res => {
             var checkCategoryProduct = document.getElementsByClassName(`form-check-input-category` + id);
             console.log('checkExistCategory', res.data.message)
             // console.log('checkCategoryProduct', checkCategoryProduct)
@@ -373,7 +373,7 @@
         const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
-        axios.put('/admin/product/' + id, {
+        axios.put('/product/' + id, {
             name: name,
             description: description,
             amount: amount,
@@ -395,7 +395,7 @@
                         icon: 'error',
                         confirmButtonText: 'Login'
                     }).then(() => {
-                        window.location.href = '/admin/loginView'
+                        window.location.href = '/loginView'
                     })
                 }
             })
@@ -407,14 +407,14 @@
                     icon: 'error',
                     confirmButtonText: 'Login '
                 }).then(() => {
-                    window.location.href = '/admin/loginView'
+                    window.location.href = '/loginView'
                 })
             });
     }
 
     function mainImg(id) {
         const defaultImg = id.split('-')[1];
-        axios.post('/admin/default_image/' + defaultImg)
+        axios.post('/default_image/' + defaultImg)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({
@@ -447,7 +447,7 @@
         const categoryId = $('input[type=checkbox]:checked').map(function (_, el) {
             return $(el).val();
         }).get();
-        axios.post('/admin/product', {
+        axios.post('/product', {
             name: name,
             amount: amount,
             price: price,
@@ -461,7 +461,7 @@
     }
 
     function deleteProduct(id) {
-        axios.delete('/admin/product/' + id)
+        axios.delete('/product/' + id)
             .then(function (response) {
                 console.log(response);
                 if (response.data.status == 200) {
@@ -488,7 +488,7 @@
     }
 
     function changeBlockUserStt(id) {
-        axios.post('/admin/changeBlockUserStt/' + id,)
+        axios.post('/changeBlockUserStt/' + id,)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({
@@ -514,7 +514,7 @@
     }
 
     function deleteUser(id) {
-        axios.delete('/admin/user/' + id)
+        axios.delete('/user/' + id)
             .then(res => {
                 Swal.fire({
                     position: 'center',
@@ -540,7 +540,7 @@
         const categoryName = $('#category-name').val();
         const categoryDescription = $('#category-description').val();
         console.log(categoryName, categoryDescription)
-        axios.post('/admin/editCategory/' + id, {
+        axios.post('/editCategory/' + id, {
             name: categoryName,
             description: categoryDescription
         })
@@ -569,7 +569,7 @@
     }
 
     function deleteCategory(id) {
-        axios.delete('/admin/category/' + id)
+        axios.delete('/category/' + id)
             .then(res => {
                 Swal.fire({
                     position: 'top-end',
@@ -600,7 +600,7 @@
             }
         }
         console.log('newStatus', newStatus)
-        axios.post('/admin/changeOrderStatus/' + id, {
+        axios.post('/changeOrderStatus/' + id, {
             newStatus: newStatus
         })
             .then(function (response) {

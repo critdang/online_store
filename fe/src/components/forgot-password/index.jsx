@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useParams } from 'react-router-dom';
-import helperFn from './utils/helperFn';
+import helperFn from '../../utils/helperFn';
 import { gql, useMutation } from '@apollo/client';
 import { ToastContainer } from 'react-toastify';
 

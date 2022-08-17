@@ -41,7 +41,6 @@ const login = async (req, res, next) => {
     }
     req.user = admin;
     helperFn.returnSuccess(req, res, 'Login successfully');
-    // res.redirect('/admin/dashboard');
   } catch (err) {
     console.log(err);
   }
@@ -49,7 +48,7 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
   req.logout((err) => {
     if (err) { return next(err); }
-    res.redirect('/admin/loginView');
+    res.redirect('/loginView');
   });
 };
 const getLoginView = async (req, res, next) => {

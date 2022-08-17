@@ -25,6 +25,7 @@ import {
   Modal,
   Paper,
   Popper,
+  Select,
   TableCell,
   tableCellClasses,
   TableRow,
@@ -33,7 +34,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
 import { gql, useMutation, useQuery } from '@apollo/client';
-import helperFn from './utils/helperFn';
+import helperFn from './../../utils/helperFn';
 
 function Copyright() {
   return (
@@ -158,12 +159,36 @@ const PRODUCTSBYNAME = gql`
     listProducts(productOrderBy: $input) {
       id
       name
+      price
       productImage {
         href
       }
     }
   }
 `;
+
+const SORTS = [
+  {
+    name: 'name',
+    label: 'Name: A -> Z',
+    value: 'ASC',
+  },
+  {
+    name: 'name',
+    label: 'Name: Z -> A',
+    value: 'DESC',
+  },
+  {
+    name: 'price',
+    label: 'Price: A -> Z',
+    value: 'ASC',
+  },
+  {
+    name: 'price',
+    label: 'Price: Z -> A',
+    value: 'DESC',
+  },
+];
 export default function Home(props, { setLogin }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -192,8 +217,10 @@ export default function Home(props, { setLogin }) {
   // ##################################################################
 
   const [input, setInput] = React.useState();
-  const [productByName, setProductByName] = React.useState();
-  const [orderProductByName, setOrderProductByName] = React.useState('A-Z');
+  const [orderProductByName, setOrderProductByName] = React.useState({
+    name: 'name',
+    value: 'ASC',
+  });
   const [products, setProducts] = React.useState([]);
   const { loading, error, data } = useQuery(PRODUCTS, {
     onError: (err) => {
@@ -207,25 +234,25 @@ export default function Home(props, { setLogin }) {
     }
   }, [data]);
 
-  const handleMenuItemClick = (event, index) => {
-    event.preventDefault();
-    setSelectedIndex(index);
-    setOpenButton(false);
-    let orderBy = `${options[selectedIndex]}`;
-    if (orderBy === 'A-Z') {
-      orderBy = 'ASC';
-    } else {
-      orderBy = 'DESC';
-    }
-    setOrderProductByName(orderBy);
-  };
+  // const handleMenuItemClick = (event, index) => {
+  //   event.preventDefault();
+  //   setSelectedIndex(index);
+  //   setOpenButton(false);
+  //   let orderBy = `${options[selectedIndex]}`;
+  //   if (orderBy === 'A-Z') {
+  //     orderBy = 'ASC';
+  //   } else {
+  //     orderBy = 'DESC';
+  //   }
+  //   setOrderProductByName(orderBy);
+  // };
 
   const { data: dataProductByName } = useQuery(
     PRODUCTSBYNAME,
     {
       variables: {
         input: {
-          name: orderProductByName,
+          [orderProductByName.name]: orderProductByName.value,
         },
       },
     },
@@ -272,7 +299,6 @@ export default function Home(props, { setLogin }) {
       },
     },
   });
-  if (detailData) console.log(detailData);
 
   const handleOpenModal = (id) => {
     setOpenModal(true);
@@ -280,7 +306,8 @@ export default function Home(props, { setLogin }) {
     refetch();
   };
   const handleCloseModal = () => setOpenModal(false);
-
+  const [optionSort, setOptionSort] = React.useState(0);
+  console.log(products);
   //setting slick
   var settings = {
     dots: true,
@@ -292,6 +319,7 @@ export default function Home(props, { setLogin }) {
   };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error! {error.message}</div>;
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -340,7 +368,7 @@ export default function Home(props, { setLogin }) {
                 <SearchIcon />
               </IconButton>
               <Typography>Sort By Name:</Typography>
-              <React.Fragment>
+              {/* <React.Fragment>
                 <ButtonGroup
                   variant="contained"
                   ref={anchorRef}
@@ -397,7 +425,26 @@ export default function Home(props, { setLogin }) {
                     </Grow>
                   )}
                 </Popper>
-              </React.Fragment>
+              </React.Fragment> */}
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={optionSort}
+                label="Sort"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setOptionSort(value);
+                  setOrderProductByName(SORTS[value]);
+                }}
+              >
+                {SORTS.map((option, index) => {
+                  return (
+                    <MenuItem key={index} value={index}>
+                      {option.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
             </div>
           </div>
           <Grid container spacing={3} marginTop={5}>

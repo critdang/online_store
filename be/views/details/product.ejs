@@ -95,7 +95,7 @@
     function detailProduct(id) {
         //get Category Product to compare the exist account
         const insertImageProduct = $('.image-product-' + id);
-        axios.get('/admin/product/' + id).then(res => {
+        axios.get('/product/' + id).then(res => {
             var checkCategoryProduct = document.getElementsByClassName(`form-check-input-category` + id);
             console.log('checkExistCategory', res.data.message)
             // console.log('checkCategoryProduct', checkCategoryProduct)
@@ -146,7 +146,7 @@
             return $(el).val();
         }).get();
         console.log(name, amount, price, description, categoryId);
-        axios.put('/admin/product/' + id, {
+        axios.put('/product/' + id, {
             name: name,
             description: description,
             amount: amount,
@@ -178,7 +178,7 @@
     }
     function mainImg(id) {
         const defaultImg = id.split('-')[1];
-        axios.post('/admin/default_image/' + defaultImg)
+        axios.post('/default_image/' + defaultImg)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({

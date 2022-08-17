@@ -14,9 +14,7 @@ exports.generateToken = (key, time) => jwt.sign(key, process.env.JWT_SECRET, {
   expiresIn: time,
 });
 
-exports.verifyToken = (key) => jwt.verify(key, process.env.JWT_SECRET, (err, decoded) => {
-  if (err) throw err;
-});
+exports.verifyToken = (key) => jwt.verify(key, process.env.JWT_SECRET);
 
 exports.swalNoti = (title, text, icon, confirmButtonText = 'OK') => {
   Swal.fire({
@@ -70,7 +68,7 @@ exports.sendMail = async (
   endpoint = '/',
   token = '',
 ) => {
-  const domain = `http://localhost:${process.env.PORT}`;
+  const domain = 'http://localhost:3000';
 
   const transporter = nodemailer.createTransport({
     host: 'smtp.mailtrap.io',
@@ -136,10 +134,8 @@ exports.createOrder = async (to, orders) => {
     }
   });
 };
-
 exports.forgotPassword = async (to, token) => {
-  // const link = `http://localhost:${process.env.PORT}/user/${to}/${token}/reset-password`;
-  const link = `http://localhost:3000/forgotPassword/${token}`;
+  const link = `http://localhost:${process.env.FE_PORT}/forgotPassword/${token}`;
   const data = await ejs.renderFile('views/createForgotPassNoti/forgotPassword.ejs', { link });
 
   await transport.sendMail({

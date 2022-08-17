@@ -9,6 +9,7 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+// eslint-disable-next-line no-async-promise-executor
 const uploadStreamOneImg = async (file) => new Promise(async (resolve, reject) => {
   const { createReadStream, filename } = await file;
 

@@ -1,7 +1,7 @@
 const { gql } = require('apollo-server');
 
 // scalar UploadImg
-module.exports = gql`
+const typeDefs = gql`
   scalar Upload
 
   type User {
@@ -73,9 +73,10 @@ module.exports = gql`
     products(isDefault: Boolean): [Product]
     listProducts(productOrderBy: ProductOrderBy): [Product]
     productDetail(productId: ProductId):Product!
+    filterProductByCategory(categoryId: CategoryId): [Product]
     productImage: [ProductImage]
     cartProduct: [CartProduct]
-    listCategory(id: Int): Category
+    listCategory(categoryId: CategoryId): Category
     getCart: Cart!
     listOrders: [Order]!
     listCategories(input: listCategoriesBy): [Category]
@@ -84,6 +85,7 @@ module.exports = gql`
 
   type Mutation {
     createUser(inputSignup: InputSignup): User!
+    verify(inputToken: InputToken): String
     login(inputLogin: InputLogin): AuthDataResponse!
     changePassword(inputPassword: InputPassword): User!
     requestReset(inputRequest: InputRequest): String
@@ -97,6 +99,17 @@ module.exports = gql`
     ): Order!
     createOrder(inputOrder: InputOrder): Order!
     uploadAvatar(file: Upload!): String!
+  }
+
+  type AuthDataResponse {
+    token: String!
+    userId: String!
+  }
+  input CategoryId {
+    categoryId: Int!
+  }
+  input InputToken {
+    token: String!
   }
 
   input InputReset {
@@ -144,9 +157,8 @@ module.exports = gql`
     cartId: Int
   }
 
-  type AuthDataResponse {
-    token: String!
-    userId: String!
+  input CategoryId {
+    categoryId:Int!
   }
 
   input ProductId {
@@ -156,7 +168,7 @@ module.exports = gql`
   input ProductOrderBy {
     name: OrderType
     price: OrderType
-    categoryId: Int
+    category: OrderType
   }
 
   enum OrderType {
@@ -184,5 +196,6 @@ module.exports = gql`
     VISA
     CASH
   }
-
 `;
+
+module.exports = typeDefs;

@@ -13,43 +13,25 @@ import { useState } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { gql, useMutation } from '@apollo/client';
-import { toast, ToastContainer } from 'react-toastify';
-import helperFn from './utils/helperFn';
-const theme = createTheme();
 
-const REQUESTRESET = gql`
-  mutation Mutation($inputRequest: InputRequest) {
-    requestReset(inputRequest: $inputRequest)
-  }
-`;
+const theme = createTheme();
 
 export default function SignUp() {
   const [input, setInput] = useState();
-  // const [loading, setLoading] = useState(false);
-  const [requestReset] = useMutation(REQUESTRESET, {
-    onError: (err) => {
-      helperFn.toastAlertFail(err.message);
-    },
-  });
   const handleSubmit = async () => {
     try {
-      const { data } = await requestReset({
-        variables: {
-          inputRequest: {
-            email: input.email,
-          },
-        },
-      });
-      if (data) {
-        console.log(data);
-        helperFn.toastAlertSuccess(
-          'Submit successfully. Please check your email'
-        );
+      if (!input) {
+        Swal.fire({ icon: 'error', text: 'Error', title: 'Missing data' });
       }
+      axios({
+        method: 'POST',
+        url: 'http://localhost:4007/user/forgotPassword',
+        data: input,
+      })
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
     } catch (err) {
       console.log(err);
-      helperFn.toastAlertFail('Input your email address');
     }
   };
   return (
@@ -68,12 +50,12 @@ export default function SignUp() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Forgot Password
+            Please input new password
           </Typography>
           <Box
-            // component="form"
-            // noValidate
-            // onSubmit={handleSubmit}
+            component="form"
+            noValidate
+            onSubmit={handleSubmit}
             sx={{ mt: 3 }}
           >
             <Grid container spacing={2}>
@@ -81,21 +63,31 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  sx={{ width: '300px' }}
+                  id="password"
+                  label="Password"
+                  name="password"
+                  autoComplete="password"
+                  sx={{ width: '400px' }}
+                  onChange={(e) =>
+                    setInput({ ...input, [e.target.name]: e.target.value })
+                  }
+                />
+                <TextField
+                  required
+                  fullWidth
+                  id="confirmPassword"
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  autoComplete="confirmPassword"
+                  sx={{ width: '400px', mt: 3 }}
                   onChange={(e) =>
                     setInput({ ...input, [e.target.name]: e.target.value })
                   }
                 />
               </Grid>
-              <ToastContainer />
             </Grid>
             <Button
-              // type="submit"
-              onClick={handleSubmit}
+              type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
@@ -104,11 +96,7 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link
-                  to="/login"
-                  variant="body2"
-                  style={{ textDecoration: 'none' }}
-                >
+                <Link href="http://localhost:3000/login" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>
@@ -116,7 +104,6 @@ export default function SignUp() {
           </Box>
         </Box>
       </Container>
-      {/* <ModalLoading isOpen={loading} /> */}
     </ThemeProvider>
   );
 }
