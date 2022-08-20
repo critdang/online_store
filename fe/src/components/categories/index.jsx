@@ -91,10 +91,6 @@ export default function Album() {
     setOpen(true);
     setIdCategory(parseInt(id));
   };
-  console.log(
-    '🚀 ~ file: Categories.jsx ~ line 87 ~ Album ~ idCategory',
-    idCategory
-  );
 
   const { data: dataCategory } = useQuery(
     CATEGORY,

@@ -51,7 +51,7 @@ const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context,
-  csrfPrevention: true,
+  csrfPrevention: false,
   cache: 'bounded',
   plugins: [
     ApolloServerPluginLandingPageLocalDefault({ embed: true }),

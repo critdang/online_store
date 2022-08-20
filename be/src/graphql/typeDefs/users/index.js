@@ -59,15 +59,40 @@ const typeDefs = gql`
     id: ID!
     href: String
   }
-  
-  type Order {
+  type ProductInOrder {
     id: ID!
-    userId: Int
-    status: OrderStatus
-    paymentMethod: String
+    orderId: Int
+    productId: Int
+    quantity: Int
+    price: Float
+    product: [Product]
+  }
+  type Order {
+    orderId: Int
     paymentDate: String
+    firstItem: Product
+    totalItem: Int
+    totalAmount: Int
+  }
+  type OrderDetail {
+    paymentDate: String
+    orderDate: String
+    product: [ProductOrder]
+    totalAmount: Int
+  }
+  type ProductOrder {
+    name: String
+    price: String
+    thumbnail: String
+    quantity: Int
   }
 
+  type getCart {
+    productName: String
+    thumbnail: String
+    quantity: Int
+    price: Float
+  }
   type Query {
     user: User!
     products(isDefault: Boolean): [Product]
@@ -77,22 +102,23 @@ const typeDefs = gql`
     productImage: [ProductImage]
     cartProduct: [CartProduct]
     listCategory(categoryId: CategoryId): Category
-    getCart: Cart!
-    listOrders: [Order]!
+    getCart: getCart
+    listOrders(input: listOrdersBy): [Order]!
+    orderDetail(orderId: OrderId): OrderDetail!
     listCategories(input: listCategoriesBy): [Category]
     categories: [Category]
   }
 
   type Mutation {
-    createUser(inputSignup: InputSignup): User!
+    createUser(inputSignup: InputSignup): String!
     verify(inputToken: InputToken): String
     login(inputLogin: InputLogin): AuthDataResponse!
     changePassword(inputPassword: InputPassword): User!
     requestReset(inputRequest: InputRequest): String
     resetPassword(inputReset: InputReset): String
     editProfile( inputProfile : InputProfile): User!
-    addToCart(quantity:Int,productId:Int): Cart
-    deleteItemCart(deleteItem: Int): Cart!
+    addToCart(quantity:Int,productId:Int): String!
+    deleteItemCart(deleteItem: Int): String!
     changeOrderStatus(
       orderId: Int
       paymentMethod: PaymentMethod
@@ -121,7 +147,11 @@ const typeDefs = gql`
   input InputRequest {
     email: String
   }
-  
+
+  input OrderId {
+    id: Int!
+  }
+
   type File {
     filename: String!
     mimetype: String!
@@ -164,7 +194,10 @@ const typeDefs = gql`
   input ProductId {
     productId:Int!
   }
-
+  input listOrdersBy {
+    sortDate: OrderType
+    sortAmount: OrderType
+  }
   input ProductOrderBy {
     name: OrderType
     price: OrderType

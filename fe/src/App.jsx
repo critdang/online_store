@@ -15,6 +15,7 @@ import './mainStyle.css';
 import NavBar from './components/navbar/index';
 import Categories from './components/categories';
 import VerifyUser from './components/verify-user';
+import NoMatch from './components/404';
 function App() {
   const [itemCart, setItemCart] = useState(0);
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="/verify/:tokenId" element={<VerifyUser />} />
           <Route path="/forgotPassword/:tokenId" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="*" element={<NoMatch />}></Route>
           <Route
             path="/category/:categoryName:categoryId"
             element={<Category />}

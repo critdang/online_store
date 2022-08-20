@@ -30,6 +30,8 @@ import {
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
+import { gql, useQuery } from '@apollo/client';
+import helperFn from '../../utils/helperFn';
 
 // style table
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -82,6 +84,37 @@ const theme = createTheme();
 
 const options = ['A-Z', 'Z-A'];
 
+const ORDERS = gql`
+  query ListOrders($input: listOrdersBy) {
+    listOrders(input: $input) {
+      orderId
+      paymentDate
+      firstItem {
+        id
+        name
+        price
+      }
+      totalItem
+      totalAmount
+    }
+  }
+`;
+
+const DETAILORDER = gql`
+  query OrderDetail($input: OrderId) {
+    orderDetail(orderId: $input) {
+      paymentDate
+      orderDate
+      product {
+        name
+        price
+        thumbnail
+        quantity
+      }
+      totalAmount
+    }
+  }
+`;
 export default function Order({ setLogin }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -113,15 +146,58 @@ export default function Order({ setLogin }) {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
-
     setOpenButton(false);
   };
+  // ################################################
+
+  const [orders, setOrders] = React.useState([]);
+  const [orderBy, setOrderBy] = React.useState([]);
+  const [orderId, setOrderId] = React.useState([]);
+  const { data, loading, error } = useQuery(
+    ORDERS,
+    {
+      variables: {
+        input: {
+          [orderBy.sortDate]: orderBy.sortDate,
+          [orderBy.sortAmount]: orderBy.sortAmount,
+        },
+      },
+    },
+    {
+      onError: (err) => {
+        helperFn.toastAlertFail(err.message);
+      },
+    }
+  );
+  console.log('🚀 ~ file: index.jsx ~ line 155 ~ Order ~ data', data);
+
+  React.useEffect(() => {
+    if (data) {
+      setOrders(data.listOrders);
+    }
+  }, [data]);
 
   //lisen toggle modal
   const [openModal, setOpenModal] = React.useState(false);
-  const handleOpenModal = () => setOpenModal(true);
+  const handleOpenModal = (orderId) => {
+    setOpenModal(true);
+    setOrderId(parseInt(orderId));
+  };
   const handleCloseModal = () => setOpenModal(false);
 
+  const { data: detailOrder } = useQuery(DETAILORDER, {
+    variables: {
+      input: {
+        id: orderId,
+      },
+    },
+  });
+  console.log(
+    '🚀 ~ file: index.jsx ~ line 195 ~ Order ~ DetailOrder',
+    detailOrder
+  );
+
+  if (error) <div>{error.message}</div>;
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -243,135 +319,160 @@ export default function Order({ setLogin }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row) => (
-                  <StyledTableRow key={row.name}>
-                    <StyledTableCell component="th" scope="row">
-                      {row.name}
-                    </StyledTableCell>
-                    <StyledTableCell align="right">
-                      {row.calories}
-                    </StyledTableCell>
-                    <StyledTableCell align="right">{row.fat}</StyledTableCell>
-                    <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-                    <StyledTableCell align="right">
-                      {row.protein}
-                    </StyledTableCell>
-                    <StyledTableCell align="right">
-                      <Link to="/">
-                        <Button variant="primary" onClick={handleOpenModal}>
+                {orders.length > 0 &&
+                  orders.map((order, index) => (
+                    <StyledTableRow key={index}>
+                      <StyledTableCell component="th" scope="row">
+                        {index}
+                      </StyledTableCell>
+                      <StyledTableCell align="right">
+                        {order.paymentDate}
+                      </StyledTableCell>
+                      <StyledTableCell align="right">
+                        {order.firstItem.name}
+                      </StyledTableCell>
+                      <StyledTableCell align="right">
+                        {order.totalItem}
+                      </StyledTableCell>
+                      <StyledTableCell align="right">
+                        {order.totalAmount}
+                      </StyledTableCell>
+                      <StyledTableCell align="right">
+                        <Button
+                          variant="primary"
+                          onClick={() => handleOpenModal(order.orderId)}
+                        >
                           View
                         </Button>
-                      </Link>
-                      <Modal
-                        open={openModal}
-                        onClose={handleCloseModal}
-                        aria-labelledby="modal-modal-title"
-                        aria-describedby="modal-modal-description"
-                        BackdropProps={{
-                          style: { backgroundColor: 'rgba(0,0,0,0.1)' },
-                        }}
-                      >
-                        <Box sx={styleModal}>
-                          <Grid container>
-                            <Grid item xs={8} align="center">
-                              <Typography
-                                variant="h5"
-                                sx={{
-                                  backgroundColor: '#f3f3f3',
-                                  color: '#009688',
-                                }}
-                              >
-                                Ship To My Address
-                              </Typography>
-                              <TableContainer component={Paper}>
-                                <Table
-                                  sx={{ minWidth: 700 }}
-                                  aria-label="customized table"
-                                >
-                                  <TableHead>
-                                    <TableRow>
-                                      <StyledTableCell>No.</StyledTableCell>
-                                      <StyledTableCell align="right">
-                                        No.
-                                      </StyledTableCell>
-                                      <StyledTableCell align="right">
-                                        Product Name
-                                      </StyledTableCell>
-                                      <StyledTableCell align="right">
-                                        Thumbnail
-                                      </StyledTableCell>
-                                      <StyledTableCell align="right">
-                                        Quantity
-                                      </StyledTableCell>
-                                      <StyledTableCell align="right">
-                                        Price
-                                      </StyledTableCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    {rows.map((row) => (
-                                      <StyledTableRow key={row.name}>
-                                        <StyledTableCell
-                                          component="th"
-                                          scope="row"
-                                        >
-                                          {row.name}
-                                        </StyledTableCell>
-                                        <StyledTableCell align="right">
-                                          {row.calories}
-                                        </StyledTableCell>
-                                        <StyledTableCell align="right">
-                                          {row.fat}
-                                        </StyledTableCell>
-                                        <StyledTableCell align="right">
-                                          {row.carbs}
-                                        </StyledTableCell>
-                                        <StyledTableCell align="right">
-                                          {row.protein}
-                                        </StyledTableCell>
-                                      </StyledTableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </TableContainer>
-                            </Grid>
-                            <Grid
-                              item
-                              xs={4}
-                              align="left"
-                              sx={{ backgroundColor: '#dedede' }}
-                            >
-                              <Container>
+                        <Modal
+                          open={openModal}
+                          onClose={handleCloseModal}
+                          aria-labelledby="modal-modal-title"
+                          aria-describedby="modal-modal-description"
+                          BackdropProps={{
+                            style: { backgroundColor: 'rgba(0,0,0,0.1)' },
+                          }}
+                        >
+                          <Box sx={styleModal}>
+                            <Grid container>
+                              <Grid item xs={8} align="center">
                                 <Typography
                                   variant="h5"
-                                  sx={{ color: '#009688' }}
+                                  sx={{
+                                    backgroundColor: '#f3f3f3',
+                                    color: '#009688',
+                                  }}
                                 >
-                                  Seller Shipping From
+                                  Ship To My Address
                                 </Typography>
-                                <Typography>
-                                  <strong>Order Date:</strong> 201900 Shanghai
-                                  China
-                                </Typography>
-                                <Typography>
-                                  <strong>Payment Date:</strong> 201900 Shanghai
-                                  China
-                                </Typography>
-                                <Typography>
-                                  <strong>Completed Date:</strong> 201900
-                                  Shanghai China
-                                </Typography>
-                                <Typography>
-                                  <strong>Total amount:</strong> 201900 Shanghai
-                                  China
-                                </Typography>
-                              </Container>
+                                <TableContainer component={Paper}>
+                                  <Table
+                                    sx={{ minWidth: 700 }}
+                                    aria-label="customized table"
+                                  >
+                                    <TableHead>
+                                      <TableRow>
+                                        <StyledTableCell>
+                                          All Item
+                                        </StyledTableCell>
+                                        <StyledTableCell align="right">
+                                          Product Name
+                                        </StyledTableCell>
+                                        <StyledTableCell>
+                                          Thumbnail
+                                        </StyledTableCell>
+                                        <StyledTableCell align="right">
+                                          Quantity
+                                        </StyledTableCell>
+                                        <StyledTableCell align="right">
+                                          Price
+                                        </StyledTableCell>
+                                      </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                      {/* {rows.map((row) => ( */}
+                                      {detailOrder &&
+                                        detailOrder.orderDetail.product.map(
+                                          (item, index) => (
+                                            <StyledTableRow>
+                                              <StyledTableCell
+                                                component="th"
+                                                scope="row"
+                                              >
+                                                {index + 1}
+                                              </StyledTableCell>
+                                              <StyledTableCell align="right">
+                                                {item.name}
+                                              </StyledTableCell>
+                                              <StyledTableCell>
+                                                <img
+                                                  style={{
+                                                    width: '25%',
+                                                  }}
+                                                  src={item.thumbnail}
+                                                ></img>
+                                              </StyledTableCell>
+                                              <StyledTableCell align="right">
+                                                {item.quantity}
+                                              </StyledTableCell>
+                                              <StyledTableCell align="right">
+                                                {item.price}
+                                              </StyledTableCell>
+                                            </StyledTableRow>
+                                          )
+                                        )}
+                                      {/* ))} */}
+                                    </TableBody>
+                                  </Table>
+                                </TableContainer>
+                              </Grid>
+                              <Grid
+                                item
+                                xs={4}
+                                align="left"
+                                sx={{ backgroundColor: '#dedede' }}
+                              >
+                                <Container>
+                                  <Typography
+                                    variant="h5"
+                                    sx={{ color: '#009688' }}
+                                  >
+                                    Seller Shipping From
+                                  </Typography>
+                                  {detailOrder && (
+                                    <Typography>
+                                      <strong>Order Date:</strong>{' '}
+                                      {detailOrder.orderDetail.orderDate}
+                                    </Typography>
+                                  )}
+                                  {detailOrder && (
+                                    <Typography>
+                                      <strong>Payment Date:</strong>{' '}
+                                      {detailOrder.orderDetail.paymentDate}
+                                    </Typography>
+                                  )}
+
+                                  {detailOrder && (
+                                    <Typography>
+                                      <strong>Completed Date:</strong> 201900
+                                      Shanghai China
+                                    </Typography>
+                                  )}
+
+                                  {detailOrder && (
+                                    <Typography>
+                                      <strong>Total amount:</strong>{' '}
+                                      {detailOrder.orderDetail.totalAmount}
+                                    </Typography>
+                                  )}
+                                </Container>
+                              </Grid>
                             </Grid>
-                          </Grid>
-                        </Box>
-                      </Modal>
-                    </StyledTableCell>
-                  </StyledTableRow>
-                ))}
+                          </Box>
+                        </Modal>
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>

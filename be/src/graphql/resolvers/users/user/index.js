@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validateUser = require('../../../../../validate/validateUser');
-const { errorName } = require('../../../../../utils/ErrorHandler/constantsql');
+const { errorName } = require('../../../../../utils/ErrorHandler/errorName');
 const helperFn = require('../../../../../utils/helperFn');
 const { uploadImageFunc } = require('../fileUpload');
 require('dotenv').config();
@@ -209,6 +209,7 @@ exports.uploadAvatar = async (parent, args, context, info) => {
       where: { id: context.currentUser.userId },
       data: { avatar },
     });
+    return avatar;
   } catch (err) {
     throw new Error(err);
   }

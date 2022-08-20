@@ -17,7 +17,7 @@ const {
 } = require('./cart');
 
 const {
-  createOrder, listOrders, changeOrderStatus,
+  createOrder, listOrders, orderDetail, changeOrderStatus,
 } = require('./order');
 
 const resolvers = {
@@ -30,11 +30,12 @@ const resolvers = {
     cartProduct,
     listCategories,
     filterProductByCategory,
+    categories,
     listCategory,
     getCart,
     listOrders,
+    orderDetail,
     productDetail,
-    categories,
   },
   Mutation: {
     login,

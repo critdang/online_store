@@ -83,6 +83,12 @@ const CHANGEPASSWORD = gql`
   }
 `;
 
+const UPDATEAVATAR = gql`
+  mutation uploadAvatar($file: Upload!) {
+    uploadAvatar(file: $file)
+  }
+`;
+
 export default function Album(props, { setLogin }) {
   const [inputUpdateUser, setUpdatedUser] = React.useState();
   const [inputUpdatePassword, setUpdatedPassword] = React.useState({
@@ -133,18 +139,48 @@ export default function Album(props, { setLogin }) {
   const TOKEN = JSON.parse(localStorage.getItem('user')).token;
 
   const userId = JSON.parse(localStorage.getItem('user')).userId;
+  const [uploadAvatar] = useMutation(UPDATEAVATAR, {
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+  const handleUploadAvatar = async () => {
+    // const formData = new FormData();
+    // formData.append('file', selectedFile);
+    // formData.append('upload_preset', 'docs_upload_example_us_preset');
 
-  const uploadAvatar = async () => {
-    const formData = new FormData();
-    formData.append('avatar', selectedFile);
-    axios({
-      method: 'patch',
-      url: `http://localhost:4007/user/${userId}/changeAvatar`,
-      data: formData,
-      headers: { authorization: `Bearer ${TOKEN}` },
-    })
-      .then((res) => helperFn.toastAlertSuccess('Update avatar successfully'))
-      .catch((error) => helperFn.toastAlertFail(error.message));
+    // var url = 'https://api.cloudinary.com/v1_1/demo/image/upload';
+    // fetch(url, {
+    //   method: 'POST',
+    //   mode: 'cors',
+    //   body: formData,
+    // })
+    //   .then((response) => {
+    //     console.log(response.text());
+    //     return response;
+    //   })
+    //   .then((data) => {
+    //     console.log(data);
+    //   });
+
+    // axios({
+    //   method: 'patch',
+    //   url: `http://localhost:4007/user/${userId}/changeAvatar`,
+    //   data: formData,
+    //   headers: { authorization: `Bearer ${TOKEN}` },
+    // })
+    //   .then((res) => helperFn.toastAlertSuccess('Update avatar successfully'))
+    //   .catch((error) => helperFn.toastAlertFail(error.message));
+    const { data } = await uploadAvatar({
+      variables: {
+        file: {
+          selectedFile,
+        },
+      },
+    });
+    if (data) {
+      console.log(data);
+    }
   };
   console.log(inputUpdateUser);
   // handleUpdateUser
@@ -512,7 +548,7 @@ export default function Album(props, { setLogin }) {
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={uploadAvatar}
+                          onClick={handleUploadAvatar}
                         >
                           Update Image
                         </Button>

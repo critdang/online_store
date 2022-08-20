@@ -8,15 +8,24 @@ require('dotenv').config();
 
 exports.listCategories = async (parent, args, context, info) => {
   try {
-    const { name } = args.input;
-    const { amount } = args.input;
+    let { name } = args.input;
+    let { amount } = args.input;
     if (name) {
+      name = name.toLowerCase();
       const data = await prisma.category.findMany({
         orderBy: [{ name }],
+        include: {
+          categoryProduct: {
+            include: {
+              category: true,
+            },
+          },
+        },
       });
       return data;
     }
     if (amount) {
+      amount = amount.toLowerCase();
       const existProduct = await prisma.product.findMany({
         orderBy: [{ amount }],
         include: {

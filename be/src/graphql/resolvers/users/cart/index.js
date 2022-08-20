@@ -37,7 +37,7 @@ exports.addToCart = async (parent, args, context, info) => {
       run = [createCartProduct];
     }
     await prisma.$transaction([...run]);
-    return run;
+    return 'Add product successfully';
   } catch (err) {
     throw new Error(err);
   }
@@ -59,19 +59,26 @@ exports.getCart = async (parent, args, context, info) => {
       cartProduct: {
         include: {
           product: {
-            select: {
-              name: true,
-              price: true,
-              description: true,
-              productImage: true,
-              categoryProduct: true,
+            include: {
+              productImage: {
+                where: { isDefault: true },
+              },
             },
           },
         },
       },
     },
   });
-  return cartItems;
+  if (cartItems.cartProduct.length === 0) return new Error('No Product in cart');
+  const cartItem = cartItems.cartProduct[0];
+  const result = {
+    productName: cartItem.product.name,
+    thumbnail: cartItem.product.productImage[0].href,
+    quantity: cartItem.quantity,
+    price: cartItem.product.amount,
+  };
+
+  return result;
 };
 
 exports.deleteItemCart = async (parent, args, context, info) => {
@@ -83,11 +90,13 @@ exports.deleteItemCart = async (parent, args, context, info) => {
       userId,
     },
   });
-
-  await prisma.cartProduct.deleteMany({
+  if (!findCart) return new Error('Cart doesn\'t found ');
+  const foundProduct = await prisma.cartProduct.deleteMany({
     where: {
       cartId: findCart.id,
       productId,
     },
   });
+  if (foundProduct.count === 0) return new Error('Can not find product in cart ');
+  return 'Deleted Successfully';
 };

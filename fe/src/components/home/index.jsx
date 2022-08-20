@@ -199,7 +199,21 @@ export default function Home(props, { setLogin }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const addToCart = () => {
+  const addToCart = (id) => {
+    var productId = [];
+    let oldProductId = localStorage.getItem('productId');
+    if (oldProductId) {
+      oldProductId.split('[]');
+
+      productId = [...oldProductId];
+    }
+    if (!oldProductId) {
+      productId = [];
+    }
+    productId.push(id);
+    localStorage.setItem('productId', JSON.stringify(productId));
+    localStorage.setItem('quantity', 1);
+
     props.addToCart();
   };
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -232,19 +246,6 @@ export default function Home(props, { setLogin }) {
       setProducts(data.products);
     }
   }, [data]);
-
-  // const handleMenuItemClick = (event, index) => {
-  //   event.preventDefault();
-  //   setSelectedIndex(index);
-  //   setOpenButton(false);
-  //   let orderBy = `${options[selectedIndex]}`;
-  //   if (orderBy === 'A-Z') {
-  //     orderBy = 'ASC';
-  //   } else {
-  //     orderBy = 'DESC';
-  //   }
-  //   setOrderProductByName(orderBy);
-  // };
 
   const { data: dataProductByName } = useQuery(
     PRODUCTSBYNAME,
@@ -366,64 +367,6 @@ export default function Home(props, { setLogin }) {
                 <SearchIcon />
               </IconButton>
               <Typography>Sort By &nbsp;</Typography>
-              {/* <React.Fragment>
-                <ButtonGroup
-                  variant="contained"
-                  ref={anchorRef}
-                  aria-label="split button"
-                >
-                  <Button onClick={handleClickOptions}>
-                    {options[selectedIndex]}
-                  </Button>
-                  <Button
-                    size="small"
-                    aria-controls={open ? 'split-button-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-label="select merge strategy"
-                    aria-haspopup="menu"
-                    onClick={handleToggle}
-                  >
-                    <ArrowDropDownIcon />
-                  </Button>
-                </ButtonGroup>
-                <Popper
-                  open={openButton}
-                  anchorEl={anchorRef.current}
-                  role={undefined}
-                  transition
-                  disablePortal
-                >
-                  {({ TransitionProps, placement }) => (
-                    <Grow
-                      {...TransitionProps}
-                      style={{
-                        transformOrigin:
-                          placement === 'bottom'
-                            ? 'center top'
-                            : 'center bottom',
-                      }}
-                    >
-                      <Paper>
-                        <ClickAwayListener onClickAway={handleCloseOptions}>
-                          <MenuList id="split-button-menu" autoFocusItem>
-                            {options.map((option, index) => (
-                              <MenuItem
-                                key={option}
-                                selected={index === selectedIndex}
-                                onClick={(event) =>
-                                  handleMenuItemClick(event, index)
-                                }
-                              >
-                                {option}
-                              </MenuItem>
-                            ))}
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
-              </React.Fragment> */}
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -481,7 +424,7 @@ export default function Home(props, { setLogin }) {
                         color: 'white',
                       },
                     }}
-                    onClick={addToCart}
+                    onClick={() => addToCart(product.id)}
                   ></AddCircleOutlineIcon>
                   <Container>
                     <Typography variant="body2" component="h2">

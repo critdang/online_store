@@ -132,34 +132,124 @@ exports.createOrder = async (parent, args, context, info) => {
 
 exports.listOrders = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
+
   const orders = await prisma.order.findMany({
     where: { userId },
-    // include: {
-    //   user: {
-    //     select: {
-    //       id: true,
-    //       fullname: true,
-    //       address: true,
-    //       phone: true,
-    //     },
-    //   },
-    //   productInOrder: {
-    //     select: {
-    //       quantity: true,
-    //       total: true,
-    //       price: true,
-    //       product: {
-    //         select: {
-    //           description: true,
-    //           price: true,
-    //           name: true,
-    //         },
-    //       },
-    //     },
-    //   },
-    // },
+
+    include: {
+      productInOrder: {
+        include: {
+          product: {
+            include: {
+              productImage: {
+                where: {
+                  isDefault: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
-  return orders;
+  const result = orders.map((order) => {
+    const orderId = order.id;
+    const orderDate = helperFn.formatDay(order.paymentDate);
+    const totalAmount = order.productInOrder.reduce((total, currentValue) => total + (currentValue.quantity * currentValue.price), 0);
+    const firstItem = order.productInOrder[0];
+    const firstItemInfo = {
+      id: firstItem.product.id,
+      name: firstItem.product.name,
+      thumbnail: firstItem.product.thumbnail,
+      price: firstItem.product.price,
+    };
+    const output = {
+      orderId,
+      paymentDate: orderDate,
+      firstItem: firstItemInfo,
+      totalItem: order.productInOrder.length,
+      totalAmount,
+    };
+    return output;
+  });
+  if (args.input === undefined) return result;
+
+  let { sortDate, sortAmount } = args.input;
+  if (sortDate) sortDate = sortDate.toLowerCase();
+  if (sortAmount) sortAmount = sortAmount.toLowerCase();
+  if (sortDate && sortAmount) {
+    return result.sort((productA, productB) => {
+      let paymentDateA = helperFn.formatDay(productA.paymentDate);
+      let paymentDateB = helperFn.formatDay(productB.paymentDate);
+      paymentDateA = new Date(paymentDateA);
+      paymentDateB = new Date(paymentDateB);
+      // const completedDateB = new Date(productB.completedDate);
+      const amountA = parseFloat(productA.totalAmount);
+      const amountB = parseFloat(productB.totalAmount);
+      const date = sortDate === 'desc' ? paymentDateB - paymentDateA : paymentDateA - paymentDateB;
+      const amount = sortAmount === 'desc' ? amountB - amountA : amountA - amountB;
+      return date || amount;
+    });
+  }
+  if (sortDate) {
+    return result.sort((productA, productB) => {
+      const paymentDateA = helperFn.formatDay(productA.paymentDate);
+      const paymentDateB = helperFn.formatDay(productB.paymentDate);
+      const date = sortDate === 'desc' ? paymentDateB - paymentDateA : paymentDateA - paymentDateB;
+      return date;
+    });
+  }
+  if (sortAmount) {
+    return result.sort((productA, productB) => {
+      const amountA = parseFloat(productA.totalAmount);
+      const amountB = parseFloat(productB.totalAmount);
+      const amount = sortAmount === 'desc' ? amountB - amountA : amountA - amountB;
+      return amount;
+    });
+  }
+  return result;
+};
+
+exports.orderDetail = async (parent, args, context, info) => {
+  console.log(args);
+  const { id } = args.orderId;
+
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: {
+      productInOrder: {
+        include: {
+          product: {
+            include: {
+              productImage: {
+                where: {
+                  isDefault: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const orderDate = order.createdAt !== null ? helperFn.formatDay(order.createdAt) : null;
+  const paymentDate = order.paymentDate !== null ? helperFn.formatDay(order.paymentDate) : null;
+  const product = order.productInOrder.map((item) => ({
+    totalAmount: item.quantity * item.price,
+    name: item.product.name,
+    thumbnail: item.product.productImage[0].href,
+    price: item.price,
+    quantity: item.quantity,
+  }));
+
+  const result = {
+    paymentDate,
+    orderDate,
+    product,
+    totalAmount: order.productInOrder.length,
+  };
+  return result;
 };
 
 exports.changeOrderStatus = async (parent, args, context, info) => {

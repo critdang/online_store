@@ -283,7 +283,7 @@
                                             <%=users[i].isActive%>
                                         </td>
                                         <td>
-                                            <%=users[i].is_block%>
+                                            <%=users[i].isBlocked%>
                                         </td>
                                         <td>
                                             <%- include('../components/modalUser.ejs', {user:users[i]})%>
@@ -488,11 +488,11 @@
     }
 
     function changeBlockUserStt(id) {
-        axios.post('/changeBlockUserStt/' + id,)
+        axios.post('/block/' + id,)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({
-                        position: 'top-end',
+                        position: 'center',
                         icon: 'success',
                         title: 'Success',
                         showConfirmButton: false
@@ -537,10 +537,9 @@
     }
 
     function updateCategory(id) {
-        const categoryName = $('#category-name').val();
-        const categoryDescription = $('#category-description').val();
-        console.log(categoryName, categoryDescription)
-        axios.post('/editCategory/' + id, {
+        const categoryName = $(`#category-name-${id}`).val();
+        const categoryDescription = $(`#category-description-${id}`).val();
+        axios.post('/edit_category/' + id, {
             name: categoryName,
             description: categoryDescription
         })
@@ -548,7 +547,7 @@
                 if (response.status == 200) {
                     Swal.fire({
                         title: 'Updated!',
-                        text: response.data.message,
+                        text: 'Updated category successfully!',
                         icon: 'success',
                         confirmButtonText: 'Cool'
                     }).then(() => {
@@ -557,7 +556,7 @@
                 } else {
                     Swal.fire({
                         title: 'Something went wrong',
-                        text: response.data.message,
+                        text: 'Updated category unsuccessfully!',
                         icon: 'error',
                         confirmButtonText: ' Not cool'
                     })

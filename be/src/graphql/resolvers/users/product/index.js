@@ -64,7 +64,6 @@ exports.listProducts = async (parent, args, context, info) => {
 
 exports.productDetail = async (parent, args, context, info) => {
   const { productId } = args.productId;
-  console.log(args.productId.productId);
   try {
     const existProduct = await prisma.product.findUnique({
       where: { id: productId },
