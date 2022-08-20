@@ -7,9 +7,11 @@ require('dotenv').config();
 
 exports.addToCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
-  const { quantity, productId } = args;
+  const { quantity, productId } = args.inputProduct;
   try {
     const checkProduct = await prisma.product.findUnique({ where: { id: productId } });
+    console.log('🚀 ~ file: index.js ~ line 13 ~ exports.addToCart= ~ checkProduct', checkProduct);
+
     if (!checkProduct) {
       throw new Error('Product not found');
     }

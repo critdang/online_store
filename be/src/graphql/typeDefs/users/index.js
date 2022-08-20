@@ -117,7 +117,7 @@ const typeDefs = gql`
     requestReset(inputRequest: InputRequest): String
     resetPassword(inputReset: InputReset): String
     editProfile( inputProfile : InputProfile): User!
-    addToCart(quantity:Int,productId:Int): String!
+    addToCart(inputProduct: InputProduct): String!
     deleteItemCart(deleteItem: Int): String!
     changeOrderStatus(
       orderId: Int
@@ -127,6 +127,11 @@ const typeDefs = gql`
     uploadAvatar(file: Upload!): String!
   }
 
+  input InputProduct {
+    quantity:Int
+    productId:Int
+  }
+  
   type AuthDataResponse {
     token: String!
     userId: String!

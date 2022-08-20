@@ -167,6 +167,11 @@ const PRODUCTSBYNAME = gql`
   }
 `;
 
+const ADDTOCART = gql`
+  mutation Mutation($inputProduct: InputProduct) {
+    addToCart(inputProduct: $inputProduct)
+  }
+`;
 const SORTS = [
   {
     name: 'name',
@@ -189,6 +194,7 @@ const SORTS = [
     value: 'DESC',
   },
 ];
+
 export default function Home(props, { setLogin }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -199,23 +205,7 @@ export default function Home(props, { setLogin }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const addToCart = (id) => {
-    var productId = [];
-    let oldProductId = localStorage.getItem('productId');
-    if (oldProductId) {
-      oldProductId.split('[]');
 
-      productId = [...oldProductId];
-    }
-    if (!oldProductId) {
-      productId = [];
-    }
-    productId.push(id);
-    localStorage.setItem('productId', JSON.stringify(productId));
-    localStorage.setItem('quantity', 1);
-
-    props.addToCart();
-  };
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [displaySearch, setDisplaySearch] = React.useState('none');
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -229,7 +219,22 @@ export default function Home(props, { setLogin }) {
     console.info(`You clicked ${options[selectedIndex]}`);
   };
   // ##################################################################
-
+  const addToCart = async (id) => {
+    setProductId(parseInt(id));
+    const { dataProductInCart } = await addToCartMutation({
+      variables: {
+        inputProduct: {
+          productId,
+          quantity: 1,
+        },
+      },
+    });
+    if (dataProductInCart) {
+      console.log(data);
+    }
+    props.addToCart();
+  };
+  const [productId, setProductId] = React.useState();
   const [input, setInput] = React.useState();
   const [orderProductByName, setOrderProductByName] = React.useState({
     name: 'name',
@@ -267,10 +272,7 @@ export default function Home(props, { setLogin }) {
       setProducts(dataProductByName.listProducts);
     }
   });
-
-  const handleToggle = () => {
-    openButton ? setOpenButton(false) : setOpenButton(true);
-  };
+  const [addToCartMutation] = useMutation(ADDTOCART);
 
   const handleCloseOptions = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
