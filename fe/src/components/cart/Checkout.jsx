@@ -82,7 +82,7 @@ export default function Checkout() {
   const [cartItems, setCartItems] = React.useState();
   const { loading, error, data, refetch } = useQuery(GETCART, {
     onError: (err) => {
-      helperFn.toastAlertFail(err.message);
+      console.log(err);
     },
   });
   React.useEffect(() => {

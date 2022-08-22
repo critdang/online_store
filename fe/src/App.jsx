@@ -48,7 +48,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NoMatch />}></Route>
           <Route
-            path="/category/:categoryName:categoryId"
+            path="/category/:categoryName/:categoryId"
             element={<Category />}
           />
           <Route path="/categories" element={<Categories />} />

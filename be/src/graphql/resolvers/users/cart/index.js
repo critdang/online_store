@@ -13,11 +13,11 @@ exports.addToCart = async (parent, args, context, info) => {
     const checkProduct = await prisma.product.findUnique({ where: { id: productId } });
 
     if (!checkProduct) {
-      throw new Error(constants.NO_PRODUCT_FOUND);
+      return new Error(constants.NO_PRODUCT_FOUND);
     }
 
     if (quantity > checkProduct.amount) {
-      throw new Error(constants.PRODUCT_EXCEED);
+      return new Error(constants.PRODUCT_EXCEED);
     }
 
     const cartItem = await prisma.cart.findFirst({ where: { userId }, include: { cartProduct: true } });
@@ -90,7 +90,6 @@ exports.getCart = async (parent, args, context, info) => {
 exports.deleteItemCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
   const { productId } = args.inputItem;
-
   const findCart = await prisma.cart.findFirst({
     where: {
       userId,

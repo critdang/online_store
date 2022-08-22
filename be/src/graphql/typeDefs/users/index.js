@@ -134,8 +134,8 @@ const typeDefs = gql`
   }
 
   input InputProduct {
-    quantity:Int
-    productId:Int
+    quantity:Int!
+    productId:Int!
   }
   
   type AuthDataResponse {
@@ -173,6 +173,8 @@ const typeDefs = gql`
     email: String
     password: String
     fullname: String
+    address:String
+    phone: String
   }
   
   input InputPassword {

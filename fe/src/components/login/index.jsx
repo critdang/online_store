@@ -36,7 +36,7 @@ export default function SignInSide() {
 
   const [login] = useMutation(LOGIN, {
     onError: (err) => {
-      console.log(err);
+      helperFn.toastAlertFail(err.message);
     },
   });
 

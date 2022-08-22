@@ -38,16 +38,6 @@ const payments = [
   { name: 'Card number', detail: 'xxxx-xxxx-xxxx-1234' },
   { name: 'Expiry date', detail: '04/2024' },
 ];
-// const GETCART = gql`
-//   query GetCart {
-//     getCart {
-//       name
-//       description
-//       quantity
-//       thumbnail
-//     }
-//   }
-// `;
 const DELTEITEMCART = gql`
   mutation deleteItemCart($input: InputItem) {
     deleteItemCart(inputItem: $input)
@@ -56,44 +46,6 @@ const DELTEITEMCART = gql`
 
 export default function Review(props) {
   const { data, handleDeleteProductInCart } = props;
-  // const [deleteItemCart] = useMutation(DELTEITEMCART, {
-  //   onError: (err) => {
-  //     console.log(err);
-  //   },
-  // });
-  // const [cartItems, setCartItems] = React.useState();
-  // console.log(
-  //   '🚀 ~ file: Review.jsx ~ line 54 ~ Review ~ cartItems',
-  //   cartItems
-  // );
-  // const { loading, error, data } = useQuery(GETCART, {
-  //   onError: (err) => {
-  //     helperFn.toastAlertFail(err.message);
-  //   },
-  // });
-  // React.useEffect(() => {
-  //   if (data) {
-  //     console.log(data.getCart[0].name);
-  //     setCartItems(data.getCart);
-  //   }
-  // }, [data]);
-  // const handleDeleteProductInCart = async (productId) => {
-  //   console.log(productId);
-  //   try {
-  //     const { data } = await deleteItemCart({
-  //       variables: {
-  //         input: {
-  //           productId,
-  //         },
-  //       },
-  //     });
-  //     if (data) {
-  //       console.log(data);
-  //     }
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>

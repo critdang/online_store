@@ -63,7 +63,9 @@ export default function NavBar(props) {
 
   const { data: dataNumberProducts, refetch } = useQuery(GETCART, {
     onError: (err) => {
-      helperFn.toastAlertFail(err.message);
+      if (err.message === `Cannot read property 'userId' of undefined`)
+        return helperFn.toastAlertFail('Login to view cart');
+      return helperFn.toastAlertFail(err.message);
     },
   });
   React.useEffect(() => {
@@ -73,7 +75,7 @@ export default function NavBar(props) {
     if (dataNumberProducts) {
       console.log(
         '🚀 ~ file: index.jsx ~ line 71 ~ React.useEffect ~ dataNumberProducts',
-        dataNumberProducts.getCart.length
+        dataNumberProducts
       );
       setCartItems(dataNumberProducts.getCart.length);
     }
@@ -167,7 +169,7 @@ export default function NavBar(props) {
               </Link>
               {categories.map((category, index) => (
                 <Link
-                  to={`/category/${category.name}${category.id}`}
+                  to={`/category/${category.name}/${category.id}`}
                   style={{ textDecoration: 'none', color: 'black' }}
                 >
                   <MenuItem
