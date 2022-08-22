@@ -13,7 +13,9 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
 exports.createUser = async (parent, args, context, info) => {
-  const { email, password, fullname } = args.inputSignup;
+  const {
+    email, password, fullname, phone, address,
+  } = args.inputSignup;
   const { error } = validateUser.createUserValidate(args.inputSignup);
   if (error) {
     throw new UserInputError('Fail to create a character', { validationError: error.message });
@@ -35,6 +37,8 @@ exports.createUser = async (parent, args, context, info) => {
       email,
       password: hashPw,
       fullname,
+      phone,
+      address,
     },
   });
   const token = helperFn.generateToken({ email: user.email }, '15m');
@@ -72,19 +76,19 @@ exports.login = async (parent, args, context, info) => {
   const { email, password } = args.inputLogin;
   const { error } = validateUser.loginUserSchema(args.inputLogin);
   if (error) {
-    throw new UserInputError('Fail to create a character', { validationError: error.message });
+    return new UserInputError('Fail to create a character', { validationError: error.message });
   }
   try {
     FoundUser = await prisma.user.findFirst({
       where: { email, isActive: true },
     });
     if (!FoundUser) {
-      throw new Error(errorName.USER_NOT_FOUND);
+      return new Error(errorName.USER_NOT_FOUND);
     }
 
     const isEqual = await helperFn.comparePassword(password, FoundUser.password);
     if (!isEqual) {
-      throw new Error(errorName.WRONG_PASS);
+      return new Error(errorName.WRONG_PASS);
     }
     const token = helperFn.generateToken({
       userId: FoundUser.id,
@@ -99,13 +103,13 @@ exports.login = async (parent, args, context, info) => {
 exports.changePassword = async (parent, args, context, info) => {
   try {
     if (!args.inputPassword) {
-      throw new Error(constants.PROVIDE_PASS);
+      return new Error(constants.PROVIDE_PASS);
     }
 
     const foundUser = await prisma.user.findUnique({ where: { id: context.currentUser.userId } });
     const isEqual = await helperFn.comparePassword(args.inputPassword.oldPassword, foundUser.password);
     if (!isEqual) {
-      throw new Error(errorName.WRONG_CURRENT_PASS);
+      return new Error(errorName.WRONG_CURRENT_PASS);
     }
 
     const hashPass = await helperFn.hashPassword(args.inputPassword.newPassword);

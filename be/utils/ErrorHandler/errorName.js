@@ -1,13 +1,13 @@
 exports.errorName = {
   SERVER_ERROR: 'SERVER_ERROR',
   // User
-  EXIST_ACCOUNT: 'EXIST_ACCOUNT',
-  NOT_ACTIVE_ACCOUNT: 'NOT_ACTIVE_ACCOUNT',
-  USER_NOT_FOUND: 'USER_NOT_FOUND',
-  WRONG_PASS: 'WRONG_PASS',
-  WRONG_CURRENT_PASS: 'WRONG_CURRENT_PASS',
+  EXIST_ACCOUNT: 'Account has already been created. Try another',
+  NOT_ACTIVE_ACCOUNT: 'Account has already been created. But not active yet',
+  USER_NOT_FOUND: 'No found user. Try again',
+  WRONG_PASS: 'Wrong password. Input again',
+  WRONG_CURRENT_PASS: 'Wrong current password',
   SUCCESS_EMAIL: 'Verify your email',
-
+  PROVIDE_ADD_TO_CART: 'Fill in quantity and productId',
 };
 
 exports.errorType = {

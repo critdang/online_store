@@ -18,17 +18,7 @@ import { ToastContainer } from 'react-toastify';
 const theme = createTheme();
 const SIGNUP = gql`
   mutation ($input: InputSignup) {
-    createUser(inputSignup: $input) {
-      id
-      fullname
-      email
-      isActive
-      address
-      phone
-      gender
-      avatar
-      birthday
-    }
+    createUser(inputSignup: $input)
   }
 `;
 export default function SignUp() {
@@ -166,24 +156,6 @@ export default function SignUp() {
                   onChange={(e) =>
                     setInput({ ...input, [e.target.name]: e.target.value })
                   }
-                />
-              </Grid>
-              {/* <Grid item xs={12}>
-                <TextField
-                  name="fullName"
-                  required
-                  fullWidth
-                  id="fullName"
-                  label="Full Name"
-                  autoFocus
-                />
-              </Grid> */}
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox value="allowExtraEmails" color="primary" />
-                  }
-                  label="I want to receive inspiration, marketing promotions and updates via email."
                 />
               </Grid>
             </Grid>
