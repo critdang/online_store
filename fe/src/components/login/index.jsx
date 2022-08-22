@@ -36,13 +36,15 @@ export default function SignInSide() {
 
   const [login] = useMutation(LOGIN, {
     onError: (err) => {
-      helperFn.toastAlertFail(err.message);
+      console.log(err);
     },
   });
 
   const handleLogin = async () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     try {
+      if (!input)
+        helperFn.toastAlertFail('Please provide your username and password');
       const { data } = await login({
         variables: {
           input: {

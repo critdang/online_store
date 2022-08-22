@@ -24,8 +24,8 @@ router.post('/block/:id', auth.protectingRoutes, adminController.changeBlockUser
 router.post('/category', auth.protectingRoutes, upload.single('thumbnail'), validate.createCategory, adminController.addCategory);
 router.get('/categories', auth.protectingRoutes, adminController.getCategories);
 router.get('/category/:id', auth.protectingRoutes, adminController.getCategory);
-router.post('/editCategory/:id', auth.protectingRoutes, validate.categoryValidate, adminController.editCategory);
-router.post('/editThumbnail/:id', auth.protectingRoutes, upload.single('thumbnail'), adminController.editThumbnail);
+router.post('/edit_category/:id', auth.protectingRoutes, validate.categoryValidate, adminController.editCategory);
+router.post('/edit_thumbnail/:id', auth.protectingRoutes, upload.single('thumbnail'), adminController.editThumbnail);
 router.delete('/category/:id', auth.protectingRoutes, adminController.deleteCategory);
 
 // product
@@ -36,7 +36,7 @@ router.put('/product/:id', auth.protectingRoutes, validate.productValidate, admi
 router.delete('/product/:id', auth.protectingRoutes, adminController.deleteProduct);
 
 // Image in Product
-router.post('/productImages/:productId', auth.protectingRoutes, upload.array('images'), adminController.uploadImageProduct);
+router.post('/product_images/:productId', auth.protectingRoutes, upload.array('images'), adminController.uploadImageProduct);
 router.post('/default_image/:imgId', auth.protectingRoutes, adminController.defaultImage);
 router.delete('/product/:productId/:imgId', auth.protectingRoutes, adminController.deleteImage);
 

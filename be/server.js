@@ -11,7 +11,7 @@ const context = require('./services/context.services');
 const typeDefs = require('./src/graphql/typeDefs/users');
 const resolvers = require('./src/graphql/resolvers/users');
 const adminRoutes = require('./rest/routes/admin.route');
-const getErrorCode = require('./utils/ErrorHandler/getCodeError');
+// const getErrorCode = require('./utils/ErrorHandler/getCodeError');
 const viewEngine = require('./rest/config/viewEngine');
 require('dotenv').config();
 // const cron = require('node-cron');
@@ -51,25 +51,25 @@ const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context,
-  csrfPrevention: true,
+  csrfPrevention: false,
   cache: 'bounded',
   plugins: [
     ApolloServerPluginLandingPageLocalDefault({ embed: true }),
   ],
-  formatError(err) {
-    if (err.message.startsWith('Database Error: ')) {
-      return new Error('Internal server error');
-    }
-    if (!err.originalError) {
-      return err;
-    }
-    // error code/validation
-    const customError = err.message.slice(7);
-    const error = getErrorCode(customError) || err.extensions.validationError || err;
+  // formatError(err) {
+  //   if (err.message.startsWith('Database Error: ')) {
+  //     return new Error('Internal server error');
+  //   }
+  //   if (!err.originalError) {
+  //     return err;
+  //   }
+  //   // error code/validation
+  //   const customError = err.message.slice(7);
+  //   const error = getErrorCode(customError) || err.extensions.validationError || err;
 
-    return ({ message: error.message || error, statusCode: error.statusCode });
-    // return err;
-  },
+  //   return ({ message: error.message || error, statusCode: error.statusCode });
+  //   // return err;
+  // },
 });
 
 async function startServer() {

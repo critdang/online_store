@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const constants = require('../../../../../constants');
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -7,15 +8,16 @@ require('dotenv').config();
 
 exports.addToCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
-  const { quantity, productId } = args;
+  const { quantity, productId } = args.inputProduct;
   try {
     const checkProduct = await prisma.product.findUnique({ where: { id: productId } });
+
     if (!checkProduct) {
-      throw new Error('Product not found');
+      throw new Error(constants.NO_PRODUCT_FOUND);
     }
 
     if (quantity > checkProduct.amount) {
-      throw new Error('Product quantity exceed');
+      throw new Error(constants.PRODUCT_EXCEED);
     }
 
     const cartItem = await prisma.cart.findFirst({ where: { userId }, include: { cartProduct: true } });
@@ -37,7 +39,7 @@ exports.addToCart = async (parent, args, context, info) => {
       run = [createCartProduct];
     }
     await prisma.$transaction([...run]);
-    return run;
+    return constants.PRODUCT_TO_CART;
   } catch (err) {
     throw new Error(err);
   }
@@ -59,35 +61,48 @@ exports.getCart = async (parent, args, context, info) => {
       cartProduct: {
         include: {
           product: {
-            select: {
-              name: true,
-              price: true,
-              description: true,
-              productImage: true,
-              categoryProduct: true,
+            include: {
+              productImage: {
+                where: { isDefault: true },
+              },
             },
           },
         },
       },
     },
   });
-  return cartItems;
+  if (cartItems.cartProduct.length === 0) return new Error(constants.NO_PRODUCT_IN_CART);
+  // const tempt = cartItems.cartProduct;
+  let products;
+  if (cartItems) {
+    products = cartItems.cartProduct.map((Cproduct) => ({
+      productId: Cproduct.product.id,
+      name: Cproduct.product.name,
+      description: Cproduct.product.description,
+      quantity: Cproduct.quantity,
+      thumbnail: Cproduct.product.productImage[0].href,
+    }));
+  }
+
+  return products;
 };
 
 exports.deleteItemCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
-  const { productId } = args;
+  const { productId } = args.inputItem;
 
   const findCart = await prisma.cart.findFirst({
     where: {
       userId,
     },
   });
-
-  await prisma.cartProduct.deleteMany({
+  if (!findCart) return new Error(constants.NO_FOUND_CART);
+  const foundProduct = await prisma.cartProduct.deleteMany({
     where: {
       cartId: findCart.id,
       productId,
     },
   });
+  if (foundProduct.count === 0) return new Error();
+  return constants.DELETE_SUCCESS;
 };

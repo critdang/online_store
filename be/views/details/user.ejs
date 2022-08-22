@@ -94,11 +94,11 @@
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function changeBlockUserStt(id) {
-        axios.post('/changeBlockUserStt/' + id,)
+        axios.post('/block/' + id,)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({
-                        position: 'top-end',
+                        position: 'center',
                         icon: 'success',
                         title: 'Success',
                         showConfirmButton: false

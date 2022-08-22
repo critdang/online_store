@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
-const { ApolloError } = require('apollo-server-express');
+const constants = require('../../../../../constants');
 require('dotenv').config();
 
 exports.products = async (parent, args, context, info) => {
@@ -26,9 +26,10 @@ exports.products = async (parent, args, context, info) => {
         productImage: true,
       },
     });
+    if (!data) return new Error(constants.NO_PRODUCT_FOUND);
     return data;
   } catch (err) {
-    throw new ApolloError(err);
+    console.log(err);
   }
 };
 
@@ -58,13 +59,12 @@ exports.listProducts = async (parent, args, context, info) => {
       return data;
     }
   } catch (err) {
-    throw new ApolloError(err);
+    console.log(err);
   }
 };
 
 exports.productDetail = async (parent, args, context, info) => {
   const { productId } = args.productId;
-  console.log(args.productId.productId);
   try {
     const existProduct = await prisma.product.findUnique({
       where: { id: productId },
@@ -77,6 +77,7 @@ exports.productDetail = async (parent, args, context, info) => {
         },
       },
     });
+    if (!existProduct) return new Error(constants.NO_PRODUCT_FOUND);
     return existProduct;
   } catch (err) {
     console.log(err);
@@ -88,7 +89,7 @@ exports.productImage = async (parent, args, context, info) => {
     const data = await prisma.productImage.findMany({});
     return data;
   } catch (err) {
-    throw new ApolloError(err);
+    console.log(err);
   }
 };
 
@@ -121,5 +122,6 @@ exports.filterProductByCategory = async (parent, args, context, info) => {
     }
     return item.product;
   });
+  if (!products) return new Error(constants.NO_PRODUCT_FOUND);
   return products;
 };

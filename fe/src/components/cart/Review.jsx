@@ -4,7 +4,9 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Grid from '@mui/material/Grid';
-import { Button } from '@mui/material';
+import { Button, ListSubheader } from '@mui/material';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import helperFn from '../../utils/helperFn';
 
 const products = [
   {
@@ -36,21 +38,94 @@ const payments = [
   { name: 'Card number', detail: 'xxxx-xxxx-xxxx-1234' },
   { name: 'Expiry date', detail: '04/2024' },
 ];
+// const GETCART = gql`
+//   query GetCart {
+//     getCart {
+//       name
+//       description
+//       quantity
+//       thumbnail
+//     }
+//   }
+// `;
+const DELTEITEMCART = gql`
+  mutation deleteItemCart($input: InputItem) {
+    deleteItemCart(inputItem: $input)
+  }
+`;
 
-export default function Review() {
+export default function Review(props) {
+  const { data, handleDeleteProductInCart } = props;
+  // const [deleteItemCart] = useMutation(DELTEITEMCART, {
+  //   onError: (err) => {
+  //     console.log(err);
+  //   },
+  // });
+  // const [cartItems, setCartItems] = React.useState();
+  // console.log(
+  //   '🚀 ~ file: Review.jsx ~ line 54 ~ Review ~ cartItems',
+  //   cartItems
+  // );
+  // const { loading, error, data } = useQuery(GETCART, {
+  //   onError: (err) => {
+  //     helperFn.toastAlertFail(err.message);
+  //   },
+  // });
+  // React.useEffect(() => {
+  //   if (data) {
+  //     console.log(data.getCart[0].name);
+  //     setCartItems(data.getCart);
+  //   }
+  // }, [data]);
+  // const handleDeleteProductInCart = async (productId) => {
+  //   console.log(productId);
+  //   try {
+  //     const { data } = await deleteItemCart({
+  //       variables: {
+  //         input: {
+  //           productId,
+  //         },
+  //       },
+  //     });
+  //     if (data) {
+  //       console.log(data);
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
         Order summary
       </Typography>
       <List disablePadding>
-        {products.map((product) => (
-          <ListItem key={product.name} sx={{ py: 1, px: 0 }}>
-            <ListItemText primary={product.name} secondary={product.desc} />
-            <Typography variant="body2">{product.price}</Typography>
-            <Button>Delete</Button>
-          </ListItem>
-        ))}
+        {data &&
+          data.map((item) => (
+            <ListItem key={item.name} sx={{ py: 1, px: 0 }}>
+              <img
+                src={item.thumbnail}
+                style={{ width: '150px', marginRight: '10px' }}
+              ></img>
+              <ListItemText primary={item.name} secondary={item.description} />
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                }}
+              >
+                <ListSubheader variant="body2">{item.quantity}</ListSubheader>
+                <Typography variant="body2">{item.price}</Typography>
+                <Button
+                  onClick={() => handleDeleteProductInCart(item.productId)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </ListItem>
+          ))}
 
         <ListItem sx={{ py: 1, px: 0 }}>
           <ListItemText primary="Shipping" />

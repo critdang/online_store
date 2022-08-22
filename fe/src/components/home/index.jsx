@@ -167,6 +167,11 @@ const PRODUCTSBYNAME = gql`
   }
 `;
 
+const ADDTOCART = gql`
+  mutation Mutation($inputProduct: InputProduct) {
+    addToCart(inputProduct: $inputProduct)
+  }
+`;
 const SORTS = [
   {
     name: 'name',
@@ -189,9 +194,11 @@ const SORTS = [
     value: 'DESC',
   },
 ];
+
 export default function Home(props, { setLogin }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const { handleAddCart } = props;
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -199,9 +206,7 @@ export default function Home(props, { setLogin }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const addToCart = () => {
-    props.addToCart();
-  };
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [displaySearch, setDisplaySearch] = React.useState('none');
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -215,7 +220,22 @@ export default function Home(props, { setLogin }) {
     console.info(`You clicked ${options[selectedIndex]}`);
   };
   // ##################################################################
-
+  // const [productId, setProductId] = React.useState();
+  const addToCart = async (id) => {
+    const productId = parseInt(id);
+    const { dataProductInCart } = await addToCartMutation({
+      variables: {
+        inputProduct: {
+          productId,
+          quantity: 1,
+        },
+      },
+    });
+    if (dataProductInCart) {
+      console.log(data);
+    }
+    handleAddCart();
+  };
   const [input, setInput] = React.useState();
   const [orderProductByName, setOrderProductByName] = React.useState({
     name: 'name',
@@ -232,19 +252,6 @@ export default function Home(props, { setLogin }) {
       setProducts(data.products);
     }
   }, [data]);
-
-  // const handleMenuItemClick = (event, index) => {
-  //   event.preventDefault();
-  //   setSelectedIndex(index);
-  //   setOpenButton(false);
-  //   let orderBy = `${options[selectedIndex]}`;
-  //   if (orderBy === 'A-Z') {
-  //     orderBy = 'ASC';
-  //   } else {
-  //     orderBy = 'DESC';
-  //   }
-  //   setOrderProductByName(orderBy);
-  // };
 
   const { data: dataProductByName } = useQuery(
     PRODUCTSBYNAME,
@@ -266,10 +273,7 @@ export default function Home(props, { setLogin }) {
       setProducts(dataProductByName.listProducts);
     }
   });
-
-  const handleToggle = () => {
-    openButton ? setOpenButton(false) : setOpenButton(true);
-  };
+  const [addToCartMutation] = useMutation(ADDTOCART);
 
   const handleCloseOptions = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -296,7 +300,6 @@ export default function Home(props, { setLogin }) {
       },
     },
   });
-  if (detailData) console.log(detailData.productDetail);
 
   const handleOpenModal = (id) => {
     setOpenModal(true);
@@ -366,64 +369,6 @@ export default function Home(props, { setLogin }) {
                 <SearchIcon />
               </IconButton>
               <Typography>Sort By &nbsp;</Typography>
-              {/* <React.Fragment>
-                <ButtonGroup
-                  variant="contained"
-                  ref={anchorRef}
-                  aria-label="split button"
-                >
-                  <Button onClick={handleClickOptions}>
-                    {options[selectedIndex]}
-                  </Button>
-                  <Button
-                    size="small"
-                    aria-controls={open ? 'split-button-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-label="select merge strategy"
-                    aria-haspopup="menu"
-                    onClick={handleToggle}
-                  >
-                    <ArrowDropDownIcon />
-                  </Button>
-                </ButtonGroup>
-                <Popper
-                  open={openButton}
-                  anchorEl={anchorRef.current}
-                  role={undefined}
-                  transition
-                  disablePortal
-                >
-                  {({ TransitionProps, placement }) => (
-                    <Grow
-                      {...TransitionProps}
-                      style={{
-                        transformOrigin:
-                          placement === 'bottom'
-                            ? 'center top'
-                            : 'center bottom',
-                      }}
-                    >
-                      <Paper>
-                        <ClickAwayListener onClickAway={handleCloseOptions}>
-                          <MenuList id="split-button-menu" autoFocusItem>
-                            {options.map((option, index) => (
-                              <MenuItem
-                                key={option}
-                                selected={index === selectedIndex}
-                                onClick={(event) =>
-                                  handleMenuItemClick(event, index)
-                                }
-                              >
-                                {option}
-                              </MenuItem>
-                            ))}
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
-              </React.Fragment> */}
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -481,7 +426,7 @@ export default function Home(props, { setLogin }) {
                         color: 'white',
                       },
                     }}
-                    onClick={addToCart}
+                    onClick={() => addToCart(product.id)}
                   ></AddCircleOutlineIcon>
                   <Container>
                     <Typography variant="body2" component="h2">

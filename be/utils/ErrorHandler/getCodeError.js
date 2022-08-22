@@ -1,4 +1,4 @@
-const { errorType } = require('./constantsql');
+const { errorType } = require('./errorName');
 
 const getErrorCode = (errorName) => {
   const a = errorType[errorName];

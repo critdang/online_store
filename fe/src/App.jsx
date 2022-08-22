@@ -15,22 +15,27 @@ import './mainStyle.css';
 import NavBar from './components/navbar/index';
 import Categories from './components/categories';
 import VerifyUser from './components/verify-user';
+import NoMatch from './components/404';
 function App() {
-  const [itemCart, setItemCart] = useState(0);
+  const [isAdd, setIsAdd] = useState(false);
 
   //ham tang cap
-  const addItemCart = () => {
-    setItemCart(itemCart + 1);
-    console.log(itemCart);
+  // const addItemCart = () => {
+  //   setItemCart(itemCart + 1);
+  //   console.log(itemCart);
+  // };
+
+  const handleAddCart = () => {
+    setIsAdd((pre) => !pre);
   };
   return (
     // login?<Album/>: <Login login={login} setLogin={setLogin} />
     <>
       <BrowserRouter>
-        <NavBar itemCart={itemCart} />
+        <NavBar isAdd={isAdd} />
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home addToCart={addItemCart} />} />
+          <Route path="/" element={<Home handleAddCart={handleAddCart} />} />
           <Route path="/paymentForm" element={<PaymentForm />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
@@ -41,6 +46,7 @@ function App() {
           <Route path="/verify/:tokenId" element={<VerifyUser />} />
           <Route path="/forgotPassword/:tokenId" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="*" element={<NoMatch />}></Route>
           <Route
             path="/category/:categoryName:categoryId"
             element={<Category />}

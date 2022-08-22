@@ -13,6 +13,8 @@ exports.comparePassword = async (inputPassword, outputPassword) => {
 exports.generateToken = (key, time) => jwt.sign(key, process.env.JWT_SECRET, {
   expiresIn: time,
 });
+// exports.formatDay = (day) => moment(day, 'YYYY MM DD').toDate();
+exports.formatDay = (day) => moment(day).format('YYYY/MM/DD');
 
 exports.verifyToken = (key) => jwt.verify(key, process.env.JWT_SECRET);
 
