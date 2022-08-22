@@ -88,6 +88,7 @@ const typeDefs = gql`
   }
 
   type ProductInCart {
+    cartId: Int
     productId: Int
     name: String
     description: String

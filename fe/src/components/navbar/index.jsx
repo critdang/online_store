@@ -53,14 +53,6 @@ export default function NavBar(props) {
   }, [data]);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const itemCart = props.itemCart;
-
   const { data: dataNumberProducts, refetch } = useQuery(GETCART, {
     onError: (err) => {
       if (err.message === `Cannot read property 'userId' of undefined`)
@@ -80,6 +72,13 @@ export default function NavBar(props) {
       setCartItems(dataNumberProducts.getCart.length);
     }
   }, [dataNumberProducts]);
+  // ###############################
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   // style badgeContent
   const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {

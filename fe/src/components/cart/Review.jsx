@@ -45,7 +45,17 @@ const DELTEITEMCART = gql`
 `;
 
 export default function Review(props) {
-  const { data, handleDeleteProductInCart } = props;
+  const { data, handleDeleteProductInCart, paymentMethod } = props;
+  console.log('🚀 ~ file: Review.jsx ~ line 49 ~ Review ~ data', data);
+  const cartId = data[0].cartId;
+
+  const handleSubmitOrder = (paymentMethod, cartId) => {
+    console.log(
+      '🚀 ~ file: Review.jsx ~ line 54 ~ handleSubmitOrder ~ paymentMethod',
+      paymentMethod,
+      cartId
+    );
+  };
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
@@ -117,6 +127,13 @@ export default function Review(props) {
               </React.Fragment>
             ))}
           </Grid>
+          <Button
+            variant="contained"
+            onClick={() => handleSubmitOrder(paymentMethod, cartId)}
+            sx={{ mt: 3, ml: 1 }}
+          >
+            Place order
+          </Button>
         </Grid>
       </Grid>
     </React.Fragment>
