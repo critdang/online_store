@@ -46,7 +46,7 @@ const loginSchema = Joi.object({
     .email()
     .required()
     .error(
-      new AppError(constants.EMAIL_PROVIDE, 400),
+      new AppError(constants.PROVIDE_EMAIL, 400),
     ),
   password: Joi.string()
     .required()

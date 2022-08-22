@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const constants = require('../../../../../constants');
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -10,14 +11,13 @@ exports.addToCart = async (parent, args, context, info) => {
   const { quantity, productId } = args.inputProduct;
   try {
     const checkProduct = await prisma.product.findUnique({ where: { id: productId } });
-    console.log('🚀 ~ file: index.js ~ line 13 ~ exports.addToCart= ~ checkProduct', checkProduct);
 
     if (!checkProduct) {
-      throw new Error('Product not found');
+      throw new Error(constants.NO_PRODUCT_FOUND);
     }
 
     if (quantity > checkProduct.amount) {
-      throw new Error('Product quantity exceed');
+      throw new Error(constants.PRODUCT_EXCEED);
     }
 
     const cartItem = await prisma.cart.findFirst({ where: { userId }, include: { cartProduct: true } });
@@ -39,7 +39,7 @@ exports.addToCart = async (parent, args, context, info) => {
       run = [createCartProduct];
     }
     await prisma.$transaction([...run]);
-    return 'Add product successfully';
+    return constants.PRODUCT_TO_CART;
   } catch (err) {
     throw new Error(err);
   }
@@ -71,34 +71,38 @@ exports.getCart = async (parent, args, context, info) => {
       },
     },
   });
-  if (cartItems.cartProduct.length === 0) return new Error('No Product in cart');
-  const cartItem = cartItems.cartProduct[0];
-  const result = {
-    productName: cartItem.product.name,
-    thumbnail: cartItem.product.productImage[0].href,
-    quantity: cartItem.quantity,
-    price: cartItem.product.amount,
-  };
+  if (cartItems.cartProduct.length === 0) return new Error(constants.NO_PRODUCT_IN_CART);
+  // const tempt = cartItems.cartProduct;
+  let products;
+  if (cartItems) {
+    products = cartItems.cartProduct.map((Cproduct) => ({
+      productId: Cproduct.product.id,
+      name: Cproduct.product.name,
+      description: Cproduct.product.description,
+      quantity: Cproduct.quantity,
+      thumbnail: Cproduct.product.productImage[0].href,
+    }));
+  }
 
-  return result;
+  return products;
 };
 
 exports.deleteItemCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
-  const { productId } = args;
+  const { productId } = args.inputItem;
 
   const findCart = await prisma.cart.findFirst({
     where: {
       userId,
     },
   });
-  if (!findCart) return new Error('Cart doesn\'t found ');
+  if (!findCart) return new Error(constants.NO_FOUND_CART);
   const foundProduct = await prisma.cartProduct.deleteMany({
     where: {
       cartId: findCart.id,
       productId,
     },
   });
-  if (foundProduct.count === 0) return new Error('Can not find product in cart ');
-  return 'Deleted Successfully';
+  if (foundProduct.count === 0) return new Error();
+  return constants.DELETE_SUCCESS;
 };

@@ -50,9 +50,9 @@ const typeDefs = gql`
   type CartProduct {
     id: ID!
     productId: Int
-    amount: Int
+    quantity: Int
     cartId: Int
-    product: Product
+    product: [Product]
   }
 
   type ProductImage {
@@ -87,12 +87,14 @@ const typeDefs = gql`
     quantity: Int
   }
 
-  type getCart {
-    productName: String
-    thumbnail: String
+  type ProductInCart {
+    productId: Int
+    name: String
+    description: String
     quantity: Int
-    price: Float
+    thumbnail: String
   }
+
   type Query {
     user: User!
     products(isDefault: Boolean): [Product]
@@ -102,7 +104,7 @@ const typeDefs = gql`
     productImage: [ProductImage]
     cartProduct: [CartProduct]
     listCategory(categoryId: CategoryId): Category
-    getCart: getCart
+    getCart: [ProductInCart]
     listOrders(input: listOrdersBy): [Order]!
     orderDetail(orderId: OrderId): OrderDetail!
     listCategories(input: listCategoriesBy): [Category]
@@ -118,13 +120,17 @@ const typeDefs = gql`
     resetPassword(inputReset: InputReset): String
     editProfile( inputProfile : InputProfile): User!
     addToCart(inputProduct: InputProduct): String!
-    deleteItemCart(deleteItem: Int): String!
+    deleteItemCart(inputItem: InputItem): String!
     changeOrderStatus(
       orderId: Int
       paymentMethod: PaymentMethod
     ): Order!
     createOrder(inputOrder: InputOrder): Order!
     uploadAvatar(file: Upload!): String!
+  }
+
+  input InputItem {
+    productId: Int!
   }
 
   input InputProduct {

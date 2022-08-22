@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const { ApolloError } = require('apollo-server-express');
+const constants = require('../../../../../constants');
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -63,17 +63,20 @@ exports.listCategory = async (parent, args, context, info) => {
         },
       },
     });
+    if (!data) return new Error(constants.NO_FOUND_CATE);
     return data;
   } catch (err) {
-    throw new ApolloError(err);
+    console.log(err);
   }
 };
 
 exports.categories = async (parent, args, context, info) => {
   try {
     const categories = await prisma.category.findMany({});
+    if (!categories) return new Error(constants.NO_FOUND_CATE);
+
     return categories;
   } catch (err) {
-    throw new ApolloError(err);
+    console.log(err);
   }
 };

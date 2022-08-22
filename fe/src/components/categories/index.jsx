@@ -115,160 +115,164 @@ export default function Album() {
       <CssBaseline />
       <main>
         {/* Hero unit */}
-        <Box
+        <Container
           sx={{
-            bgcolor: 'background.paper',
-            pt: 8,
-            pb: 6,
+            py: 5,
           }}
         >
-          <Container maxWidth="sm">
-            <Typography
-              component="h1"
-              variant="h2"
-              align="center"
-              color="text.primary"
-              gutterBottom
-            >
-              Categories
-            </Typography>
-            <Typography
-              variant="h5"
-              align="center"
-              color="text.secondary"
-              paragraph
-            >
-              Something short and leading about the collection below—its
-              contents, the creator, etc. Make it short and sweet, but not too
-              short so folks don&apos;t simply skip over it entirely.
-            </Typography>
-            <Stack
-              sx={{ pt: 4 }}
-              direction="row"
-              spacing={2}
-              justifyContent="center"
-            >
-              <Button variant="contained">Main call to action</Button>
-              <Button variant="outlined">Secondary action</Button>
-            </Stack>
-          </Container>
-        </Box>
-        <Container sx={{ py: 8 }} maxWidth="md">
-          {/* End hero unit */}
-          <Grid container spacing={4}>
-            {categories.map((category, index) => (
-              <Grid item key={index} xs={12} sm={6} md={3}>
-                <Card
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    boxShadow: 'none',
-                    position: 'relative',
-                  }}
-                >
-                  <CardMedia
-                    component="img"
+          <Box
+            sx={{
+              bgcolor: 'background.paper',
+              pt: 8,
+              pb: 6,
+            }}
+          >
+            <Container maxWidth="sm">
+              <Typography
+                component="h1"
+                variant="h2"
+                align="center"
+                color="text.primary"
+                gutterBottom
+              >
+                Categories
+              </Typography>
+              <Typography
+                variant="h5"
+                align="center"
+                color="text.secondary"
+                paragraph
+              >
+                Something short and leading about the collection below—its
+                contents, the creator, etc. Make it short and sweet, but not too
+                short so folks don&apos;t simply skip over it entirely.
+              </Typography>
+              <Stack
+                sx={{ pt: 4 }}
+                direction="row"
+                spacing={2}
+                justifyContent="center"
+              >
+                {/* <Button variant="contained">Home</Button> */}
+              </Stack>
+            </Container>
+          </Box>
+          <Container>
+            {/* End hero unit */}
+            <Grid container spacing={4}>
+              {categories.map((category, index) => (
+                <Grid item key={index} xs={12} sm={6} md={3}>
+                  <Card
                     sx={{
-                      // 16:9
-                      pt: '30%',
-                    }}
-                    image={category.thumbnail}
-                    alt="random"
-                  />
-                  <Container>
-                    <Typography variant="body2" component="h2">
-                      {category.name}
-                    </Typography>
-                  </Container>
-                  <Container
-                    sx={{
+                      height: '100%',
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
+                      flexDirection: 'column',
+                      boxShadow: 'none',
+                      position: 'relative',
                     }}
                   >
-                    <CardActions>
-                      <Button
-                        size="small"
-                        key={index}
-                        onClick={() => handleCategory(category.id)}
-                      >
-                        View
-                      </Button>
-                    </CardActions>
-                    <Modal
-                      open={open}
-                      onClose={handleClose}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
-                      BackdropProps={{
-                        style: { backgroundColor: 'rgba(0,0,0,0.1)' },
+                    <CardMedia
+                      component="img"
+                      sx={{
+                        // 16:9
+                        pt: '30%',
+                      }}
+                      image={category.thumbnail}
+                      alt="random"
+                    />
+                    <Container>
+                      <Typography variant="body2" component="h2">
+                        {category.name}
+                      </Typography>
+                    </Container>
+                    <Container
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
                       }}
                     >
-                      <Box sx={style}>
-                        {dataCategory && (
-                          <Grid container>
-                            <Grid item xs={8} align="center">
-                              <Typography
-                                variant="h5"
-                                sx={{
-                                  backgroundColor: '#f3f3f3',
-                                  color: '#009688',
-                                }}
-                              >
-                                Product's Image Detail
-                              </Typography>
-                              <div>
-                                <img
-                                  src={dataCategory.listCategory.thumbnail}
-                                  alt="anh"
-                                  style={{ width: '60%' }}
-                                />
-                              </div>
-                            </Grid>
-                            <Grid
-                              item
-                              xs={4}
-                              align="left"
-                              sx={{ backgroundColor: '#dedede' }}
-                            >
-                              <Container>
+                      <CardActions>
+                        <Button
+                          size="small"
+                          key={index}
+                          onClick={() => handleCategory(category.id)}
+                        >
+                          View
+                        </Button>
+                      </CardActions>
+                      <Modal
+                        open={open}
+                        onClose={handleClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                        BackdropProps={{
+                          style: { backgroundColor: 'rgba(0,0,0,0.1)' },
+                        }}
+                      >
+                        <Box sx={style}>
+                          {dataCategory && (
+                            <Grid container>
+                              <Grid item xs={8} align="center">
                                 <Typography
                                   variant="h5"
-                                  sx={{ color: '#009688' }}
+                                  sx={{
+                                    backgroundColor: '#f3f3f3',
+                                    color: '#009688',
+                                  }}
                                 >
-                                  Detail product
+                                  Product's Image Detail
                                 </Typography>
-                                <Typography>
-                                  <strong>Name:</strong>{' '}
-                                  {dataCategory.listCategory.name}
-                                </Typography>
-                                <Typography>
-                                  <strong>Description:</strong>{' '}
-                                  {dataCategory.listCategory.description}
-                                </Typography>
-                                <Typography>
-                                  <strong>Product Quantity:</strong>{' '}
-                                  {
-                                    dataCategory.listCategory.categoryProduct
-                                      .length
-                                  }
-                                </Typography>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={handleClose}
-                                >
-                                  Close
-                                </Button>
-                              </Container>
+                                <div>
+                                  <img
+                                    src={dataCategory.listCategory.thumbnail}
+                                    alt="anh"
+                                    style={{ width: '60%' }}
+                                  />
+                                </div>
+                              </Grid>
+                              <Grid
+                                item
+                                xs={4}
+                                align="left"
+                                sx={{ backgroundColor: '#dedede' }}
+                              >
+                                <Container>
+                                  <Typography
+                                    variant="h5"
+                                    sx={{ color: '#009688' }}
+                                  >
+                                    Detail product
+                                  </Typography>
+                                  <Typography>
+                                    <strong>Name:</strong>{' '}
+                                    {dataCategory.listCategory.name}
+                                  </Typography>
+                                  <Typography>
+                                    <strong>Description:</strong>{' '}
+                                    {dataCategory.listCategory.description}
+                                  </Typography>
+                                  <Typography>
+                                    <strong>Product Quantity:</strong>{' '}
+                                    {
+                                      dataCategory.listCategory.categoryProduct
+                                        .length
+                                    }
+                                  </Typography>
+                                  <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={handleClose}
+                                  >
+                                    Close
+                                  </Button>
+                                </Container>
+                              </Grid>
                             </Grid>
-                          </Grid>
-                        )}
-                      </Box>
-                    </Modal>
-                    {/* <Typography
+                          )}
+                        </Box>
+                      </Modal>
+                      {/* <Typography
                       sx={{
                         fontSize: '14px',
                         backgroundColor: 'yellow',
@@ -276,11 +280,12 @@ export default function Album() {
                     >
                       Show Products
                     </Typography> */}
-                  </Container>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                    </Container>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
         </Container>
       </main>
       {/* Footer */}

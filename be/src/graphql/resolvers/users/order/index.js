@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const validateUser = require('../../../../../validate/validateUser');
 const helperFn = require('../../../../../utils/helperFn');
+const constants = require('../../../../../constants');
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -49,7 +50,7 @@ exports.createOrder = async (parent, args, context, info) => {
       // load foundCarts
       foundCarts.cartProduct.map(async (item) => {
         if (item.quantity > item.product.amount) {
-          throw new Error('Exceed quantity limit');
+          throw new Error(constants.EXCEED_QUANTITY);
         }
 
         const obj = {};
@@ -124,9 +125,9 @@ exports.createOrder = async (parent, args, context, info) => {
       await helperFn.createOrder(context.currentUser.email, orders);
       return orders;
     }
-    return new Error('No product in cart');
+    return new Error(constants.NO_PRODUCT_IN_CART);
   } catch (err) {
-    return err;
+    console.log(err);
   }
 };
 
@@ -211,45 +212,47 @@ exports.listOrders = async (parent, args, context, info) => {
 };
 
 exports.orderDetail = async (parent, args, context, info) => {
-  console.log(args);
   const { id } = args.orderId;
-
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      productInOrder: {
-        include: {
-          product: {
-            include: {
-              productImage: {
-                where: {
-                  isDefault: true,
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        productInOrder: {
+          include: {
+            product: {
+              include: {
+                productImage: {
+                  where: {
+                    isDefault: true,
+                  },
                 },
               },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  const orderDate = order.createdAt !== null ? helperFn.formatDay(order.createdAt) : null;
-  const paymentDate = order.paymentDate !== null ? helperFn.formatDay(order.paymentDate) : null;
-  const product = order.productInOrder.map((item) => ({
-    totalAmount: item.quantity * item.price,
-    name: item.product.name,
-    thumbnail: item.product.productImage[0].href,
-    price: item.price,
-    quantity: item.quantity,
-  }));
+    const orderDate = order.createdAt !== null ? helperFn.formatDay(order.createdAt) : null;
+    const paymentDate = order.paymentDate !== null ? helperFn.formatDay(order.paymentDate) : null;
+    const product = order.productInOrder.map((item) => ({
+      totalAmount: item.quantity * item.price,
+      name: item.product.name,
+      thumbnail: item.product.productImage[0].href,
+      price: item.price,
+      quantity: item.quantity,
+    }));
 
-  const result = {
-    paymentDate,
-    orderDate,
-    product,
-    totalAmount: order.productInOrder.length,
-  };
-  return result;
+    const result = {
+      paymentDate,
+      orderDate,
+      product,
+      totalAmount: order.productInOrder.length,
+    };
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 exports.changeOrderStatus = async (parent, args, context, info) => {
@@ -265,7 +268,7 @@ exports.changeOrderStatus = async (parent, args, context, info) => {
       },
     });
     if (!order) {
-      return new Error('Order not found');
+      return new Error(constants.ORDER_NOT_FOUND);
     }
     await prisma.order.update({
       where: {
@@ -278,6 +281,6 @@ exports.changeOrderStatus = async (parent, args, context, info) => {
       },
     });
   } catch (err) {
-    return new Error(err);
+    console.log(err);
   }
 };

@@ -15,6 +15,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
+import helperFn from '../../utils/helperFn';
 
 const CATEGORIES = gql`
   query {
@@ -26,7 +27,21 @@ const CATEGORIES = gql`
     }
   }
 `;
+
+const GETCART = gql`
+  query GetCart {
+    getCart {
+      productId
+      name
+      description
+      quantity
+      thumbnail
+    }
+  }
+`;
 export default function NavBar(props) {
+  const [cartItems, setCartItems] = React.useState();
+  const { isAdd } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [categories, setCategories] = React.useState([]);
 
@@ -46,6 +61,23 @@ export default function NavBar(props) {
   };
   const itemCart = props.itemCart;
 
+  const { data: dataNumberProducts, refetch } = useQuery(GETCART, {
+    onError: (err) => {
+      helperFn.toastAlertFail(err.message);
+    },
+  });
+  React.useEffect(() => {
+    if (data) refetch();
+  }, [isAdd, data, refetch]);
+  React.useEffect(() => {
+    if (dataNumberProducts) {
+      console.log(
+        '🚀 ~ file: index.jsx ~ line 71 ~ React.useEffect ~ dataNumberProducts',
+        dataNumberProducts.getCart.length
+      );
+      setCartItems(dataNumberProducts.getCart.length);
+    }
+  }, [dataNumberProducts]);
   // style badgeContent
   const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -166,7 +198,7 @@ export default function NavBar(props) {
 
             <Link to="/checkout">
               <IconButton aria-label={notificationsLabel(100)}>
-                <StyledBadge badgeContent={itemCart} color="success">
+                <StyledBadge badgeContent={cartItems} color="success">
                   <ShoppingCartIcon
                     cursor="pointer"
                     sx={{
@@ -175,7 +207,6 @@ export default function NavBar(props) {
                       verticalAlign: 'bottom',
                     }}
                   >
-                    {' '}
                     Cart
                   </ShoppingCartIcon>
                 </StyledBadge>

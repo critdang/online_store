@@ -198,6 +198,7 @@ const SORTS = [
 export default function Home(props, { setLogin }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const { handleAddCart } = props;
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -219,8 +220,9 @@ export default function Home(props, { setLogin }) {
     console.info(`You clicked ${options[selectedIndex]}`);
   };
   // ##################################################################
+  // const [productId, setProductId] = React.useState();
   const addToCart = async (id) => {
-    setProductId(parseInt(id));
+    const productId = parseInt(id);
     const { dataProductInCart } = await addToCartMutation({
       variables: {
         inputProduct: {
@@ -232,9 +234,8 @@ export default function Home(props, { setLogin }) {
     if (dataProductInCart) {
       console.log(data);
     }
-    props.addToCart();
+    handleAddCart();
   };
-  const [productId, setProductId] = React.useState();
   const [input, setInput] = React.useState();
   const [orderProductByName, setOrderProductByName] = React.useState({
     name: 'name',
@@ -299,7 +300,6 @@ export default function Home(props, { setLogin }) {
       },
     },
   });
-  if (detailData) console.log(detailData.productDetail);
 
   const handleOpenModal = (id) => {
     setOpenModal(true);

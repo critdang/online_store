@@ -23,7 +23,7 @@ const login = async (req, res, next) => {
   const { email: inputEmail, password: inputPassword } = req.body;
   try {
     if (!inputEmail || !inputPassword) {
-      return next(new AppError(constants.PROVIDE, 400));
+      return next(new AppError(constants.PROVIDE_EMAIL_PASS, 400));
     }
     const admin = await prisma.admin.findFirst({
       where: { email: inputEmail },
@@ -164,7 +164,7 @@ const changeBlockUserStt = async (req, res, next) => {
     const existStatus = await prisma.user.findFirst({
       where: { id: idUser },
     });
-    if (!existStatus) return helperFn.returnFail(req, res, constants.NO_USER);
+    if (!existStatus) return helperFn.returnFail(req, res, constants.NO_FOUND_USER);
 
     await prisma.user.update({
       where: { id: idUser },

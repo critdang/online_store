@@ -15,29 +15,92 @@ import AddressForm from './AddressForm';
 import PaymentForm from './PaymentForm';
 import Review from './Review';
 import { Link } from 'react-router-dom';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import helperFn from '../../utils/helperFn';
+import { useLocation } from 'react-router-dom';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
-function getStepContent(step) {
+function GetStepContent(step, cartItems, refetch) {
+  const DELTEITEMCART = gql`
+    mutation deleteItemCart($input: InputItem) {
+      deleteItemCart(inputItem: $input)
+    }
+  `;
+  const [deleteItemCart] = useMutation(DELTEITEMCART, {
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+  const handleDeleteProductInCart = async (productId) => {
+    try {
+      const { data } = await deleteItemCart({
+        variables: {
+          input: {
+            productId,
+          },
+        },
+      });
+      if (data) {
+        console.log(data);
+        refetch();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   switch (step) {
     case 0:
       return <AddressForm />;
     case 1:
       return <PaymentForm />;
     case 2:
-      return <Review />;
+      return (
+        <Review
+          handleDeleteProductInCart={handleDeleteProductInCart}
+          data={cartItems}
+        />
+      );
     default:
       throw new Error('Unknown step');
   }
 }
-
+const GETCART = gql`
+  query GetCart {
+    getCart {
+      productId
+      name
+      description
+      quantity
+      thumbnail
+    }
+  }
+`;
 const theme = createTheme();
 
 export default function Checkout() {
+  const [cartItems, setCartItems] = React.useState();
+  const { loading, error, data, refetch } = useQuery(GETCART, {
+    onError: (err) => {
+      helperFn.toastAlertFail(err.message);
+    },
+  });
+  React.useEffect(() => {
+    if (data) {
+      console.log(data);
+      setCartItems(data.getCart);
+    }
+  }, [data]);
+
+  console.log(cartItems);
+
   const [activeStep, setActiveStep] = React.useState(0);
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
+
+    if (data) refetch();
+    console.log('🚀 ~ file: Checkout.jsx ~ line 103 ~ handleNext ~ data', data);
   };
 
   const handleBack = () => {
@@ -91,7 +154,7 @@ export default function Checkout() {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {getStepContent(activeStep)}
+                {GetStepContent(activeStep, cartItems, refetch)}
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   {activeStep !== 0 && (
                     <Button onClick={handleBack} sx={{ mt: 3, ml: 1 }}>

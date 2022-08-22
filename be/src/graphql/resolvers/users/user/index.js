@@ -6,6 +6,7 @@ const validateUser = require('../../../../../validate/validateUser');
 const { errorName } = require('../../../../../utils/ErrorHandler/errorName');
 const helperFn = require('../../../../../utils/helperFn');
 const { uploadImageFunc } = require('../fileUpload');
+const constants = require('../../../../../constants');
 require('dotenv').config();
 
 const prisma = new PrismaClient({
@@ -40,12 +41,12 @@ exports.createUser = async (parent, args, context, info) => {
 
   helperFn.sendMail(
     email,
-    'Verify your email',
-    'please click the link below to verify your email',
-    '/verify/',
+    constants.SUCCESS_EMAIL,
+    constants.SUCCESS_EMAIL_DES,
+    constants.SUCCESS_EMAIL_ENDPOINT,
     token,
   );
-  return 'Create user successfully. Please check email';
+  return constants.CREATE_USER_SUCCESS;
 };
 
 exports.verify = async (parent, args, context, info) => {
@@ -53,7 +54,7 @@ exports.verify = async (parent, args, context, info) => {
   const decodedUser = helperFn.verifyToken(token);
   const foundUser = await prisma.user.findFirst({ where: { email: decodedUser.email } });
 
-  if (!foundUser) return new Error('User not found');
+  if (!foundUser) return new Error(constants.NO_FOUND_USER);
 
   const updateUser = await prisma.user.updateMany({
     where: { email: decodedUser.email },
@@ -61,9 +62,9 @@ exports.verify = async (parent, args, context, info) => {
   });
   if (!updateUser) {
     // return next(new AppError(constants.EMAIL_NOT_AVA, 401));
-    return new Error('Email not avaliable');
+    return new Error(constants.EMAIL_NOT_AVA);
   }
-  return 'Successfully verified';
+  return constants.VERIFY_SUCCESS;
 };
 
 exports.login = async (parent, args, context, info) => {
@@ -91,14 +92,14 @@ exports.login = async (parent, args, context, info) => {
     }, '1h');
     return { token, userId: FoundUser.id };
   } catch (err) {
-    throw new Error(err);
+    console.log(err);
   }
 };
 
 exports.changePassword = async (parent, args, context, info) => {
   try {
     if (!args.inputPassword) {
-      throw new Error('Fill in');
+      throw new Error(constants.PROVIDE_PASS);
     }
 
     const foundUser = await prisma.user.findUnique({ where: { id: context.currentUser.userId } });
@@ -131,53 +132,57 @@ exports.requestReset = async (parent, args, context, info) => {
     },
   });
 
-  if (!user) throw new Error('No user found with that email.');
+  if (!user) throw new Error(constants.NO_FOUND_USER);
 
   // const resetToken = helperFn.generateToken({ email }, '15m');
   const resetToken = jwt.sign({ email }, 'taskkhoqua');
-  console.log(resetToken);
 
   // const resultToken = `Bearer ${resetToken}`;
   // console.log(resultToken);
   // const decodedToken = helperFn.verifyToken(resetToken);
   // console.log('decoded token', decodedToken);
 
-  await prisma.user.update(
+  const data = await prisma.user.update(
     {
       where: { email },
       data: { resetToken },
     },
   );
+  if (!data) throw new Error(constants.REQUEST_RESET_FAIL);
   await helperFn.forgotPassword(email, resetToken);
   return resetToken;
 };
 
 exports.resetPassword = async (parent, args, context, info) => {
-  const { token, password, confirmPassword } = args.inputReset;
+  try {
+    const { token, password, confirmPassword } = args.inputReset;
 
-  // check token
-  const decodedToken = jwt.verify(args.inputReset.token, 'taskkhoqua');
-  const user = prisma.user.findFirst({
-    where: { email: decodedToken.token, resetToken: token },
-  });
-  if (!user) {
-    throw new Error(
-      'Your password reset token is either invalid or expired.',
-    );
+    // check token
+    const decodedToken = jwt.verify(args.inputReset.token, 'taskkhoqua');
+    const user = prisma.user.findFirst({
+      where: { email: decodedToken.token, resetToken: token },
+    });
+    if (!user) {
+      throw new Error(
+        constants.RESET_PASSWORD_TOKEN_EXPIRED,
+      );
+    }
+    // check if passwords match
+    if (password !== confirmPassword) {
+      throw new Error(constants.PASSWORD_NOT_MATCH);
+    }
+    const hashPass = await helperFn.hashPassword(password);
+    await prisma.user.updateMany({
+      where: { email: decodedToken.token },
+      data: {
+        password: hashPass,
+        resetToken: null,
+      },
+    });
+    return constants.PASSWORD_UPDATE_SUCCESS;
+  } catch (err) {
+    console.log(err);
   }
-  // check if passwords match
-  if (password !== confirmPassword) {
-    throw new Error('Your passwords don\'t match');
-  }
-  const hashPass = await helperFn.hashPassword(password);
-  await prisma.user.updateMany({
-    where: { email: decodedToken.token },
-    data: {
-      password: hashPass,
-      resetToken: null,
-    },
-  });
-  return 'Your password has been updated successfully';
 };
 
 exports.editProfile = async (parent, args, context, info) => {
@@ -197,21 +202,22 @@ exports.editProfile = async (parent, args, context, info) => {
     });
     return editProfile;
   } catch (err) {
-    throw new Error(err);
+    console.log(err);
   }
 };
 
 exports.uploadAvatar = async (parent, args, context, info) => {
   try {
     const avatar = await uploadImageFunc(args.file);
-    if (!avatar) throw new Error('Fail to upload avatar');
-    await prisma.user.update({
+    if (!avatar) throw new Error(constants.UPLOAD_AVATAR_FAIL);
+    const data = await prisma.user.update({
       where: { id: context.currentUser.userId },
       data: { avatar },
     });
+    if (!data) return new Error(constants.UPDATE_AVATAR_FAIL);
     return avatar;
   } catch (err) {
-    throw new Error(err);
+    console.log(err);
   }
 };
 
@@ -222,6 +228,6 @@ exports.getUser = async (parent, args, context, info) => {
     });
     return result;
   } catch (err) {
-    throw new Error(err);
+    console.log(err);
   }
 };

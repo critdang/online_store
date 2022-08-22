@@ -137,7 +137,6 @@ export default function Album(props, { setLogin }) {
 
   // Upload Avatar
   const TOKEN = JSON.parse(localStorage.getItem('user')).token;
-
   const userId = JSON.parse(localStorage.getItem('user')).userId;
   const [uploadAvatar] = useMutation(UPDATEAVATAR, {
     onError: (err) => {
