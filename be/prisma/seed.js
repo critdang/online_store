@@ -49,7 +49,7 @@ async function main() {
     data: {
       userId: seedUser.id,
       status: 'Pending',
-      paymentMethod: 'visa',
+      paymentMethod: 'Visa',
       paymentDate: new Date(),
     },
   });
