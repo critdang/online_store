@@ -7,8 +7,8 @@ import Checkbox from '@mui/material/Checkbox';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-export default function PaymentForm() {
-  const [ui, updateUi] = React.useState({ mode: 'cash' });
+export default function PaymentForm(props) {
+  const { paymentMethod, setPaymentMethod } = props;
   return (
     <React.Fragment>
       <Grid container spacing={3}>
@@ -27,14 +27,14 @@ export default function PaymentForm() {
           }}
         >
           <ButtonGroup variant="outlined" aria-label="outlined button group">
-            <Button onClick={() => updateUi({ mode: 'cash' })}>Cash</Button>
-            <Button onClick={() => updateUi({ mode: 'credit card' })}>
+            <Button onClick={() => setPaymentMethod('cash')}>Cash</Button>
+            <Button onClick={() => setPaymentMethod('credit card')}>
               Credit Card
             </Button>
           </ButtonGroup>
         </Box>
       </Grid>
-      {ui.mode === 'credit card' && (
+      {paymentMethod === 'credit card' && (
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -85,7 +85,7 @@ export default function PaymentForm() {
         </Grid> */}
         </Grid>
       )}
-      {ui.mode === 'cash' && (
+      {paymentMethod === 'cash' && (
         <Grid item xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
             Cash has been choosen to checkout

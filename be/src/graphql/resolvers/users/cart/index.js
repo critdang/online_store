@@ -76,6 +76,7 @@ exports.getCart = async (parent, args, context, info) => {
   let products;
   if (cartItems) {
     products = cartItems.cartProduct.map((Cproduct) => ({
+      cartId: cartItems.id,
       productId: Cproduct.product.id,
       name: Cproduct.product.name,
       description: Cproduct.product.description,

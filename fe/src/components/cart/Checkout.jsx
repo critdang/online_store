@@ -21,7 +21,9 @@ import { useLocation } from 'react-router-dom';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
-function GetStepContent(step, cartItems, refetch) {
+function GetStepContent(step, user, cartItems, refetch) {
+  const [paymentMethod, setPaymentMethod] = React.useState('cash');
+
   const DELTEITEMCART = gql`
     mutation deleteItemCart($input: InputItem) {
       deleteItemCart(inputItem: $input)
@@ -51,12 +53,18 @@ function GetStepContent(step, cartItems, refetch) {
   };
   switch (step) {
     case 0:
-      return <AddressForm />;
+      return <AddressForm data={user} />;
     case 1:
-      return <PaymentForm />;
+      return (
+        <PaymentForm
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+        />
+      );
     case 2:
       return (
         <Review
+          paymentMethod={paymentMethod}
           handleDeleteProductInCart={handleDeleteProductInCart}
           data={cartItems}
         />
@@ -68,6 +76,7 @@ function GetStepContent(step, cartItems, refetch) {
 const GETCART = gql`
   query GetCart {
     getCart {
+      cartId
       productId
       name
       description
@@ -76,9 +85,24 @@ const GETCART = gql`
     }
   }
 `;
+const PROFILE = gql`
+  query {
+    user {
+      fullname
+      email
+      phone
+      address
+      gender
+      avatar
+      birthday
+    }
+  }
+`;
 const theme = createTheme();
 
 export default function Checkout() {
+  const [paymentMethod, setPaymentMethod] = React.useState();
+  const [user, setUser] = React.useState();
   const [cartItems, setCartItems] = React.useState();
   const { loading, error, data, refetch } = useQuery(GETCART, {
     onError: (err) => {
@@ -92,7 +116,12 @@ export default function Checkout() {
     }
   }, [data]);
 
-  console.log(cartItems);
+  const { loadingUser, errorUser, data: dataUser } = useQuery(PROFILE);
+  React.useEffect(() => {
+    if (dataUser) {
+      setUser(dataUser.user);
+    }
+  }, [dataUser]);
 
   const [activeStep, setActiveStep] = React.useState(0);
 
@@ -154,7 +183,7 @@ export default function Checkout() {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {GetStepContent(activeStep, cartItems, refetch)}
+                {GetStepContent(activeStep, user, cartItems, refetch)}
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   {activeStep !== 0 && (
                     <Button onClick={handleBack} sx={{ mt: 3, ml: 1 }}>
