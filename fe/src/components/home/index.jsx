@@ -35,6 +35,7 @@ import styled from '@emotion/styled';
 import Slider from 'react-slick';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import helperFn from './../../utils/helperFn';
+import { ToastContainer } from 'react-toastify';
 
 function Copyright() {
   return (
@@ -223,7 +224,7 @@ export default function Home(props, { setLogin }) {
   // const [productId, setProductId] = React.useState();
   const addToCart = async (id) => {
     const productId = parseInt(id);
-    const { dataProductInCart } = await addToCartMutation({
+    const { data: dataProductInCart } = await addToCartMutation({
       variables: {
         inputProduct: {
           productId,
@@ -233,6 +234,8 @@ export default function Home(props, { setLogin }) {
     });
     if (dataProductInCart) {
       console.log(data);
+      helperFn.toastAlertSuccess('Add item to cart');
+      handleCloseModal();
     }
     handleAddCart();
   };
@@ -273,7 +276,11 @@ export default function Home(props, { setLogin }) {
       setProducts(dataProductByName.listProducts);
     }
   });
-  const [addToCartMutation] = useMutation(ADDTOCART);
+  const [addToCartMutation] = useMutation(ADDTOCART, {
+    onError: (err) => {
+      helperFn.toastAlertFail(err.message);
+    },
+  });
 
   const handleCloseOptions = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -449,6 +456,8 @@ export default function Home(props, { setLogin }) {
                         View
                       </Button>
                     </CardActions>
+                    <ToastContainer />
+
                     <Modal
                       open={openModal}
                       onClose={handleCloseModal}
@@ -519,7 +528,12 @@ export default function Home(props, { setLogin }) {
                                   <strong>Remaining amount:</strong>{' '}
                                   {detailData.productDetail.amount}
                                 </Typography>
-                                <Button variant="contained" onClick={addToCart}>
+                                <Button
+                                  variant="contained"
+                                  onClick={() =>
+                                    addToCart(detailData.productDetail.id)
+                                  }
+                                >
                                   Add
                                 </Button>
                                 <Button

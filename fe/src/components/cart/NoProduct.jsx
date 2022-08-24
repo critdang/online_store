@@ -75,57 +75,9 @@ export default function Review(props) {
       <Typography variant="h6" gutterBottom>
         Order summary
       </Typography>
-      {data ? (
-        data.map((item) => (
-          <List disablePadding>
-            <ListItem key={item.name} sx={{ py: 1, px: 0 }}>
-              <img
-                src={item.thumbnail}
-                style={{ width: '150px', marginRight: '10px' }}
-              ></img>
-              <ListItemText primary={item.name} secondary={item.description} />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <button>+</button>
-                  <ListSubheader variant="body2">{item.quantity}</ListSubheader>
-                  <button>-</button>
-                </div>
-                <Typography variant="body2">{item.price}</Typography>
-                <Button
-                  onClick={() => handleDeleteProductInCart(item.productId)}
-                >
-                  Delete
-                </Button>
-              </div>
-            </ListItem>
-
-            <ListItem sx={{ py: 1, px: 0 }}>
-              <ListItemText primary="Shipping" />
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                Free
-              </Typography>
-            </ListItem>
-
-            <ListItem sx={{ py: 1, px: 0 }}>
-              <ListItemText primary="Total" />
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                $34.06
-              </Typography>
-            </ListItem>
-          </List>
-        ))
-      ) : (
-        <Typography variant="h4" sx={{ textAlign: 'center' }}>
-          No product in cart
-        </Typography>
-      )}
+      <Typography variant="h4" sx={{ textAlign: 'center' }}>
+        No product in cart
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>

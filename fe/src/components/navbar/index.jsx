@@ -65,11 +65,9 @@ export default function NavBar(props) {
   }, [isAdd, data, refetch]);
   React.useEffect(() => {
     if (dataNumberProducts) {
-      console.log(
-        '🚀 ~ file: index.jsx ~ line 71 ~ React.useEffect ~ dataNumberProducts',
-        dataNumberProducts
-      );
       setCartItems(dataNumberProducts.getCart.length);
+    } else {
+      setCartItems(0);
     }
   }, [dataNumberProducts]);
   // ###############################

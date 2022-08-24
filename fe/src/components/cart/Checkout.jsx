@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AddressForm from './AddressForm';
 import PaymentForm from './PaymentForm';
 import Review from './Review';
+import NoProduct from './NoProduct';
 import { Link } from 'react-router-dom';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import helperFn from '../../utils/helperFn';
@@ -69,6 +70,8 @@ function GetStepContent(step, user, cartItems, refetch) {
           data={cartItems}
         />
       );
+    case 3:
+      return <Typography>No product in cart</Typography>;
     default:
       throw new Error('Unknown step');
   }
@@ -115,7 +118,7 @@ export default function Checkout() {
       setCartItems(data.getCart);
     }
   }, [data]);
-
+  // if (!data) return <NoProduct />;
   const { loadingUser, errorUser, data: dataUser } = useQuery(PROFILE);
   React.useEffect(() => {
     if (dataUser) {

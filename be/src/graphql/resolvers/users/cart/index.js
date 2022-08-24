@@ -8,7 +8,9 @@ require('dotenv').config();
 
 exports.addToCart = async (parent, args, context, info) => {
   const { userId } = context.currentUser;
-  const { quantity, productId } = args.inputProduct;
+  const { productId } = args.inputProduct;
+  const quantity = args.inputProduct.quantity || 1;
+
   try {
     const checkProduct = await prisma.product.findUnique({ where: { id: productId } });
 
@@ -29,16 +31,24 @@ exports.addToCart = async (parent, args, context, info) => {
       run = [createCartItem];
     }
     if (productInCart) {
-      const updateCartItem = prisma.cartProduct.updateMany({
-        where: { productId, cartId: cartItem.id },
-        data: { quantity },
-      });
-      run = [updateCartItem];
+      if (quantity === 1) {
+        const increaseCartItem = prisma.cartProduct.updateMany({
+          where: { productId, cartId: cartItem.id },
+          data: { quantity: { increment: 1 } },
+        });
+        run = [increaseCartItem];
+      } else {
+        const updateCartItem = prisma.cartProduct.updateMany({
+          where: { productId, cartId: cartItem.id },
+          data: { quantity },
+        });
+        run = [updateCartItem];
+      }
     } else {
       const createCartProduct = prisma.cartProduct.createMany({ data: { cartId: cartItem.id, productId, quantity } });
       run = [createCartProduct];
     }
-    await prisma.$transaction([...run]);
+    await prisma.$transaction(run);
     return constants.PRODUCT_TO_CART;
   } catch (err) {
     throw new Error(err);

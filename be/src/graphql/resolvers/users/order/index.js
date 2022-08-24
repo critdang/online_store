@@ -11,8 +11,8 @@ require('dotenv').config();
 exports.createOrder = async (parent, args, context, info) => {
   try {
     const { userId } = context.currentUser;
-    const { cartId } = args;
-    let { paymentMethod } = args;
+    const { cartId } = args.inputOrder;
+    let { paymentMethod } = args.inputOrder;
     const foundCarts = await prisma.cart.findFirst({
       where: { userId, id: cartId },
       include: {
@@ -46,7 +46,6 @@ exports.createOrder = async (parent, args, context, info) => {
       });
 
       const run = [];
-      // const promises = [];
       // load foundCarts
       foundCarts.cartProduct.map(async (item) => {
         if (item.quantity > item.product.amount) {
@@ -56,11 +55,11 @@ exports.createOrder = async (parent, args, context, info) => {
         const obj = {};
         obj.orderId = order.id;
         obj.quantity = item.quantity;
-        obj.total = item.quantity * item.product.price;
+        // obj.total = item.quantity * item.product.price;
         obj.productId = item.product.id;
-        obj.productName = item.product.name;
-        obj.paymentDate = paymentDate;
-        obj.paymentMethod = paymentMethod;
+        // obj.productName = item.product.name;
+        // obj.paymentDate = paymentDate;
+        // obj.paymentMethod = paymentMethod;
         obj.price = item.product.price;
         orders.push(obj);
 
@@ -71,59 +70,22 @@ exports.createOrder = async (parent, args, context, info) => {
         const updateProductAmount = prisma.product.update({ where: { id: item.product.id }, data: { amount } });
         run.push(updateProductAmount);
 
-        const createProductInOrder = prisma.productInOrder.create({
-          data: {
-            orderId: obj.orderId,
-            quantity: obj.quantity,
-            productId: obj.productId,
-            price: obj.price,
-          },
-        });
-        run.push(createProductInOrder);
+        // run.push(createProductInOrder);
 
-        const deleteCartProduct = prisma.cartProduct.deleteMany({ where: { productId: obj.productId } });
-        run.push(deleteCartProduct);
-
+        // run.push(deleteCartProduct);
         await prisma.$transaction(run);
-
-        // const p = new Promise((resolve, reject) => {
-        //  obj['orderId'] = order.id;
-        //  obj['quantity'] =  item.quantity;
-        //  obj['total'] = item.quantity * item.product.price;
-        //  obj['productId'] = item.product.id;
-        //  obj['productName'] = item.product.name;
-        //  obj['paymentDate'] = paymentDate;
-        //  obj['payment'] = payment;
-        //  obj['price'] = item.product.price;
-
-      // orders.push(obj);
-      // const updateProductAmount = prisma.product.findFirst({  where: {id: item.product.id}  })
-      //   .then(result =>
-      //     prisma.product.update({  where: {id: item.product.id}, data: {amount: result.amount - item.quantity}}
-      //     ))
-      //   .catch(err => reject(err));
-      // run = [updateProductAmount];
-      // const createProductInOrder = prisma.productInOrder.create({data: {
-      //   orderId: obj.orderId,
-      //   quantity: obj.quantity,
-      //   productId: obj.productId,
-      //   price: obj.price,
-      // }})
-        // .then(() => {const deleteCartProduct =  prisma.cartProduct.deleteMany({
-        //       where: {productId:obj.productId}
-        //     })
-        //     // run = [deleteCartProduct]
-        //   },
-        // )
-        // .then(() => resolve("already deleted cart product"))
-        // .catch(err => reject(err));
-        // run = [updateProductAmount];
-      // });
-      // promises.push(p);
       });
+
+      // eslint-disable-next-line no-unused-vars
+      const createProductInOrder = await prisma.productInOrder.createMany({
+        data: orders,
+      });
+      // eslint-disable-next-line no-unused-vars
+      const deleteCartProduct = await prisma.cartProduct.deleteMany({ where: { cartId } });
+
       //  await Promise.all(promises);
       await helperFn.createOrder(context.currentUser.email, orders);
-      return orders;
+      return order;
     }
     return new Error(constants.NO_PRODUCT_IN_CART);
   } catch (err) {

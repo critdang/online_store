@@ -27,14 +27,12 @@ export default function PaymentForm(props) {
           }}
         >
           <ButtonGroup variant="outlined" aria-label="outlined button group">
-            <Button onClick={() => setPaymentMethod('cash')}>Cash</Button>
-            <Button onClick={() => setPaymentMethod('credit card')}>
-              Credit Card
-            </Button>
+            <Button onClick={() => setPaymentMethod('CASH')}>Cash</Button>
+            <Button onClick={() => setPaymentMethod('VISA')}>VISA</Button>
           </ButtonGroup>
         </Box>
       </Grid>
-      {paymentMethod === 'credit card' && (
+      {paymentMethod === 'VISA' && (
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -85,7 +83,7 @@ export default function PaymentForm(props) {
         </Grid> */}
         </Grid>
       )}
-      {paymentMethod === 'cash' && (
+      {paymentMethod === 'CASH' && (
         <Grid item xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
             Cash has been choosen to checkout
