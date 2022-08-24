@@ -2,11 +2,11 @@ const { UserInputError } = require('apollo-server-express');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const validateUser = require('../../../validate/validateUser');
-const { errorName } = require('../../../../utils/ErrorHandler/errorName');
-const helperFn = require('../../../../utils/helperFn');
+const validateUser = require('../../validate/validateUser');
+const { errorName } = require('../../../utils/ErrorHandler/errorName');
+const helperFn = require('../../../utils/helperFn');
 const { uploadImageFunc } = require('../fileUpload');
-const { MESSAGE, RESPONSE, ERROR } = require('../../../../../rest/common/constants');
+const { MESSAGE, RESPONSE, ERROR } = require('../../../common/constants');
 
 require('dotenv').config();
 
