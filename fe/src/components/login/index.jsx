@@ -13,10 +13,9 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useMutation, gql } from '@apollo/client';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import helperFn from '../../utils/helperFn';
 const theme = createTheme();
@@ -36,7 +35,7 @@ export default function SignInSide() {
 
   const [login] = useMutation(LOGIN, {
     onError: (err) => {
-      console.log(err);
+      helperFn.toastAlertFail(err.message);
     },
   });
 

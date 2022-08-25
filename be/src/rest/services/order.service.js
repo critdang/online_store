@@ -29,7 +29,6 @@ const changeStatus = async (req, res, next) => {
 
   const { newStatus } = req.body;
   if (!newStatus) return helperFn.returnFail(req, res, ERROR.PROVIDE_ORDER_STATUS);
-
   try {
     const order = await prisma.order.updateMany({
       where: {

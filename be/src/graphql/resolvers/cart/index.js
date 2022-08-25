@@ -51,7 +51,8 @@ exports.addToCart = async (parent, args, context, info) => {
     await prisma.$transaction(run);
     return ERROR.PRODUCT_TO_CART;
   } catch (err) {
-    throw new Error(err);
+    console.log('🚀 ~ file: index.js ~ line 54 ~ exports.addToCart= ~ err', err);
+    return new Error(err);
   }
 };
 

@@ -88,6 +88,7 @@ const RESPONSE = {
   // Category
   CREATE_SUC: 'Category created successfully',
   DELETE_SUC: 'Category deleted successfully!',
+  UPDATE_THUMBNAIL_SUCC: 'Update thumbnail successfully',
 
   // Order
   CHANGE_STATUS_SUCC: 'Change status successfully',

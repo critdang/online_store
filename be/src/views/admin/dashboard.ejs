@@ -19,7 +19,6 @@
 <body>
     <div class="row background">
         <%- include('../components/adminNav.ejs')%>
-
             <div class="col-10">
                 <div class="row background">
                     <div class="col-3">
@@ -325,7 +324,7 @@
     function detailProduct(id) {
         //get Category Product to compare the exist account
         const insertImageProduct = $('.image-product-' + id);
-        axios.get('/product/' + id).then(res => {
+        axios.get('/api/product/' + id).then(res => {
             var checkCategoryProduct = document.getElementsByClassName(`form-check-input-category` + id);
             console.log('checkExistCategory', res.data.message)
             // console.log('checkCategoryProduct', checkCategoryProduct)
@@ -373,7 +372,7 @@
         const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
-        axios.put('/product/' + id, {
+        axios.put('/api/product/' + id, {
             name: name,
             description: description,
             amount: amount,
@@ -414,7 +413,7 @@
 
     function mainImg(id) {
         const defaultImg = id.split('-')[1];
-        axios.post('/default_image/' + defaultImg)
+        axios.post('/api/product/default_image/' + defaultImg)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({
@@ -461,7 +460,7 @@
     }
 
     function deleteProduct(id) {
-        axios.delete('/product/' + id)
+        axios.delete('/api/product/' + id)
             .then(function (response) {
                 console.log(response);
                 if (response.data.status == 200) {
@@ -488,7 +487,7 @@
     }
 
     function changeBlockUserStt(id) {
-        axios.post('/block/' + id,)
+        axios.post('/api/user/block/' + id,)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({
@@ -514,7 +513,7 @@
     }
 
     function deleteUser(id) {
-        axios.delete('/user/' + id)
+        axios.delete('/api/user/' + id)
             .then(res => {
                 Swal.fire({
                     position: 'center',
@@ -539,7 +538,7 @@
     function updateCategory(id) {
         const categoryName = $(`#category-name-${id}`).val();
         const categoryDescription = $(`#category-description-${id}`).val();
-        axios.post('/edit_category/' + id, {
+        axios.post('/api/category/edit_category/' + id, {
             name: categoryName,
             description: categoryDescription
         })
@@ -568,7 +567,7 @@
     }
 
     function deleteCategory(id) {
-        axios.delete('/category/' + id)
+        axios.delete('/api/category/' + id)
             .then(res => {
                 Swal.fire({
                     position: 'top-end',

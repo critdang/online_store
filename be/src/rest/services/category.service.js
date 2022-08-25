@@ -5,6 +5,7 @@ const helperFn = require('../../utils/helperFn');
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
+
 const addCategory = async (req, res, next) => {
   const { name, description } = req.body;
   try {

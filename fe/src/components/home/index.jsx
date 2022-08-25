@@ -255,7 +255,7 @@ export default function Home(props, { setLogin }) {
       setProducts(data.products);
     }
   }, [data]);
-
+  // Query Product By Number
   const { data: dataProductByName } = useQuery(
     PRODUCTSBYNAME,
     {
@@ -276,6 +276,8 @@ export default function Home(props, { setLogin }) {
       setProducts(dataProductByName.listProducts);
     }
   });
+
+  // Add Product To Cart
   const [addToCartMutation] = useMutation(ADDTOCART, {
     onError: (err) => {
       helperFn.toastAlertFail(err.message);

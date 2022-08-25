@@ -99,7 +99,7 @@ exports.sendMail = async (
     },
   });
   const link = `${domain + endpoint + token}`;
-  const data = await ejs.renderFile('views/createVerifyNoti/verify.ejs', { link });
+  const data = await ejs.renderFile('./src/views/createVerifyNoti/verify.ejs', { link });
 
   const mailOption = {
     from: process.env.EMAIL,
@@ -156,7 +156,7 @@ exports.createOrder = async (to, orders) => {
 };
 exports.forgotPassword = async (to, token) => {
   const link = `http://localhost:${process.env.FE_PORT}/forgotPassword/${token}`;
-  const data = await ejs.renderFile('views/createForgotPassNoti/forgotPassword.ejs', { link });
+  const data = await ejs.renderFile('./src/views/createForgotPassNoti/forgotPassword.ejs', { link });
 
   await transport.sendMail({
     from: 'critdang@gmail.com',

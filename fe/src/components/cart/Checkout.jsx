@@ -132,7 +132,6 @@ export default function Checkout() {
     setActiveStep(activeStep + 1);
 
     if (data) refetch();
-    console.log('🚀 ~ file: Checkout.jsx ~ line 103 ~ handleNext ~ data', data);
   };
 
   const handleBack = () => {

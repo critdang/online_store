@@ -45,8 +45,8 @@ const editCategory = async (req, res, next) => {
 
 const editThumbnail = async (req, res) => {
   try {
-    const updateThumnail = await categoryService.editThumbnail(req, res);
-    helperFn.returnSuccess(req, res, updateThumnail);
+    await categoryService.editThumbnail(req, res);
+    helperFn.returnSuccess(req, res, RESPONSE.UPDATE_THUMBNAIL_SUCC);
   } catch (err) {
     console.log(err);
     helperFn.returnError(res, err.message);

@@ -24,7 +24,7 @@ const deleteUser = async (req, res) => {
   const idUser = +req.params.id;
 
   const data = await prisma.user.deleteMany({
-    where: { id: idUser, isActive: false },
+    where: { id: idUser },
   });
   return data;
 };

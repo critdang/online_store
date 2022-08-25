@@ -61,7 +61,7 @@ const productSchema = Joi.object({
     .error(
       new AppError(constants.PROVIDE_PRODUCT_AMOUNT, 400),
     ),
-  categoryId: Joi.number(),
+  categoryId: Joi.object(),
 });
 
 exports.resetPasswordValidate = async (req, res, next) => {

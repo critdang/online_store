@@ -10,12 +10,7 @@ const cors = require('cors');
 const context = require('./src/graphql/services/context.services');
 const typeDefs = require('./src/graphql/typeDefs');
 const resolvers = require('./src/graphql/resolvers');
-const adminRoutes = require('./src/rest/routes/admin.route');
-const authRoutes = require('./src/rest/routes/auth.route');
-const userRoutes = require('./src/rest/routes/user.route');
-const categoryRoutes = require('./src/rest/routes/category.route');
-const productRoutes = require('./src/rest/routes/product.route');
-const orderRoutes = require('./src/rest/routes/order.route');
+const initRouters = require('./src/config/routerConfig');
 const viewEngine = require('./src/rest/config/viewEngine');
 require('dotenv').config();
 // const cron = require('node-cron');
@@ -48,12 +43,7 @@ app.use(cors(corsOptions));
 viewEngine(app);
 
 // route REST
-app.use('/', adminRoutes);
-app.use('/api', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/category', categoryRoutes);
-app.use('/api/product', productRoutes);
-app.use('/api/order', orderRoutes);
+initRouters(app);
 
 // Mount GraphQL
 const apolloServer = new ApolloServer({
