@@ -64,13 +64,6 @@ const deleteCategory = async (req, res, next) => {
   }
 };
 
-const categoryView = async (req, res, next) => {
-  const fetchCategories = await categoryService.categoryView();
-  res.render('details/category', {
-    categories: fetchCategories,
-  });
-};
-
 module.exports = {
   addCategory,
   getCategories,
@@ -78,5 +71,4 @@ module.exports = {
   editCategory,
   editThumbnail,
   deleteCategory,
-  categoryView,
 };

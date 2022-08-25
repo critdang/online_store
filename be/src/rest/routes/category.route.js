@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 const { upload } = require('../../utils/uploadImg');
 
 const router = express.Router();
-router.post('/', auth.protectingRoutes, upload.single('thumbnail'), validate.createCategory, categoryController.addCategory);
+router.post('/', auth.protectingRoutes, upload.single('thumbnail'), validate.categoryValidate, categoryController.addCategory);
 router.get('/', auth.protectingRoutes, categoryController.getCategories);
 router.get('/:id', auth.protectingRoutes, categoryController.getCategory);
 router.post('/edit_category/:id', auth.protectingRoutes, validate.categoryValidate, categoryController.editCategory);

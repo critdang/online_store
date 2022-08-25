@@ -16,7 +16,6 @@ const userRoutes = require('./src/rest/routes/user.route');
 const categoryRoutes = require('./src/rest/routes/category.route');
 const productRoutes = require('./src/rest/routes/product.route');
 const orderRoutes = require('./src/rest/routes/order.route');
-// const getErrorCode = require('./utils/ErrorHandler/getCodeError');
 const viewEngine = require('./src/rest/config/viewEngine');
 require('dotenv').config();
 // const cron = require('node-cron');
@@ -66,20 +65,6 @@ const apolloServer = new ApolloServer({
   plugins: [
     ApolloServerPluginLandingPageLocalDefault({ embed: true }),
   ],
-  // formatError(err) {
-  //   if (err.message.startsWith('Database Error: ')) {
-  //     return new Error('Internal server error');
-  //   }
-  //   if (!err.originalError) {
-  //     return err;
-  //   }
-  //   // error code/validation
-  //   const customError = err.message.slice(7);
-  //   const error = getErrorCode(customError) || err.extensions.validationError || err;
-
-  //   return ({ message: error.message || error, statusCode: error.statusCode });
-  //   // return err;
-  // },
 });
 
 async function startServer() {

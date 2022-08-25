@@ -22,19 +22,6 @@ const resetPasswordSchema = Joi.object({
     ),
 });
 
-const createCategory = Joi.object({
-  name: Joi.string()
-    .required()
-    .error(
-      new AppError('Please provide category name', 400),
-    ),
-  description: Joi.string()
-    .required()
-    .error(
-      new AppError('Please provide category description', 400),
-    ),
-});
-
 const avatarSchema = Joi.object({
   avatar: Joi.required()
     .error(
@@ -45,23 +32,16 @@ const avatarSchema = Joi.object({
 const loginSchema = Joi.object({
   email: Joi.string()
     .email()
-    .required()
-    .error(new Error('Please enter email address')),
+    .required(),
   password: Joi.string()
     .required(),
 });
 
 const categorySchema = Joi.object({
   name: Joi.string()
-    .required()
-    .error(
-      new AppError(constants.PROVIDE_CATE_NAME, 400),
-    ),
+    .required(),
   description: Joi.string()
-    .required()
-    .error(
-      new AppError(constants.PROVIDE_CATE_DESCRIPTION, 400),
-    ),
+    .required(),
 });
 
 const productSchema = Joi.object({
@@ -96,17 +76,18 @@ exports.resetPasswordValidate = async (req, res, next) => {
 exports.formatDay = (day) => moment(day, 'YYYY MM DD').utc(true).toDate();
 
 exports.createCategory = async (req, res, next) => {
-  try {
-    await createCategory.validate(req.body);
-    next();
-  } catch (err) {
-    console.log(err);
+  const { error } = await categorySchema.validate(req.body);
+  if (error) {
+    return helperFn.returnFail(req, res, error);
   }
+  next();
 };
 
 exports.loginValidate = async (req, res, next) => {
-  const { error } = await loginSchema.validateAsync(req.body);
+  const { error } = await loginSchema.validate(req.body);
   if (error) {
+    // const { details } = error;
+    // const message = details.map((i) => i.message).join(',');
     return helperFn.returnFail(req, res, error);
   }
   next();
@@ -122,19 +103,17 @@ exports.avatarValidate = async (req, res, next) => {
 };
 
 exports.categoryValidate = async (req, res, next) => {
-  try {
-    await categorySchema.validateAsync(req.body);
-    next();
-  } catch (err) {
-    console.log(err);
+  const { error } = await categorySchema.validate(req.body);
+  if (error) {
+    return helperFn.returnFail(req, res, error);
   }
+  next();
 };
 
 exports.productValidate = async (req, res, next) => {
-  try {
-    await productSchema.validateAsync(req.body);
-    next();
-  } catch (err) {
-    console.log(err);
+  const { error } = await productSchema.validateAsync(req.body);
+  if (error) {
+    return helperFn.returnFail(req, res, error);
   }
+  next();
 };

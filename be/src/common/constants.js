@@ -20,6 +20,10 @@ const ERROR = {
   EXIST_ACCOUNT: 'Account has already been created',
   DELETE_FAIL: 'User not found or activated',
   WRONG_CURRENT_PASS: 'Wrong current password',
+  NOT_ACTIVE_ACCOUNT: 'Account has already been created. But not active yet',
+  USER_NOT_FOUND: 'No found user. Try again',
+  WRONG_PASS: 'Wrong password. Input again',
+
   // USER - VERIFY
   NO_FOUND_USER: 'User not found',
   EMAIL_NOT_AVA: 'Email is not avaliable',
