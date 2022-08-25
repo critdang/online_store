@@ -3,7 +3,6 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validateUser = require('../../validate/validateUser');
-const { errorName } = require('../../../utils/ErrorHandler/errorName');
 const helperFn = require('../../../utils/helperFn');
 const { uploadImageFunc } = require('../fileUpload');
 const { MESSAGE, RESPONSE, ERROR } = require('../../../common/constants');
@@ -26,10 +25,10 @@ exports.createUser = async (parent, args, context, info) => {
   });
   if (existUser) {
     if (existUser.isActive === true) {
-      return new Error(errorName.EXIST_ACCOUNT);
+      return new Error(ERROR.EXIST_ACCOUNT);
     }
     if (existUser.isActive === false) {
-      return new Error(errorName.NOT_ACTIVE_ACCOUNT);
+      return new Error(ERROR.NOT_ACTIVE_ACCOUNT);
     }
   }
   const hashPw = await bcrypt.hash(password, 12);
@@ -83,12 +82,12 @@ exports.login = async (parent, args, context, info) => {
       where: { email, isActive: true },
     });
     if (!FoundUser) {
-      return new Error(errorName.USER_NOT_FOUND);
+      return new Error(ERROR.USER_NOT_FOUND);
     }
 
     const isEqual = await helperFn.comparePassword(password, FoundUser.password);
     if (!isEqual) {
-      return new Error(errorName.WRONG_PASS);
+      return new Error(ERROR.WRONG_PASS);
     }
     const token = helperFn.generateToken({
       userId: FoundUser.id,
