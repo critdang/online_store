@@ -13,7 +13,15 @@ import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { gql, useQuery } from '@apollo/client';
 import helperFn from '../../utils/helperFn';
-import { Modal } from '@mui/material';
+import {
+  Breadcrumbs,
+  IconButton,
+  InputBase,
+  MenuItem,
+  Modal,
+  Select,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 function Copyright() {
   return (
@@ -44,13 +52,26 @@ const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const theme = createTheme();
 
+// const CATEGORIES = gql`
+//   query {
+//     categories {
+//       id
+//       name
+//       thumbnail
+//       description
+//     }
+//   }
+// `;
 const CATEGORIES = gql`
-  query {
-    categories {
+  query ListCategories($input: listCategoriesBy) {
+    listCategories(input: $input) {
       id
       name
       thumbnail
       description
+      categoryProduct {
+        productId
+      }
     }
   }
 `;
@@ -68,7 +89,36 @@ const CATEGORY = gql`
     }
   }
 `;
+
+const SORTS = [
+  {
+    name: 'name',
+    label: 'Name: A -> Z',
+    value: 'ASC',
+  },
+  {
+    name: 'name',
+    label: 'Name: Z -> A',
+    value: 'DESC',
+  },
+  {
+    name: 'amount',
+    label: 'Amount: A -> Z',
+    value: 'ASC',
+  },
+  {
+    name: 'amount',
+    label: 'Amount: Z -> A',
+    value: 'DESC',
+  },
+];
 export default function Album() {
+  const [displaySearch, setDisplaySearch] = React.useState('none');
+  const [optionSort, setOptionSort] = React.useState(0);
+  const [orderProductByName, setOrderProductByName] = React.useState({
+    name: 'name',
+    value: 'ASC',
+  });
   const [open, setOpen] = React.useState(false);
   const handleClose = () => setOpen(false);
   const [categories, setCategories] = React.useState([]);
@@ -77,15 +127,27 @@ export default function Album() {
   const [idCategory, setIdCategory] = React.useState([]);
 
   // Categories
-  const { data } = useQuery(CATEGORIES, {
-    onError: (err) => {
-      console.log(err);
-      helperFn.toastAlertFail(err.message);
+  const { data } = useQuery(
+    CATEGORIES,
+    {
+      variables: {
+        input: {
+          [orderProductByName.name]: orderProductByName.value,
+        },
+      },
     },
-  });
+    {
+      onError: (err) => {
+        console.log(err);
+        helperFn.toastAlertFail(err.message);
+      },
+    }
+  );
+  console.log('🚀 ~ file: index.jsx ~ line 118 ~ Album ~ data', data);
   React.useEffect(() => {
-    if (data) setCategories(data.categories);
+    if (data) setCategories(data.listCategories);
   }, [data]);
+
   // Detail categories
   const handleCategory = (id) => {
     setOpen(true);
@@ -104,11 +166,9 @@ export default function Album() {
     {
       onError: (err) => {
         console.log(err);
-        helperFn.toastAlertFail(err.message);
       },
     }
   );
-  console.log(dataCategory);
 
   return (
     <ThemeProvider theme={theme}>
@@ -127,6 +187,15 @@ export default function Album() {
               pb: 6,
             }}
           >
+            <div role="presentation">
+              <Breadcrumbs aria-label="breadcrumb">
+                <Link underline="hover" color="inherit" href="/">
+                  Home
+                </Link>
+                <Typography color="text.primary">Categories</Typography>
+              </Breadcrumbs>
+            </div>
+
             <Container maxWidth="sm">
               <Typography
                 component="h1"
@@ -157,6 +226,53 @@ export default function Album() {
               </Stack>
             </Container>
           </Box>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'end',
+            }}
+          >
+            <Button
+              sx={{ alignItems: 'right', cursor: 'pointer', float: 'right' }}
+              onClick={() => {
+                displaySearch === 'none'
+                  ? setDisplaySearch('flex')
+                  : setDisplaySearch('none');
+              }}
+            >
+              {' '}
+              Filter
+            </Button>
+            <div
+              style={{
+                display: displaySearch,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Typography>Sort By :</Typography>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={optionSort}
+                label="Sort"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setOptionSort(value);
+                  setOrderProductByName(SORTS[value]);
+                }}
+              >
+                {SORTS.map((option, index) => {
+                  return (
+                    <MenuItem key={index} value={index}>
+                      {option.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </div>
+          </div>
           <Container>
             {/* End hero unit */}
             <Grid container spacing={4}>

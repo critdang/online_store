@@ -12,14 +12,16 @@ require('dotenv').config();
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
+
 exports.createUser = async (parent, args, context, info) => {
   const {
     email, password, fullname, phone, address,
   } = args.inputSignup;
   const { error } = validateUser.createUserValidate(args.inputSignup);
   if (error) {
-    throw new UserInputError('Fail to create a character', { validationError: error.message });
+    return new UserInputError('Fail to create a character', { validationError: error.message });
   }
+
   const existUser = await prisma.user.findFirst({
     where: { email },
   });
@@ -77,6 +79,7 @@ exports.login = async (parent, args, context, info) => {
   if (error) {
     return new UserInputError('Fail to create a character', { validationError: error.message });
   }
+
   try {
     FoundUser = await prisma.user.findFirst({
       where: { email, isActive: true },
@@ -92,7 +95,7 @@ exports.login = async (parent, args, context, info) => {
     const token = helperFn.generateToken({
       userId: FoundUser.id,
       email: FoundUser.email,
-    }, '1h');
+    }, '2h');
     return { token, userId: FoundUser.id };
   } catch (err) {
     console.log(err);
@@ -136,14 +139,7 @@ exports.requestReset = async (parent, args, context, info) => {
   });
 
   if (!user) throw new Error(ERROR.NO_FOUND_USER);
-
-  // const resetToken = helperFn.generateToken({ email }, '15m');
   const resetToken = jwt.sign({ email }, 'taskkhoqua');
-
-  // const resultToken = `Bearer ${resetToken}`;
-  // console.log(resultToken);
-  // const decodedToken = helperFn.verifyToken(resetToken);
-  // console.log('decoded token', decodedToken);
 
   const data = await prisma.user.update(
     {
@@ -166,13 +162,13 @@ exports.resetPassword = async (parent, args, context, info) => {
       where: { email: decodedToken.token, resetToken: token },
     });
     if (!user) {
-      throw new Error(
+      return new Error(
         ERROR.RESET_PASSWORD_TOKEN_EXPIRED,
       );
     }
     // check if passwords match
     if (password !== confirmPassword) {
-      throw new Error(ERROR.PASSWORD_NOT_MATCH);
+      return new Error(ERROR.PASSWORD_NOT_MATCH);
     }
     const hashPass = await helperFn.hashPassword(password);
     await prisma.user.updateMany({

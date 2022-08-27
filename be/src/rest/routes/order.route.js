@@ -2,7 +2,6 @@ const express = require('express');
 const passport = require('passport');
 const orderController = require('../controller/order.controller');
 const auth = require('../middleware/auth');
-const validate = require('../../validate/validate');
 
 const router = express.Router();
 require('../middleware/auth').authUser(passport);

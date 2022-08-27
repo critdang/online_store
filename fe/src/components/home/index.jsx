@@ -36,6 +36,8 @@ import Slider from 'react-slick';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import helperFn from './../../utils/helperFn';
 import { ToastContainer } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { addNewItem } from '../../reducers/carts.slice';
 
 function Copyright() {
   return (
@@ -173,6 +175,7 @@ const ADDTOCART = gql`
     addToCart(inputProduct: $inputProduct)
   }
 `;
+
 const SORTS = [
   {
     name: 'name',
@@ -217,13 +220,15 @@ export default function Home(props, { setLogin }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
+  const dispatch = useDispatch();
+
   const handleClickOptions = () => {
     console.info(`You clicked ${options[selectedIndex]}`);
   };
   // ##################################################################
   // const [productId, setProductId] = React.useState();
-  const addToCart = async (id) => {
-    const productId = parseInt(id);
+  const addToCart = async (item) => {
+    const productId = parseInt(item.id);
     const { data: dataProductInCart } = await addToCartMutation({
       variables: {
         inputProduct: {
@@ -235,6 +240,7 @@ export default function Home(props, { setLogin }) {
     if (dataProductInCart) {
       console.log(data);
       helperFn.toastAlertSuccess('Add item to cart');
+      dispatch(addNewItem(item));
       handleCloseModal();
     }
     handleAddCart();
@@ -255,7 +261,7 @@ export default function Home(props, { setLogin }) {
       setProducts(data.products);
     }
   }, [data]);
-
+  // Query Product By Number
   const { data: dataProductByName } = useQuery(
     PRODUCTSBYNAME,
     {
@@ -276,6 +282,8 @@ export default function Home(props, { setLogin }) {
       setProducts(dataProductByName.listProducts);
     }
   });
+
+  // Add Product To Cart
   const [addToCartMutation] = useMutation(ADDTOCART, {
     onError: (err) => {
       helperFn.toastAlertFail(err.message);
@@ -433,7 +441,7 @@ export default function Home(props, { setLogin }) {
                         color: 'white',
                       },
                     }}
-                    onClick={() => addToCart(product.id)}
+                    onClick={() => addToCart(product)}
                   ></AddCircleOutlineIcon>
                   <Container>
                     <Typography variant="body2" component="h2">

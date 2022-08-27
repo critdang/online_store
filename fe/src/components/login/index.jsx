@@ -13,12 +13,14 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useMutation, gql } from '@apollo/client';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import helperFn from '../../utils/helperFn';
+import { onLogin } from '../../reducers/auth.slice';
+import { useDispatch } from 'react-redux';
+
 const theme = createTheme();
 
 const LOGIN = gql`
@@ -36,10 +38,11 @@ export default function SignInSide() {
 
   const [login] = useMutation(LOGIN, {
     onError: (err) => {
-      console.log(err);
+      helperFn.toastAlertFail(err.message);
     },
   });
 
+  const dispatch = useDispatch();
   const handleLogin = async () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     try {
@@ -54,6 +57,7 @@ export default function SignInSide() {
         },
       });
       if (data) {
+        dispatch(onLogin(data));
         const token = data.login.token;
         token.replaceAll('"', '');
         localStorage.setItem('user', JSON.stringify(data.login));

@@ -10,29 +10,18 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-
-import MenuItem from '@mui/material/MenuItem';
-import InputBase from '@mui/material/InputBase';
-import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
-import { Link, useParams } from 'react-router-dom';
-
+import { useParams } from 'react-router-dom';
+import Link from '@mui/material/Link';
 import {
-  ButtonGroup,
-  ClickAwayListener,
-  Grow,
-  MenuList,
+  Breadcrumbs,
   Modal,
-  Paper,
-  Popper,
   TableCell,
   tableCellClasses,
   TableRow,
 } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 
 function Copyright() {
   return (
@@ -191,11 +180,13 @@ export default function Home(props, { setLogin }) {
       },
     },
   });
+
   const handleOpenModal = (id) => {
     setOpenModal(true);
     setIdProduct(parseInt(id));
     refetch();
   };
+
   const handleCloseModal = () => setOpenModal(false);
   //setting slick
   var settings = {
@@ -219,6 +210,14 @@ export default function Home(props, { setLogin }) {
             py: 5,
           }}
         >
+          <div role="presentation">
+            <Breadcrumbs aria-label="breadcrumb">
+              <Link underline="hover" color="inherit" href="/">
+                Home
+              </Link>
+              <Typography color="text.primary">{categoryName}</Typography>
+            </Breadcrumbs>
+          </div>
           {/* End hero unit */}
           <div>
             <Typography
@@ -231,104 +230,6 @@ export default function Home(props, { setLogin }) {
             >
               {categoryName}
             </Typography>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'end',
-              }}
-            >
-              <Button
-                sx={{
-                  float: 'right',
-                  width: '5%',
-                }}
-                onClick={() => {
-                  displaySearch === 'none'
-                    ? setDisplaySearch('flex')
-                    : setDisplaySearch('none');
-                }}
-              >
-                {' '}
-                Filter
-              </Button>
-            </div>
-            <div
-              style={{
-                display: displaySearch,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <InputBase
-                sx={{ ml: 1, flex: 1 }}
-                placeholder="Search Product"
-                inputProps={{ 'aria-label': 'search product' }}
-              />
-
-              <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
-                <SearchIcon />
-              </IconButton>
-              <Typography>Sort By Name:</Typography>
-              <React.Fragment>
-                <ButtonGroup
-                  variant="contained"
-                  ref={anchorRef}
-                  aria-label="split button"
-                >
-                  <Button onClick={handleClickOptions}>
-                    {options[selectedIndex]}
-                  </Button>
-                  <Button
-                    size="small"
-                    aria-controls={open ? 'split-button-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-label="select merge strategy"
-                    aria-haspopup="menu"
-                    onClick={handleToggle}
-                  >
-                    <ArrowDropDownIcon />
-                  </Button>
-                </ButtonGroup>
-                <Popper
-                  open={openButton}
-                  anchorEl={anchorRef.current}
-                  role={undefined}
-                  transition
-                  disablePortal
-                >
-                  {({ TransitionProps, placement }) => (
-                    <Grow
-                      {...TransitionProps}
-                      style={{
-                        transformOrigin:
-                          placement === 'bottom'
-                            ? 'center top'
-                            : 'center bottom',
-                      }}
-                    >
-                      <Paper>
-                        <ClickAwayListener onClickAway={handleCloseOptions}>
-                          <MenuList id="split-button-menu" autoFocusItem>
-                            {options.map((option, index) => (
-                              <MenuItem
-                                key={option}
-                                selected={index === selectedIndex}
-                                onClick={(event) =>
-                                  handleMenuItemClick(event, index)
-                                }
-                              >
-                                {option}
-                              </MenuItem>
-                            ))}
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
-              </React.Fragment>
-            </div>
           </div>
           {data === undefined ? (
             <Typography sx={{ marginTop: '100px' }} align="center" variant="h4">

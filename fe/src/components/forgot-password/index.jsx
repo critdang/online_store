@@ -66,11 +66,11 @@ export default function UpdatePassword() {
       });
 
       if (data) {
-        helperFn.toastAlertSuccess(data.resetPassword);
+        return helperFn.toastAlertSuccess(data.resetPassword);
       }
     } catch (err) {
       console.log(err);
-      helperFn.toastAlertFail(err);
+      return helperFn.toastAlertFail(err);
     }
   };
   return (

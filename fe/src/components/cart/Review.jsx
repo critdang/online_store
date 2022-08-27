@@ -7,29 +7,8 @@ import Grid from '@mui/material/Grid';
 import { Button, ListSubheader } from '@mui/material';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import helperFn from '../../utils/helperFn';
-
-const products = [
-  {
-    name: 'Product 1',
-    desc: 'A nice thing',
-    price: '$9.99',
-  },
-  {
-    name: 'Product 2',
-    desc: 'Another thing',
-    price: '$3.45',
-  },
-  {
-    name: 'Product 3',
-    desc: 'Something else',
-    price: '$6.51',
-  },
-  {
-    name: 'Product 4',
-    desc: 'Best thing of all',
-    price: '$14.11',
-  },
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { cartItem, clearCart, deleteItem } from '../../reducers/carts.slice';
 
 const addresses = ['1 MUI Drive', 'Reactville', 'Anytown', '99999', 'USA'];
 const payments = [
@@ -45,29 +24,60 @@ const DELTEITEMCART = gql`
 `;
 const CREATEORDER = gql`
   mutation ($input: InputOrder) {
-    createOrder(inputOrder: $input) {
-      orderId
-    }
+    createOrder(inputOrder: $input)
   }
 `;
 export default function Review(props) {
-  const { data, handleDeleteProductInCart, paymentMethod } = props;
+  const { data: dataCart, paymentMethod } = props;
+
+  const DELTEITEMCART = gql`
+    mutation deleteItemCart($input: InputItem) {
+      deleteItemCart(inputItem: $input)
+    }
+  `;
+  const [deleteItemCart] = useMutation(DELTEITEMCART, {
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
   const [createOrder] = useMutation(CREATEORDER, {
     onError: (err) => {
       console.log(err);
     },
   });
+
   const handleSubmitOrder = async (paymentMethod, cartId) => {
     const { data } = await createOrder({
       variables: {
         input: {
-          cartId: data[0].cartId,
+          cartId: dataCart[0].cartId,
           paymentMethod,
         },
       },
     });
     if (data) {
-      console.log(data);
+      dispatch(clearCart());
+      helperFn.toastAlertSuccess(data.createOrder);
+    }
+  };
+  const dispatch = useDispatch();
+
+  const handleDeleteProductInCart = async (productId) => {
+    try {
+      const { data } = await deleteItemCart({
+        variables: {
+          input: {
+            productId,
+          },
+        },
+      });
+      if (data) {
+        console.log(data);
+        await dispatch(deleteItem(productId));
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
   return (
@@ -75,8 +85,8 @@ export default function Review(props) {
       <Typography variant="h6" gutterBottom>
         Order summary
       </Typography>
-      {data ? (
-        data.map((item) => (
+      {dataCart.length > 0 ? (
+        dataCart.map((item) => (
           <List disablePadding>
             <ListItem key={item.name} sx={{ py: 1, px: 0 }}>
               <img
@@ -122,7 +132,7 @@ export default function Review(props) {
           </List>
         ))
       ) : (
-        <Typography variant="h4" sx={{ textAlign: 'center' }}>
+        <Typography variant="h4" sx={{ textAlign: 'center', color: 'red' }}>
           No product in cart
         </Typography>
       )}
@@ -152,7 +162,7 @@ export default function Review(props) {
           </Grid>
           <Button
             variant="contained"
-            onClick={() => handleSubmitOrder(paymentMethod, data[0].cartId)}
+            onClick={() => handleSubmitOrder(paymentMethod, dataCart[0].cartId)}
             sx={{ mt: 3, ml: 1 }}
           >
             Place order

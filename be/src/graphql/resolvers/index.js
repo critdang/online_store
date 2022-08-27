@@ -5,7 +5,7 @@ const {
 } = require('./product');
 
 const {
-  listCategories, listCategory, categories,
+  listCategories, listCategory,
 } = require('./category');
 
 const {
@@ -30,7 +30,6 @@ const resolvers = {
     cartProduct,
     listCategories,
     filterProductByCategory,
-    categories,
     listCategory,
     getCart,
     listOrders,
