@@ -8,11 +8,16 @@ require('dotenv').config();
 
 exports.listCategories = async (parent, args, context, info) => {
   try {
+    const data = await prisma.category.findMany({});
+    if (!data) return new Error(ERROR.NO_FOUND_CATE);
+    if (args.input === undefined) {
+      return data;
+    }
     let { name } = args.input;
     let { amount } = args.input;
     if (name) {
       name = name.toLowerCase();
-      const data = await prisma.category.findMany({
+      const foundCategory = await prisma.category.findMany({
         orderBy: [{ name }],
         include: {
           categoryProduct: {
@@ -22,25 +27,44 @@ exports.listCategories = async (parent, args, context, info) => {
           },
         },
       });
-      return data;
+      return foundCategory;
     }
     if (amount) {
       amount = amount.toLowerCase();
-      const existProduct = await prisma.product.findMany({
-        orderBy: [{ amount }],
+      // eslint-disable-next-line no-shadow
+      const foundCategory = await prisma.category.findMany({
         include: {
           categoryProduct: {
             include: {
-              category: true,
+              product: true,
             },
           },
         },
       });
-      const result = existProduct.map((data) => data.categoryProduct).flat().map((item) => item.category);
+      const result = foundCategory.map((item) => {
+        const { id } = item;
+        // eslint-disable-next-line no-shadow
+        const { name } = item;
+        const { thumbnail } = item;
+        const { description } = item;
+        const { categoryProduct } = item;
+        const output = {
+          id,
+          name,
+          thumbnail,
+          description,
+          categoryProduct,
+        };
+        return output;
+      });
+      result.sort((categoryA, categoryB) => {
+        const categoryProductA = categoryA.categoryProduct.length;
+        const categoryProductB = categoryB.categoryProduct.length;
+        const sortCategory = amount === 'desc' ? categoryProductB - categoryProductA : categoryProductA - categoryProductB;
+        return sortCategory;
+      });
       return result;
     }
-    const data = await prisma.product.findMany({});
-    return data;
   } catch (err) {
     console.log(err);
   }
@@ -70,13 +94,13 @@ exports.listCategory = async (parent, args, context, info) => {
   }
 };
 
-exports.categories = async (parent, args, context, info) => {
-  try {
-    const categories = await prisma.category.findMany({});
-    if (!categories) return new Error(ERROR.NO_FOUND_CATE);
+// exports.categories = async (parent, args, context, info) => {
+//   try {
+//     const categories = await prisma.category.findMany({});
+//     if (!categories) return new Error(ERROR.NO_FOUND_CATE);
 
-    return categories;
-  } catch (err) {
-    console.log(err);
-  }
-};
+//     return categories;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };

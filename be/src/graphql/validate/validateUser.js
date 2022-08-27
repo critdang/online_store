@@ -1,5 +1,4 @@
 const Joi = require('joi');
-const moment = require('moment');
 
 const createUserSchema = Joi.object({
   email: Joi.string()
@@ -35,8 +34,6 @@ const loginUserSchema = Joi.object({
     .required(),
   // .error(() => new Error('Format password is not correct. Please try again')),
 });
-
-exports.formatDay = (day) => moment(day, 'YYYY MM DD').utc(true).toDate();
 
 exports.createUserValidate = (args) => {
   const error = createUserSchema.validate(args);

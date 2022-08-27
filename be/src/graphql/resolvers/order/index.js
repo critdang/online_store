@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const validateUser = require('../../validate/validateUser');
 const helperFn = require('../../../utils/helperFn');
-const { ERROR } = require('../../../common/constants');
+const { RESPONSE, ERROR } = require('../../../common/constants');
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -23,7 +23,7 @@ exports.createOrder = async (parent, args, context, info) => {
         },
       },
     });
-
+    if (!foundCarts) return Error('No cart found');
     const orders = [];
     if (foundCarts.cartProduct) {
       let paymentDate;
@@ -31,7 +31,7 @@ exports.createOrder = async (parent, args, context, info) => {
 
       if (paymentMethod === 'VISA') {
         paymentMethod = 'Visa';
-        paymentDate = validateUser.formatDay(new Date());
+        paymentDate = new Date();
         statusPayment = 'Completed';
       }
       const order = await prisma.order.create({
@@ -40,8 +40,8 @@ exports.createOrder = async (parent, args, context, info) => {
           status: statusPayment,
           paymentDate,
           paymentMethod: paymentMethod || 'Pending',
-          createdAt: validateUser.formatDay(new Date()),
-          updatedAt: validateUser.formatDay(new Date()),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       });
 
@@ -85,7 +85,7 @@ exports.createOrder = async (parent, args, context, info) => {
 
       //  await Promise.all(promises);
       await helperFn.createOrder(context.currentUser.email, orders);
-      return order;
+      return RESPONSE.ORDER_SUC;
     }
     return new Error(ERROR.NO_PRODUCT_IN_CART);
   } catch (err) {
@@ -98,7 +98,6 @@ exports.listOrders = async (parent, args, context, info) => {
 
   const orders = await prisma.order.findMany({
     where: { userId },
-
     include: {
       productInOrder: {
         include: {
@@ -117,7 +116,7 @@ exports.listOrders = async (parent, args, context, info) => {
   });
   const result = orders.map((order) => {
     const orderId = order.id;
-    const orderDate = helperFn.formatDay(order.paymentDate);
+    const orderDate = order.paymentDate;
     const totalAmount = order.productInOrder.reduce((total, currentValue) => total + (currentValue.quantity * currentValue.price), 0);
     const firstItem = order.productInOrder[0];
     const firstItemInfo = {
@@ -137,39 +136,45 @@ exports.listOrders = async (parent, args, context, info) => {
   });
   if (args.input === undefined) return result;
 
-  let { sortDate, sortAmount } = args.input;
-  if (sortDate) sortDate = sortDate.toLowerCase();
-  if (sortAmount) sortAmount = sortAmount.toLowerCase();
-  if (sortDate && sortAmount) {
-    return result.sort((productA, productB) => {
+  let { date, amount } = args.input;
+  if (date) date = date.toLowerCase();
+  if (amount) amount = amount.toLowerCase();
+  if (date && amount) {
+    result.sort((productA, productB) => {
       let paymentDateA = helperFn.formatDay(productA.paymentDate);
       let paymentDateB = helperFn.formatDay(productB.paymentDate);
       paymentDateA = new Date(paymentDateA);
       paymentDateB = new Date(paymentDateB);
-      // const completedDateB = new Date(productB.completedDate);
       const amountA = parseFloat(productA.totalAmount);
       const amountB = parseFloat(productB.totalAmount);
-      const date = sortDate === 'desc' ? paymentDateB - paymentDateA : paymentDateA - paymentDateB;
-      const amount = sortAmount === 'desc' ? amountB - amountA : amountA - amountB;
-      return date || amount;
+      const sortDate = date === 'desc' ? paymentDateB - paymentDateA : paymentDateA - paymentDateB;
+      const sortAmount = amount === 'desc' ? amountB - amountA : amountA - amountB;
+      return sortDate || sortAmount;
     });
+    // eslint-disable-next-line no-param-reassign, array-callback-return
+    result.map((order) => { order.paymentDate = helperFn.formatDay(order.paymentDate); });
   }
-  if (sortDate) {
-    return result.sort((productA, productB) => {
-      const paymentDateA = helperFn.formatDay(productA.paymentDate);
-      const paymentDateB = helperFn.formatDay(productB.paymentDate);
-      const date = sortDate === 'desc' ? paymentDateB - paymentDateA : paymentDateA - paymentDateB;
-      return date;
+  if (date) {
+    result.sort((productA, productB) => {
+      const paymentDateA = new Date(productA.paymentDate);
+      const paymentDateB = new Date(productB.paymentDate);
+      const sortDate = date === 'desc' ? paymentDateB - paymentDateA : paymentDateA - paymentDateB;
+      return sortDate;
     });
+    // eslint-disable-next-line no-param-reassign, array-callback-return
+    result.map((order) => { order.paymentDate = helperFn.formatDay(order.paymentDate); });
   }
-  if (sortAmount) {
-    return result.sort((productA, productB) => {
+  if (amount) {
+    result.sort((productA, productB) => {
       const amountA = parseFloat(productA.totalAmount);
       const amountB = parseFloat(productB.totalAmount);
-      const amount = sortAmount === 'desc' ? amountB - amountA : amountA - amountB;
-      return amount;
+      const sortAmount = amount === 'desc' ? amountB - amountA : amountA - amountB;
+      return sortAmount;
     });
+    // eslint-disable-next-line no-param-reassign, array-callback-return
+    result.map((order) => { order.paymentDate = helperFn.formatDay(order.paymentDate); });
   }
+
   return result;
 };
 

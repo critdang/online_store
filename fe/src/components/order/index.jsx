@@ -11,6 +11,7 @@ import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import {
+  Breadcrumbs,
   Button,
   ButtonGroup,
   ClickAwayListener,
@@ -19,6 +20,7 @@ import {
   Modal,
   Paper,
   Popper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -29,7 +31,7 @@ import {
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styled from '@emotion/styled';
-import { Link } from 'react-router-dom';
+import Link from '@mui/material/Link';
 import { gql, useQuery } from '@apollo/client';
 import helperFn from '../../utils/helperFn';
 
@@ -115,6 +117,29 @@ const DETAILORDER = gql`
     }
   }
 `;
+
+const SORTS = [
+  {
+    name: 'amount',
+    label: 'Amount: A -> Z',
+    value: 'ASC',
+  },
+  {
+    name: 'amount',
+    label: 'Amount: Z -> A',
+    value: 'DESC',
+  },
+  {
+    name: 'date',
+    label: 'Date: A -> Z',
+    value: 'ASC',
+  },
+  {
+    name: 'date',
+    label: 'Date: Z -> A',
+    value: 'DESC',
+  },
+];
 export default function Order({ setLogin }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -151,15 +176,18 @@ export default function Order({ setLogin }) {
   // ################################################
 
   const [orders, setOrders] = React.useState([]);
-  const [orderBy, setOrderBy] = React.useState([]);
   const [orderId, setOrderId] = React.useState([]);
-  const { data, loading, error } = useQuery(
+  const [optionSort, setOptionSort] = React.useState(0);
+  const [orderProductByName, setOrderProductByName] = React.useState({
+    name: 'amount',
+    value: 'ASC',
+  });
+  const { data: dataOrders, error } = useQuery(
     ORDERS,
     {
       variables: {
         input: {
-          [orderBy.sortDate]: orderBy.sortDate,
-          [orderBy.sortAmount]: orderBy.sortAmount,
+          [orderProductByName.name]: orderProductByName.value,
         },
       },
     },
@@ -169,13 +197,11 @@ export default function Order({ setLogin }) {
       },
     }
   );
-  console.log('🚀 ~ file: index.jsx ~ line 155 ~ Order ~ data', data);
-
   React.useEffect(() => {
-    if (data) {
-      setOrders(data.listOrders);
+    if (dataOrders) {
+      setOrders(dataOrders.listOrders);
     }
-  }, [data]);
+  }, [dataOrders]);
 
   //lisen toggle modal
   const [openModal, setOpenModal] = React.useState(false);
@@ -192,10 +218,6 @@ export default function Order({ setLogin }) {
       },
     },
   });
-  console.log(
-    '🚀 ~ file: index.jsx ~ line 195 ~ Order ~ DetailOrder',
-    detailOrder
-  );
 
   if (error) <div>{error.message}</div>;
   return (
@@ -208,7 +230,14 @@ export default function Order({ setLogin }) {
             py: 5,
           }}
         >
-          {/* End hero unit */}
+          <div role="presentation">
+            <Breadcrumbs aria-label="breadcrumb">
+              <Link underline="hover" color="inherit" href="/">
+                Home
+              </Link>
+              <Typography color="text.primary">Orders</Typography>
+            </Breadcrumbs>
+          </div>
           <div
             style={{
               display: 'flex',
@@ -243,69 +272,30 @@ export default function Order({ setLogin }) {
               <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
                 <SearchIcon />
               </IconButton>
-              <Typography>Sort By Name:</Typography>
-              <React.Fragment>
-                <ButtonGroup
-                  variant="contained"
-                  ref={anchorRef}
-                  aria-label="split button"
-                >
-                  <Button onClick={handleClickOptions}>
-                    {options[selectedIndex]}
-                  </Button>
-                  <Button
-                    size="small"
-                    aria-controls={open ? 'split-button-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-label="select merge strategy"
-                    aria-haspopup="menu"
-                    onClick={handleToggle}
-                  >
-                    <ArrowDropDownIcon />
-                  </Button>
-                </ButtonGroup>
-                <Popper
-                  open={openButton}
-                  anchorEl={anchorRef.current}
-                  role={undefined}
-                  transition
-                  disablePortal
-                >
-                  {({ TransitionProps, placement }) => (
-                    <Grow
-                      {...TransitionProps}
-                      style={{
-                        transformOrigin:
-                          placement === 'bottom'
-                            ? 'center top'
-                            : 'center bottom',
-                      }}
-                    >
-                      <Paper>
-                        <ClickAwayListener onClickAway={handleCloseOptions}>
-                          <MenuList id="split-button-menu" autoFocusItem>
-                            {options.map((option, index) => (
-                              <MenuItem
-                                key={option}
-                                selected={index === selectedIndex}
-                                onClick={(event) =>
-                                  handleMenuItemClick(event, index)
-                                }
-                              >
-                                {option}
-                              </MenuItem>
-                            ))}
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
-              </React.Fragment>
+              <Typography>Sort By :</Typography>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={optionSort}
+                label="Sort"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setOptionSort(value);
+                  setOrderProductByName(SORTS[value]);
+                }}
+              >
+                {SORTS.map((option, index) => {
+                  return (
+                    <MenuItem key={index} value={index}>
+                      {option.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
             </div>
           </div>
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+            <Table sx={{ minWidth: 500 }} aria-label="customized table">
               <TableHead>
                 <TableRow>
                   <StyledTableCell>No.</StyledTableCell>
@@ -323,7 +313,7 @@ export default function Order({ setLogin }) {
                   orders.map((order, index) => (
                     <StyledTableRow key={index}>
                       <StyledTableCell component="th" scope="row">
-                        {index}
+                        {index + 1}
                       </StyledTableCell>
                       <StyledTableCell align="right">
                         {order.paymentDate}

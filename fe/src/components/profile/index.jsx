@@ -181,7 +181,6 @@ export default function Album(props, { setLogin }) {
       console.log(data);
     }
   };
-  console.log(inputUpdateUser);
   // handleUpdateUser
   const handleUpdateUser = async () => {
     try {
@@ -515,7 +514,6 @@ export default function Album(props, { setLogin }) {
                         src={!selectedFile ? data.user.avatar : avatar}
                         alt={data.user.avatar}
                       />
-                      {console.log(selectedFile)}
                       <CardContent>
                         <Typography
                           gutterBottom

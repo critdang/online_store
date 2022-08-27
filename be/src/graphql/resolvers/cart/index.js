@@ -23,12 +23,27 @@ exports.addToCart = async (parent, args, context, info) => {
     }
 
     const cartItem = await prisma.cart.findFirst({ where: { userId }, include: { cartProduct: true } });
-    const productInCart = await prisma.cartProduct.findFirst({ where: { productId, cartId: cartItem.id } });
-
+    let productInCart;
+    if (cartItem) {
+      productInCart = await prisma.cartProduct.findFirst({ where: { productId, cartId: cartItem.id } });
+      if (!productInCart) {
+        // create new product if no product in cart
+        await prisma.cartProduct.create({ data: { productId, cartId: cartItem.id, quantity } });
+      }
+    }
     let run = [];
-    if (!cartItem) {
-      const createCartItem = prisma.cart.createMany({ data: { userId } });
-      run = [createCartItem];
+    if (cartItem == null) {
+      // eslint-disable-next-line no-unused-vars
+      await prisma.$transaction(
+        async (prisma) => {
+          // create cart
+          await prisma.cart.createMany({ data: { userId } });
+          // find new cart
+          const findNewCartItem = await prisma.cart.findFirst({ where: { userId } });
+          // create cart product
+          await prisma.cartProduct.createMany({ data: { cartId: findNewCartItem.id, productId, quantity } });
+        },
+      );
     }
     if (productInCart) {
       if (quantity === 1) {
@@ -44,11 +59,9 @@ exports.addToCart = async (parent, args, context, info) => {
         });
         run = [updateCartItem];
       }
-    } else {
-      const createCartProduct = prisma.cartProduct.createMany({ data: { cartId: cartItem.id, productId, quantity } });
-      run = [createCartProduct];
+      await prisma.$transaction(run);
     }
-    await prisma.$transaction(run);
+
     return ERROR.PRODUCT_TO_CART;
   } catch (err) {
     console.log('🚀 ~ file: index.js ~ line 54 ~ exports.addToCart= ~ err', err);

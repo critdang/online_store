@@ -19,39 +19,13 @@ import { Link } from 'react-router-dom';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import helperFn from '../../utils/helperFn';
 import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
 function GetStepContent(step, user, cartItems, refetch) {
   const [paymentMethod, setPaymentMethod] = React.useState('cash');
 
-  const DELTEITEMCART = gql`
-    mutation deleteItemCart($input: InputItem) {
-      deleteItemCart(inputItem: $input)
-    }
-  `;
-  const [deleteItemCart] = useMutation(DELTEITEMCART, {
-    onError: (err) => {
-      console.log(err);
-    },
-  });
-  const handleDeleteProductInCart = async (productId) => {
-    try {
-      const { data } = await deleteItemCart({
-        variables: {
-          input: {
-            productId,
-          },
-        },
-      });
-      if (data) {
-        console.log(data);
-        refetch();
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
   switch (step) {
     case 0:
       return <AddressForm data={user} />;
@@ -63,13 +37,7 @@ function GetStepContent(step, user, cartItems, refetch) {
         />
       );
     case 2:
-      return (
-        <Review
-          paymentMethod={paymentMethod}
-          handleDeleteProductInCart={handleDeleteProductInCart}
-          data={cartItems}
-        />
-      );
+      return <Review paymentMethod={paymentMethod} data={cartItems} />;
     case 3:
       return <Typography>No product in cart</Typography>;
     default:
@@ -106,18 +74,23 @@ const theme = createTheme();
 export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = React.useState();
   const [user, setUser] = React.useState();
-  const [cartItems, setCartItems] = React.useState();
-  const { loading, error, data, refetch } = useQuery(GETCART, {
-    onError: (err) => {
-      console.log(err);
-    },
-  });
+  const listCart = useSelector((state) => state.Carts);
+  const [cartItems, setCartItems] = React.useState(listCart);
+
   React.useEffect(() => {
-    if (data) {
-      console.log(data);
-      setCartItems(data.getCart);
-    }
-  }, [data]);
+    setCartItems(listCart);
+  }, [listCart]);
+  // const { loading, error, data, refetch } = useQuery(GETCART, {
+  //   onError: (err) => {
+  //     console.log(err);
+  //   },
+  // });
+  // React.useEffect(() => {
+  //   if (data) {
+  //     console.log(data);
+  //     setCartItems(data.getCart);
+  //   }
+  // }, [data]);
   // if (!data) return <NoProduct />;
   const { loadingUser, errorUser, data: dataUser } = useQuery(PROFILE);
   React.useEffect(() => {
@@ -131,7 +104,7 @@ export default function Checkout() {
   const handleNext = () => {
     setActiveStep(activeStep + 1);
 
-    if (data) refetch();
+    // if (data) refetch();
   };
 
   const handleBack = () => {
@@ -185,7 +158,7 @@ export default function Checkout() {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {GetStepContent(activeStep, user, cartItems, refetch)}
+                {GetStepContent(activeStep, user, cartItems)}
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   {activeStep !== 0 && (
                     <Button onClick={handleBack} sx={{ mt: 3, ml: 1 }}>

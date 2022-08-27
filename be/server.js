@@ -36,7 +36,9 @@ app.use(passport.session());
 
 const corsOptions = {
   origin: true,
+  credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 // import viewEngine for ejs
@@ -55,12 +57,16 @@ const apolloServer = new ApolloServer({
   plugins: [
     ApolloServerPluginLandingPageLocalDefault({ embed: true }),
   ],
+  cors: {
+    origin: ['http://localhost:4007/', 'https://studio.apollographql.com'],
+    credentials: true,
+  },
 });
 
 async function startServer() {
   app.use(graphqlUploadExpress());
   await apolloServer.start();
-  apolloServer.applyMiddleware({ app, path: '/graphql' });
+  apolloServer.applyMiddleware({ app, cors: corsOptions, path: '/graphql' });
 }
 startServer();
 

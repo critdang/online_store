@@ -18,6 +18,9 @@ import { Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import helperFn from '../../utils/helperFn';
+import { onLogin } from '../../reducers/auth.slice';
+import { useDispatch } from 'react-redux';
+
 const theme = createTheme();
 
 const LOGIN = gql`
@@ -39,6 +42,7 @@ export default function SignInSide() {
     },
   });
 
+  const dispatch = useDispatch();
   const handleLogin = async () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     try {
@@ -53,6 +57,7 @@ export default function SignInSide() {
         },
       });
       if (data) {
+        dispatch(onLogin(data));
         const token = data.login.token;
         token.replaceAll('"', '');
         localStorage.setItem('user', JSON.stringify(data.login));

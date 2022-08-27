@@ -109,7 +109,7 @@ const typeDefs = gql`
     listOrders(input: listOrdersBy): [Order]!
     orderDetail(orderId: OrderId): OrderDetail!
     listCategories(input: listCategoriesBy): [Category]
-    categories: [Category]
+    # categories: [Category]
   }
 
   type Mutation {
@@ -126,7 +126,7 @@ const typeDefs = gql`
       orderId: Int
       paymentMethod: PaymentMethod
     ): Order!
-    createOrder(inputOrder: InputOrder): Order!
+    createOrder(inputOrder: InputOrder): String!
     uploadAvatar(file: Upload!): String!
   }
 
@@ -209,8 +209,8 @@ const typeDefs = gql`
     productId:Int!
   }
   input listOrdersBy {
-    sortDate: OrderType
-    sortAmount: OrderType
+    date: OrderType
+    amount: OrderType
   }
   input ProductOrderBy {
     name: OrderType

@@ -14,7 +14,7 @@ exports.generateToken = (key, time) => jwt.sign(key, process.env.JWT_SECRET, {
   expiresIn: time,
 });
 // exports.formatDay = (day) => moment(day, 'YYYY MM DD').toDate();
-exports.formatDay = (day) => moment(day).format('YYYY/MM/DD');
+exports.formatDay = (day) => moment(new Date(day)).format('DD/MM/YYYY');
 
 exports.verifyToken = (key) => jwt.verify(key, process.env.JWT_SECRET);
 
@@ -139,7 +139,7 @@ exports.createOrder = async (to, orders) => {
     paymentDate: moment(item.paymentDate).format('YYYY-MM-DD'),
 
   }));
-  const data = await ejs.renderFile('views/createOrderNoti/order.ejs', { orders: parseOrder });
+  const data = await ejs.renderFile('./src/views/createOrderNoti/order.ejs', { orders: parseOrder });
   transport.sendMail({
     from: 'critdang@gmail.com',
     to,

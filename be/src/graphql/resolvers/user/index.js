@@ -95,7 +95,7 @@ exports.login = async (parent, args, context, info) => {
     const token = helperFn.generateToken({
       userId: FoundUser.id,
       email: FoundUser.email,
-    }, '1h');
+    }, '2h');
     return { token, userId: FoundUser.id };
   } catch (err) {
     console.log(err);

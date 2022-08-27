@@ -16,14 +16,19 @@ import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import helperFn from '../../utils/helperFn';
+import { cartItem } from '../../reducers/carts.slice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const CATEGORIES = gql`
-  query {
-    categories {
+  query ListCategories($input: listCategoriesBy) {
+    listCategories(input: $input) {
       id
       name
       thumbnail
       description
+      categoryProduct {
+        productId
+      }
     }
   }
 `;
@@ -40,37 +45,50 @@ const GETCART = gql`
   }
 `;
 export default function NavBar(props) {
-  const [cartItems, setCartItems] = React.useState();
+  const dispatch = useDispatch();
+
   const { isAdd } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [categories, setCategories] = React.useState([]);
+  const listCart = useSelector((state) => state.Carts);
+  const [cartItems, setCartItems] = React.useState(listCart);
+  const { data, loading, error } = useQuery(CATEGORIES, {
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
-  const { data, loading, error } = useQuery(CATEGORIES);
+  React.useEffect(() => {
+    setCartItems(listCart);
+  }, [listCart]);
+
   React.useEffect(() => {
     if (data) {
-      setCategories(data.categories);
+      setCategories(data.listCategories);
     }
   }, [data]);
   const open = Boolean(anchorEl);
 
-  const { data: dataNumberProducts, refetch } = useQuery(GETCART, {
+  const { data: dataListCart, refetch } = useQuery(GETCART, {
     onError: (err) => {
       if (err.message === `Cannot read property 'userId' of undefined`)
         return helperFn.toastAlertFail('Login to view cart');
       return helperFn.toastAlertFail(err.message);
     },
   });
+
   React.useEffect(() => {
     if (data) refetch();
   }, [isAdd, data, refetch]);
+
   React.useEffect(() => {
-    if (dataNumberProducts > 0) {
-      setCartItems(dataNumberProducts.getCart.length);
-    } else {
-      setCartItems(0);
+    if (dataListCart) {
+      dispatch(cartItem(dataListCart.getCart));
+      // setCartItems(dataNumberProducts.getCart.length);
     }
-  }, [dataNumberProducts]);
+  }, [dataListCart, dispatch]);
   // ###############################
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -197,7 +215,10 @@ export default function NavBar(props) {
 
             <Link to="/checkout">
               <IconButton aria-label={notificationsLabel(100)}>
-                <StyledBadge badgeContent={cartItems} color="success">
+                <StyledBadge
+                  badgeContent={cartItems ? cartItems.length : 0}
+                  color="success"
+                >
                   <ShoppingCartIcon
                     cursor="pointer"
                     sx={{

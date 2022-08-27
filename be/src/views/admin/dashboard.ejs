@@ -386,6 +386,8 @@
                         text: response.data.message,
                         icon: 'success',
                         confirmButtonText: 'Cool'
+                    }).then(() => {
+                        window.location.href = '/dashboard'
                     })
                 } else {
                     Swal.fire({

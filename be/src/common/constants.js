@@ -92,6 +92,7 @@ const RESPONSE = {
 
   // Order
   CHANGE_STATUS_SUCC: 'Change status successfully',
+  ORDER_SUC: 'Create order successfully',
 
   // PRODUCT
   PRODUCT_SUC: 'Add Product successfully',
