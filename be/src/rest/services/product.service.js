@@ -87,14 +87,16 @@ const editProduct = async (req, res, next) => {
     const id = +req.params.id;
     const initialCheck = await prisma.categoryProduct.findMany({ where: { productId: id } });
     const convertCheck = initialCheck.map((item) => item.categoryId);
+    // convert initial check
     console.log('🚀 ~ file: product.service.js ~ line 90 ~ editProduct ~ convertCheck', convertCheck);
     const newArray = [];
+    // convert submit check
     const submitCheck = categoryId.map((item) => newArray.push(parseInt(item)));
     console.log('🚀 ~ file: product.service.js ~ line 93 ~ editProduct ~ newArray', newArray);
     // const tempt = submitCheck.split('').join('');
     let diffCategory;
     if (submitCheck) {
-      diffCategory = newArray.filter((x) => !convertCheck.includes(x));
+      diffCategory = convertCheck.filter((x) => !newArray.includes(x));
       console.log('🚀 ~ file: product.service.js ~ line 96 ~ editProduct ~ diffCategory', diffCategory);
     }
     const foundProduct = await prisma.product.findFirst({ where: { id } });
