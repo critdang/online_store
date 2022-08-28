@@ -372,6 +372,7 @@
         const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
+        console.log("🚀 ~ file: dashboard.ejs ~ line 375 ~ categoryId ~ categoryId", categoryId)
         axios.put('/api/product/' + id, {
             name: name,
             description: description,

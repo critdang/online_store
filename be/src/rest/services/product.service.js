@@ -82,14 +82,20 @@ const editProduct = async (req, res, next) => {
   const {
     name, description, price, amount, categoryId,
   } = req.body;
+  console.log('🚀 ~ file: product.service.js ~ line 85 ~ editProduct ~ req.body', req.body);
   try {
     const id = +req.params.id;
     const initialCheck = await prisma.categoryProduct.findMany({ where: { productId: id } });
-    const submitCheck = categoryId;
-    const tempt = submitCheck.split('"').join('');
+    const convertCheck = initialCheck.map((item) => item.categoryId);
+    console.log('🚀 ~ file: product.service.js ~ line 90 ~ editProduct ~ convertCheck', convertCheck);
+    const newArray = [];
+    const submitCheck = categoryId.map((item) => newArray.push(parseInt(item)));
+    console.log('🚀 ~ file: product.service.js ~ line 93 ~ editProduct ~ newArray', newArray);
+    // const tempt = submitCheck.split('').join('');
     let diffCategory;
     if (submitCheck) {
-      diffCategory = initialCheck.filter((x) => !submitCheck.includes(x.categoryId.toString()));
+      diffCategory = newArray.filter((x) => !convertCheck.includes(x));
+      console.log('🚀 ~ file: product.service.js ~ line 96 ~ editProduct ~ diffCategory', diffCategory);
     }
     const foundProduct = await prisma.product.findFirst({ where: { id } });
     if (!foundProduct) { return helperFn.returnFail(req, res, 'Product not found'); }
@@ -106,10 +112,7 @@ const editProduct = async (req, res, next) => {
             amount: +amount,
           },
         });
-        const updateCtg = await Promise.mapSeries(tempt, async (item) => {
-          // console.log('🚀 ~ file: admin.controller.js ~ line 425 ~ updateCtg ~ categoryId', typeof categoryId);
-          console.log('🚀 ~ file: admin.controller.js ~ line 425 ~ updateCtg ~ tempt', typeof tempt);
-          console.log('🚀 ~ file: admin.controller.js ~ line 422 ~ updateCtg ~ item', item);
+        const updateCtg = await Promise.mapSeries(submitCheck, async (item) => {
           const ctgProduct = await prisma.categoryProduct.findFirst({
             where: {
               productId: foundProduct.id,
