@@ -66,7 +66,7 @@
                                             <%=users[i].isActive%>
                                         </td>
                                         <td>
-                                            <%=users[i].is_block%>
+                                            <%=users[i].isBlocked%>
                                         </td>
                                         <td>
                                             <%- include('../components/modalUser.ejs', {user:users[i]})%>
@@ -94,7 +94,7 @@
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function changeBlockUserStt(id) {
-        axios.post('/block/' + id,)
+        axios.post('/api/user/block/' + id,)
             .then(function (response) {
                 if (response.status === 200) {
                     Swal.fire({
@@ -118,8 +118,9 @@
                 console.log(error);
             });
     }
+
     function deleteUser(id) {
-        axios.delete('/user/' + id)
+        axios.delete('/api/user/' + id)
             .then(res => {
                 Swal.fire({
                     position: 'center',

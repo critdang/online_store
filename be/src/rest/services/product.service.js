@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const Promise = require('bluebird');
 const { ERROR } = require('../../common/constants');
 const helperFn = require('../../utils/helperFn');
 
@@ -8,31 +9,40 @@ const prisma = new PrismaClient({
 
 const addProduct = async (req, res) => {
   const {
-    name, description, price, amount, categoryId,
+    name, description, price, amount,
   } = req.body;
+  let { categoryId } = req.body;
+  categoryId = Array.isArray(categoryId) ? categoryId : [categoryId];
 
   await prisma.$transaction(
-    // eslint-disable-next-line no-shadow
     async (prisma) => {
+      // upload informaiton product
       const newProduct = await prisma.product.create({
         data: {
           name,
           description,
           price: +price,
           amount: +amount,
-          categoryProduct: {
-            create: {
-              categoryId: +categoryId,
-            },
-          },
         },
       });
+
+      // upload categoryProduct
       const idNewProduct = newProduct.id;
+      const newCategory = [];
+      categoryId.map((item) => { newCategory.push(parseInt(item, 10)); });
+      await Promise.mapSeries(newCategory, async (item) => {
+        await prisma.categoryProduct.create({
+          data: {
+            productId: idNewProduct,
+            categoryId: item,
+          },
+        });
+      });
+
+      // upload image
       const { files } = req;
-      // eslint-disable-next-line no-restricted-syntax
       for (const file of files) {
         const { path } = file;
-        // eslint-disable-next-line no-await-in-loop
         await prisma.productImage.createMany({
           data: {
             productId: +idNewProduct,
@@ -85,17 +95,20 @@ const editProduct = async (req, res, next) => {
   try {
     const id = +req.params.id;
     const initialCheck = await prisma.categoryProduct.findMany({ where: { productId: id } });
-    const submitCheck = categoryId;
-    const tempt = submitCheck.split('"').join('');
+    // convert initial check
+    const convertCheck = initialCheck.map((item) => item.categoryId);
+    // convert submit check
+    const newArray = [];
+    const submitCheck = categoryId.map((item) => newArray.push(parseInt(item, 10)));
     let diffCategory;
     if (submitCheck) {
-      diffCategory = initialCheck.filter((x) => !submitCheck.includes(x.categoryId.toString()));
+      diffCategory = convertCheck.filter((x) => !newArray.includes(x));
     }
     const foundProduct = await prisma.product.findFirst({ where: { id } });
     if (!foundProduct) { return helperFn.returnFail(req, res, 'Product not found'); }
 
-    const result = await prisma.$transaction(
-      // eslint-disable-next-line no-shadow
+    await prisma.$transaction(
+    // eslint-disable-next-line no-shadow
       async (prisma) => {
         const updatedProduct = await prisma.product.update({
           where: { id },
@@ -106,10 +119,7 @@ const editProduct = async (req, res, next) => {
             amount: +amount,
           },
         });
-        const updateCtg = await Promise.mapSeries(tempt, async (item) => {
-          // console.log('🚀 ~ file: admin.controller.js ~ line 425 ~ updateCtg ~ categoryId', typeof categoryId);
-          console.log('🚀 ~ file: admin.controller.js ~ line 425 ~ updateCtg ~ tempt', typeof tempt);
-          console.log('🚀 ~ file: admin.controller.js ~ line 422 ~ updateCtg ~ item', item);
+        const updateCtg = await Promise.mapSeries(newArray, async (item) => {
           const ctgProduct = await prisma.categoryProduct.findFirst({
             where: {
               productId: foundProduct.id,
@@ -129,14 +139,13 @@ const editProduct = async (req, res, next) => {
           await prisma.categoryProduct.deleteMany({
             where: {
               productId: id,
-              categoryId: +item.categoryId,
+              categoryId: +item,
             },
           });
         });
         return { updatedProduct, updateCtg, deletedCtg };
       },
     );
-    if (!result) return helperFn.returnFail(req, res, 'Product have not been updated.Please login again');
   } catch (err) {
     console.log(err);
   }

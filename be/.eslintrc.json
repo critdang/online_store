@@ -20,6 +20,10 @@
     "no-unused-expressions": "off",
     "max-len": ["error", { "code": 200 }],
     "sort-imports": ["error"],
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "array-callback-return": "off",
+    "no-restricted-syntax": "off",
+    "no-await-in-loop": "off",
+    "no-shadow": "off"
   }
 }

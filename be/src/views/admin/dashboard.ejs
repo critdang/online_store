@@ -278,10 +278,10 @@
                                         <td>
                                             <%=users[i].gender%>
                                         </td>
-                                        <td>
+                                        <td class="isActive">
                                             <%=users[i].isActive%>
                                         </td>
-                                        <td>
+                                        <td class="isBlocked">
                                             <%=users[i].isBlocked%>
                                         </td>
                                         <td>
@@ -319,6 +319,24 @@
             document.getElementsByClassName('order-item--des')[i].style.color = 'rgba(0,199,0,1)';
         } else {
             document.getElementsByClassName('order-item--des')[i].style.color = 'red'
+        }
+    }
+    const statusActive = document.getElementsByClassName('isActive')
+    for (let i = 0; i < statusActive.length; i++) {
+        if (document.getElementsByClassName('isActive')[i].innerText == 'true') {
+            document.getElementsByClassName('isActive')[i].style.color = 'rgba(0,199,0,1)'
+        } else {
+            document.getElementsByClassName('isActive')[i].style.color = 'red'
+        };
+    }
+
+    const statusBlock = document.getElementsByClassName('isBlocked')
+    for (let i = 0; i < statusBlock.length; i++) {
+
+        if (document.getElementsByClassName('isBlocked')[i].innerText == 'true') {
+            document.getElementsByClassName('isBlocked')[i].style.color = 'rgba(0,199,0,1)'
+        } else {
+            document.getElementsByClassName('isBlocked')[i].style.color = 'red'
         }
     }
     function detailProduct(id) {
@@ -467,6 +485,7 @@
                 console.log(response);
                 if (response.data.status == 200) {
                     Swal.fire({
+                        position: 'center',
                         title: 'Deleted!',
                         text: response.data.message,
                         icon: 'success',
@@ -599,7 +618,6 @@
                 newStatus = orderStatus[i].value;
             }
         }
-        console.log('newStatus', newStatus)
         axios.post('/changeOrderStatus/' + id, {
             newStatus: newStatus
         })

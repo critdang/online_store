@@ -216,6 +216,7 @@ const typeDefs = gql`
     name: OrderType
     price: OrderType
     category: OrderType
+    page: Int
   }
 
   enum OrderType {
