@@ -37,11 +37,18 @@ exports.listProducts = async (parent, args, context, info) => {
   try {
     // eslint-disable-next-line prefer-const
     let { name, price } = args.productOrderBy;
+    const page = args.productOrderBy.page || 1;
     if (name) {
       name = name.toLowerCase();
       const data = await prisma.product.findMany({
+        take: 8,
+        skip: (page - 1) * 10,
         include: {
-          productImage: true,
+          productImage: {
+            where: {
+              isDefault: true,
+            },
+          },
         },
         orderBy: { name },
       });
@@ -51,6 +58,8 @@ exports.listProducts = async (parent, args, context, info) => {
     if (price) {
       price = price.toLowerCase();
       const data = await prisma.product.findMany({
+        take: 8,
+        skip: (page - 1) * 10,
         include: {
           productImage: true,
         },

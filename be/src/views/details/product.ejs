@@ -95,7 +95,7 @@
     function detailProduct(id) {
         //get Category Product to compare the exist account
         const insertImageProduct = $('.image-product-' + id);
-        axios.get('/product/' + id).then(res => {
+        axios.get('/api/product/' + id).then(res => {
             var checkCategoryProduct = document.getElementsByClassName(`form-check-input-category` + id);
             console.log('checkExistCategory', res.data.message)
             // console.log('checkCategoryProduct', checkCategoryProduct)
@@ -115,15 +115,12 @@
                 if (res.data.message.productImage[i].isDefault == true) {
                     defaultImg = "borderImg";
                 }
-                insertImageProduct.append(`<img class='${defaultImg}' style="cursor: pointer" onclick="mainImg('mainImg-${idImg}')" id="mainImg-${idImg}" width="120px" src='${linkImg}'/>`)
+                insertImageProduct.append(`<img class='${defaultImg}' style="cursor: pointer" onclick="mainImg('mainImg-${idImg}')" id="mainImg-${idImg}" width="120px" src='${linkImg}'/>`) //add images to modal
                 const newImgs = document.querySelectorAll('div.list-img-product img')
                 newImgs.forEach(el => {
                     const current = document.getElementsByClassName('borderImg');
                     el.addEventListener("click", function (e) {
-                        // current[0].classList.remove('borderImg');
-                        // this.classList.add('borderImg');
-
-                        console.log('e.target', e.target.id)
+                        console.log('e.target', e.target.id) //target img
                         if (!current.length) {
                             this.classList.add('borderImg');
                         }
@@ -135,6 +132,7 @@
                 })
             }
         })
+
     }
 
     function updateProduct(id) {
@@ -145,8 +143,8 @@
         const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
-        console.log(name, amount, price, description, categoryId);
-        axios.put('/product/' + id, {
+        console.log("🚀 ~ file: dashboard.ejs ~ line 375 ~ categoryId ~ categoryId", categoryId)
+        axios.put('/api/product/' + id, {
             name: name,
             description: description,
             amount: amount,
@@ -154,15 +152,52 @@
             categoryId: categoryId,
         })
             .then(function (response) {
-                if (response.status == 200) {
+                if (response.data.status == 200) {
                     Swal.fire({
                         title: 'Updated!',
                         text: response.data.message,
                         icon: 'success',
                         confirmButtonText: 'Cool'
                     }).then(() => {
-                        location.reload();
+                        window.location.href = '/dashboard'
                     })
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: response.data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Login'
+                    }).then(() => {
+                        window.location.href = '/loginView'
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                Swal.fire({
+                    title: 'Something went wrong',
+                    text: error.response.data.message,
+                    icon: 'error',
+                    confirmButtonText: 'Login '
+                }).then(() => {
+                    window.location.href = '/loginView'
+                })
+            });
+    }
+
+    function mainImg(id) {
+        const defaultImg = id.split('-')[1];
+        axios.post('/api/product/default_image/' + defaultImg)
+            .then(function (response) {
+                if (response.status === 200) {
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Success',
+                        showConfirmButton: false
+                    }).then(function () {
+                        location.reload();
+                    });
                 } else {
                     Swal.fire({
                         title: 'Something went wrong',
@@ -176,19 +211,41 @@
                 console.log(error);
             });
     }
-    function mainImg(id) {
-        const defaultImg = id.split('-')[1];
-        axios.post('/default_image/' + defaultImg)
+    function addProduct() {
+        const name = $('#name').val();
+        const amount = $('#amount').val();
+        const price = $('#price').val();
+        const description = $('#description').val();
+        const categoryId = $('input[type=checkbox]:checked').map(function (_, el) {
+            return $(el).val();
+        }).get();
+        axios.post('/product', {
+            name: name,
+            amount: amount,
+            price: price,
+            description: description,
+            categoryId: categoryId,
+        })
             .then(function (response) {
-                if (response.status === 200) {
+                console.log(response);
+            })
+
+    }
+
+    function deleteProduct(id) {
+        axios.delete('/api/product/' + id)
+            .then(function (response) {
+                console.log(response);
+                if (response.data.status == 200) {
                     Swal.fire({
-                        position: 'top-end',
+                        position: 'center',
+                        title: 'Deleted!',
+                        text: response.data.message,
                         icon: 'success',
-                        title: 'Success',
-                        showConfirmButton: false
-                    }).then(function () {
+                        confirmButtonText: 'Cool'
+                    }).then(() => {
                         location.reload();
-                    });
+                    })
                 } else {
                     Swal.fire({
                         title: 'Something went wrong',

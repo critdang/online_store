@@ -61,7 +61,7 @@ const productSchema = Joi.object({
     .error(
       new AppError(constants.PROVIDE_PRODUCT_AMOUNT, 400),
     ),
-  categoryId: Joi.object(),
+  categoryId: Joi.required(),
 });
 
 exports.resetPasswordValidate = async (req, res, next) => {
@@ -112,6 +112,7 @@ exports.categoryValidate = async (req, res, next) => {
 
 exports.productValidate = async (req, res, next) => {
   const { error } = await productSchema.validateAsync(req.body);
+  console.log('🚀 ~ file: validate.js ~ line 115 ~ exports.productValidate= ~ req.body', typeof req.body.categoryId);
   if (error) {
     return helperFn.returnFail(req, res, error);
   }

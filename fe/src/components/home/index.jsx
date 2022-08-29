@@ -23,9 +23,11 @@ import {
   Grow,
   MenuList,
   Modal,
+  Pagination,
   Paper,
   Popper,
   Select,
+  Stack,
   TableCell,
   tableCellClasses,
   TableRow,
@@ -38,6 +40,7 @@ import helperFn from './../../utils/helperFn';
 import { ToastContainer } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { addNewItem } from '../../reducers/carts.slice';
+import { useRef } from 'react';
 
 function Copyright() {
   return (
@@ -198,7 +201,6 @@ const SORTS = [
     value: 'DESC',
   },
 ];
-
 export default function Home(props, { setLogin }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -211,6 +213,10 @@ export default function Home(props, { setLogin }) {
     setAnchorEl(null);
   };
 
+  const [page, setPage] = React.useState();
+  function handlePagination(e) {
+    setPage(parseInt(e.target.textContent));
+  }
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [displaySearch, setDisplaySearch] = React.useState('none');
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -222,9 +228,6 @@ export default function Home(props, { setLogin }) {
 
   const dispatch = useDispatch();
 
-  const handleClickOptions = () => {
-    console.info(`You clicked ${options[selectedIndex]}`);
-  };
   // ##################################################################
   // const [productId, setProductId] = React.useState();
   const addToCart = async (item) => {
@@ -238,36 +241,44 @@ export default function Home(props, { setLogin }) {
       },
     });
     if (dataProductInCart) {
-      console.log(data);
       helperFn.toastAlertSuccess('Add item to cart');
       dispatch(addNewItem(item));
       handleCloseModal();
     }
     handleAddCart();
   };
+
   const [input, setInput] = React.useState();
   const [orderProductByName, setOrderProductByName] = React.useState({
     name: 'name',
     value: 'ASC',
   });
+  let totalPage = useRef(0);
+  console.log('🚀 ~ file: index.jsx ~ line 257 ~ Home ~ totalPage', totalPage);
   const [products, setProducts] = React.useState([]);
-  const { loading, error, data } = useQuery(PRODUCTS, {
+
+  const { data: dataProducts } = useQuery(PRODUCTS, {
     onError: (err) => {
       helperFn.toastAlertFail(err.message);
     },
   });
   React.useEffect(() => {
-    if (data) {
-      setProducts(data.products);
+    if (dataProducts) {
+      totalPage.current = dataProducts.products.length;
     }
-  }, [data]);
+  }, [dataProducts]);
   // Query Product By Number
-  const { data: dataProductByName } = useQuery(
+  const {
+    data: dataProductByName,
+    loading,
+    error,
+  } = useQuery(
     PRODUCTSBYNAME,
     {
       variables: {
         input: {
           [orderProductByName.name]: orderProductByName.value,
+          page: page,
         },
       },
     },
@@ -571,6 +582,13 @@ export default function Home(props, { setLogin }) {
             ))}
           </Grid>
         </Container>
+        <Stack spacing={2} sx={{ alignItems: 'center' }}>
+          <Pagination
+            count={Math.ceil(totalPage.current / 10)}
+            color="primary"
+            onChange={handlePagination}
+          />
+        </Stack>
       </main>
       {/* Footer */}
       <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">

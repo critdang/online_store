@@ -79,10 +79,9 @@
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function updateCategory(id) {
-        const categoryName = $('#category-name').val();
-        const categoryDescription = $('#category-description').val();
-        console.log(categoryName, categoryDescription)
-        axios.post('/edit_category/' + id, {
+        const categoryName = $(`#category-name-${id}`).val();
+        const categoryDescription = $(`#category-description-${id}`).val();
+        axios.post('/api/category/edit_category/' + id, {
             name: categoryName,
             description: categoryDescription
         })
@@ -90,7 +89,7 @@
                 if (response.status == 200) {
                     Swal.fire({
                         title: 'Updated!',
-                        text: response.data.message,
+                        text: 'Updated category successfully!',
                         icon: 'success',
                         confirmButtonText: 'Cool'
                     }).then(() => {
@@ -99,7 +98,7 @@
                 } else {
                     Swal.fire({
                         title: 'Something went wrong',
-                        text: response.data.message,
+                        text: 'Updated category unsuccessfully!',
                         icon: 'error',
                         confirmButtonText: ' Not cool'
                     })
@@ -109,27 +108,30 @@
                 console.log(error);
             });
     }
+
     function deleteCategory(id) {
-        axios.delete('/category/' + id)
+        axios.delete('/api/category/' + id)
             .then(res => {
-                if (res.data.status === 200)
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Deleted!',
-                        showConfirmButton: false
-                    }).then(() => { window.location.reload() })
-                else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: res.data.message
-                    })
-                }
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Deleted!',
+                    showConfirmButton: false
+                });
+                setTimeout(function () {
+                    window.location.reload();
+                }, 1500);
             })
-
-
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                    footer: '<a href>Why do I have this issue?</a>'
+                })
+            })
     }
+
 </script>
 
 </html>
