@@ -8,8 +8,7 @@ const router = express.Router();
 router.post('/', auth.protectingRoutes, upload.single('thumbnail'), validate.categoryValidate, categoryController.addCategory);
 router.get('/', auth.protectingRoutes, categoryController.getCategories);
 router.get('/:id', auth.protectingRoutes, categoryController.getCategory);
-router.post('/edit_category/:id', auth.protectingRoutes, validate.categoryValidate, categoryController.editCategory);
-router.post('/edit_thumbnail/:id', auth.protectingRoutes, upload.single('thumbnail'), categoryController.editThumbnail);
+router.post('/edit_category/:id', auth.protectingRoutes, upload.single('thumbnail'), validate.categoryValidate, categoryController.editCategory);
 router.delete('/:id', auth.protectingRoutes, categoryController.deleteCategory);
 
 module.exports = router;

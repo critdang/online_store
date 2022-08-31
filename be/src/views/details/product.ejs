@@ -91,7 +91,67 @@
     integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1 "
     crossorigin="anonymous "></script>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js "
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1 "
+    crossorigin="anonymous "></script>
+
 <script>
+    function createProduct() {
+        const formData = new FormData();
+        const name = $(`#CProduct-name`).val();
+        formData.append('name', name);
+        const amount = $(`#CProduct-amount`).val();
+        formData.append('amount', amount);
+        const price = $(`#CProduct-price`).val();
+        formData.append('price', price);
+        const description = $(`#CProduct-description`).val();
+        formData.append('description', description);
+        const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
+            return $(el).val();
+        }).get();
+        formData.append('categoryId', categoryId);
+        const files = document.getElementById(`CProduct-images`)
+        for (let i = 0; i < files.files.length; i++) {
+            formData.append('images', files.files[i]);
+        }
+        axios.post('/api/product', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(function (response) {
+                if (response.data.status == 200) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: response.data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    }).then(() => {
+                        window.location.href = '/productView'
+                    })
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: response.data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Login'
+                    }).then(() => {
+                        window.location.href = '/loginView'
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                Swal.fire({
+                    title: 'Something went wrong',
+                    text: error.response.data.message,
+                    icon: 'error',
+                    confirmButtonText: 'Login '
+                }).then(() => {
+                    window.location.href = '/loginView'
+                })
+            });
+    }
     function detailProduct(id) {
         //get Category Product to compare the exist account
         const insertImageProduct = $('.image-product-' + id);
@@ -143,7 +203,6 @@
         const categoryId = $(`input[type=checkbox]:checked`).map(function (_, el) {
             return $(el).val();
         }).get();
-        console.log("🚀 ~ file: dashboard.ejs ~ line 375 ~ categoryId ~ categoryId", categoryId)
         axios.put('/api/product/' + id, {
             name: name,
             description: description,
@@ -183,6 +242,40 @@
                     window.location.href = '/loginView'
                 })
             });
+    }
+
+    function addImg(productId) {
+        const files = document.getElementById(`images-${productId}`)
+        const formData = new FormData();
+        for (let i = 0; i < files.files.length; i++) {
+            formData.append('images', files.files[i]);
+        }
+        axios.post('/api/product/images/' + productId, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(res => {
+                if (res.data.status == 200)
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.data.message,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    })
+                else {
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Error',
+                        text: res.data.message,
+                        showConfirmButton: false
+                    })
+                }
+            })
     }
 
     function mainImg(id) {
