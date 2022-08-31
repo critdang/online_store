@@ -3,7 +3,7 @@ const { gql } = require('apollo-server');
 // scalar UploadImg
 const typeDefs = gql`
   scalar Upload
-
+  scalar Date
   type User {
     id: ID
     fullname: String
@@ -13,7 +13,7 @@ const typeDefs = gql`
     phone: String
     gender: String
     avatar: String
-    birthday: String
+    birthday: Date
   }
   type Product {
     id: ID
