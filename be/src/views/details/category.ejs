@@ -51,7 +51,6 @@
                                         </td>
                                         <td>
                                             <%- include('../components/modalCategory.ejs', {category:categories[i]})%>
-
                                         </td>
                                     </tr>
                                     <% } %>
@@ -78,14 +77,108 @@
     crossorigin="anonymous "></script>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function updateCategory(id) {
-        const categoryName = $(`#category-name-${id}`).val();
-        const categoryDescription = $(`#category-description-${id}`).val();
-        axios.post('/api/category/edit_category/' + id, {
-            name: categoryName,
-            description: categoryDescription
+    function loadedFile(event, id) {
+        const loadfile = $(`#category-preview-${id}`).attr('src', URL.createObjectURL(event.target.files[0]));
+    }
+
+    function createCategory() {
+        const formData = new FormData();
+        const category = $('#Ccategory-name').val();
+        formData.append('name', category);
+        const description = $('#Ccategory-description').val();
+        formData.append('description', description);
+        const files = $('#Ccategory-thumbnail');
+        formData.append('thumbnail', files[0].files[0]);
+        axios.post('/api/category', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         })
             .then(function (response) {
+                console.log(response);
+                if (response.data.status == 200) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: response.data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    }).then(() => {
+                        window.location.href = '/categoryView'
+                    })
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: response.data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Login'
+                    }).then(() => {
+                        window.location.href = '/loginView'
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                Swal.fire({
+                    title: 'Something went wrong',
+                    text: error.response.data.message,
+                    icon: 'error',
+                    confirmButtonText: 'Login '
+                }).then(() => {
+                    window.location.href = '/loginView'
+                })
+            });
+    }
+
+    function updateThumbnail(id) {
+        const formData = new FormData();
+        const thumbnail = $(`#thumbnail-${id}`);
+        console.log("🚀 ~ file: category.ejs ~ line 132 ~ updateThumbnail ~ thumbnail", thumbnail)
+        formData.append('thumbnail', thumbnail[0].files[0]);
+        axios.post('/api/category/edit_thumnail/' + id, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then((response) => {
+                console.log(response);
+                if (response.data.status == 200) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: response.data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    }).then(() => {
+                        location.reload();
+                    })
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: 'Updated category unsuccessfully!',
+                        icon: 'error',
+                        confirmButtonText: ' Not cool'
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    function updateCategory(id) {
+        const formData = new FormData();
+        const categoryName = $(`#category-name-${id}`).val();
+        formData.append('name', categoryName);
+        const categoryDescription = $(`#category-description-${id}`).val();
+        formData.append('description', categoryDescription);
+        const files = $(`#category-thumbnail-${id}`)
+        formData.append('thumbnail', files[0].files[0]);
+        axios.post('/api/category/edit_category/' + id, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then((response) => {
+                console.log(response);
                 if (response.status == 200) {
                     Swal.fire({
                         title: 'Updated!',

@@ -12,28 +12,25 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="/api/category" method="POST" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="" class="col-form-label">Name:</label>
-                        <input type="text" class="form-control" name="name" id="name">
-                    </div>
-                    <div class="form-group">
-                        <label for="" class="col-form-label">Description:</label>
-                        <input type="text" class="form-control" name="description" id="description" value="">
-                    </div>
-                    <div class="form-group">
-                        <label for="" class="col-form-label">Images:</label>
-                        <input type="file" class="form-control" name="thumbnail" accept="image/*" id="thumbnail"
-                            value="">
-                    </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="" class="col-form-label">Name:</label>
+                    <input type="text" class="form-control" name="name" id="Ccategory-name">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Create Product</button>
-
-            </form>
+                <div class="form-group">
+                    <label for="" class="col-form-label">Description:</label>
+                    <input type="text" class="form-control" name="description" id="Ccategory-description" value="">
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-form-label">Images:</label>
+                    <input type="file" class="form-control" name="thumbnail" accept="image/*" id="Ccategory-thumbnail"
+                        value="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" onclick="createCategory()">Create Product</button>
+            </div>
         </div>
     </div>
-</div>
 </div>

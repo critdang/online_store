@@ -43,15 +43,6 @@ const editCategory = async (req, res, next) => {
   }
 };
 
-const editThumbnail = async (req, res) => {
-  try {
-    await categoryService.editThumbnail(req, res);
-    helperFn.returnSuccess(req, res, RESPONSE.UPDATE_THUMBNAIL_SUCC);
-  } catch (err) {
-    console.log(err);
-    helperFn.returnError(res, err.message);
-  }
-};
 const deleteCategory = async (req, res, next) => {
   try {
     const data = await categoryService.deleteCategory(req, res);
@@ -69,6 +60,5 @@ module.exports = {
   getCategories,
   getCategory,
   editCategory,
-  editThumbnail,
   deleteCategory,
 };

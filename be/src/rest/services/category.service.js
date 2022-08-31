@@ -59,12 +59,14 @@ const editCategory = async (req, res, next) => {
     where: { id },
   });
   if (!foundCategory) return helperFn.returnFail(req, res, ERROR.NO_FOUND_CATE);
+  const thumbnail = await req.file.path;
 
   const updateCategory = await prisma.category.update({
     where: { id },
     data: {
       name,
       description,
+      thumbnail,
     },
   });
 
@@ -72,7 +74,7 @@ const editCategory = async (req, res, next) => {
 };
 
 const editThumbnail = async (req, res, next) => {
-  const { id } = req.params;
+  const id = +req.params.id;
   if (!id) return helperFn.returnFail(req, res, ERROR.PROVIDE_CATE_ID);
 
   const thumbnail = await req.file.path;
