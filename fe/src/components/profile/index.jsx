@@ -238,18 +238,27 @@ export default function Album(props, { setLogin }) {
       }
     }
   };
-  const { loading, error, data } = useQuery(PROFILE);
-
+  const [dataUser, setDataUser] = React.useState('');
+  console.log('🚀 ~ file: index.jsx ~ line 242 ~ Album ~ dataUser', dataUser);
   const [birthday, setBirthday] = React.useState('');
+  console.log('🚀 ~ file: index.jsx ~ line 242 ~ Album ~ birthday', birthday);
+  const { loading, error, data } = useQuery(PROFILE);
+  // const testBirthday = {
+  //   date: '2017-06-25',
+  // };
   // setBirthday(data.user.birthday);
   // const a = moment(new Date()).format('DD-MM-YYYY');
   //
   React.useEffect(() => {
     if (data) {
-      const date = moment(data.user.birthday ? data.user.birthday : '').format(
-        'YYYY-MM-DD'
+      console.log(
+        '🚀 ~ file: index.jsx ~ line 249 ~ React.useEffect ~ data',
+        data
       );
-      setBirthday(date);
+      const birthday = moment(
+        data.user.birthday ? data.user.birthday : ''
+      ).format('YYYY-MM-DD');
+      setDataUser({ ...data, birthday });
     }
   }, [data]);
 
@@ -348,7 +357,7 @@ export default function Album(props, { setLogin }) {
                         label="Birthday"
                         type="date"
                         name="birthday"
-                        defaultValue={birthday}
+                        defaultValue={dataUser.birthday}
                         sx={{ width: 270 }}
                         InputLabelProps={{
                           shrink: true,

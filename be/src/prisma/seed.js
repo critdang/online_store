@@ -30,6 +30,7 @@ async function main() {
       fullname: 'Alice',
       password: (await helperFn.hashPassword('123456')).toString(),
       address: '125 pham huy thong',
+      birthday: moment(Date.now()),
       avatar: 'mac dinh',
       phone: '0945246026',
       gender: 'Female',

@@ -225,6 +225,7 @@ exports.getUser = async (parent, args, context, info) => {
     const result = await prisma.user.findUnique({
       where: { id: context.currentUser.userId },
     });
+    console.log('🚀 ~ file: index.js ~ line 228 ~ exports.getUser= ~ result', result);
     return result;
   } catch (err) {
     console.log(err);
