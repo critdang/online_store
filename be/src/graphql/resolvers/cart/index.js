@@ -18,6 +18,10 @@ exports.addToCart = async (parent, args, context, info) => {
       return new Error(ERROR.NO_PRODUCT_FOUND);
     }
 
+    if (quantity < 0) {
+      return new Error(ERROR.WRONG_INPUT_QUANTITY);
+    }
+
     if (quantity > checkProduct.amount) {
       return new Error(ERROR.PRODUCT_EXCEED);
     }
@@ -103,6 +107,7 @@ exports.getCart = async (parent, args, context, info) => {
       cartId: cartItems.id,
       productId: Cproduct.product.id,
       name: Cproduct.product.name,
+      price: Cproduct.product.price,
       description: Cproduct.product.description,
       quantity: Cproduct.quantity,
       thumbnail: Cproduct.product.productImage[0].href,

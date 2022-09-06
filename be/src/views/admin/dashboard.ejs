@@ -556,6 +556,54 @@
             })
     }
 
+    function createCategory() {
+        const formData = new FormData();
+        const category = $('#Ccategory-name').val();
+        formData.append('name', category);
+        const description = $('#Ccategory-description').val();
+        formData.append('description', description);
+        const files = $('#Ccategory-thumbnail');
+        formData.append('thumbnail', files[0].files[0]);
+        axios.post('/api/category', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(function (response) {
+                console.log(response);
+                if (response.data.status == 200) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: response.data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    }).then(() => {
+                        window.location.href = '/categoryView'
+                    })
+                } else {
+                    Swal.fire({
+                        title: 'Something went wrong',
+                        text: response.data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Login'
+                    }).then(() => {
+                        window.location.href = '/loginView'
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                Swal.fire({
+                    title: 'Something went wrong',
+                    text: error.response.data.message,
+                    icon: 'error',
+                    confirmButtonText: 'Login '
+                }).then(() => {
+                    window.location.href = '/loginView'
+                })
+            });
+    }
+
     function updateCategory(id) {
         const categoryName = $(`#category-name-${id}`).val();
         const categoryDescription = $(`#category-description-${id}`).val();
@@ -603,9 +651,8 @@
             .catch(error => {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong!',
-                    footer: '<a href>Why do I have this issue?</a>'
+                    title: error.response.status,
+                    text: error.response.data,
                 })
             })
     }

@@ -120,35 +120,23 @@
             }
         })
             .then(function (response) {
-                if (response.data.status == 200) {
+                console.log("🚀 ~ file: product.ejs ~ line 123 ~ response", response)
+                if (response.status == 200) {
                     Swal.fire({
-                        title: 'Updated!',
+                        title: 'Created!',
                         text: response.data.message,
                         icon: 'success',
                         confirmButtonText: 'Cool'
                     }).then(() => {
                         window.location.href = '/productView'
                     })
-                } else {
-                    Swal.fire({
-                        title: 'Something went wrong',
-                        text: response.data.message,
-                        icon: 'error',
-                        confirmButtonText: 'Login'
-                    }).then(() => {
-                        window.location.href = '/loginView'
-                    })
                 }
             })
             .catch(function (error) {
-                console.log(error);
                 Swal.fire({
                     title: 'Something went wrong',
-                    text: error.response.data.message,
+                    text: response.data.message,
                     icon: 'error',
-                    confirmButtonText: 'Login '
-                }).then(() => {
-                    window.location.href = '/loginView'
                 })
             });
     }
@@ -211,23 +199,14 @@
             categoryId: categoryId,
         })
             .then(function (response) {
-                if (response.data.status == 200) {
+                if (response.status == 200) {
                     Swal.fire({
                         title: 'Updated!',
                         text: response.data.message,
                         icon: 'success',
                         confirmButtonText: 'Cool'
                     }).then(() => {
-                        window.location.href = '/dashboard'
-                    })
-                } else {
-                    Swal.fire({
-                        title: 'Something went wrong',
-                        text: response.data.message,
-                        icon: 'error',
-                        confirmButtonText: 'Login'
-                    }).then(() => {
-                        window.location.href = '/loginView'
+                        window.location.href = '/productView'
                     })
                 }
             })
@@ -255,23 +234,23 @@
                 'Content-Type': 'multipart/form-data'
             }
         })
-            .then(res => {
-                if (res.data.status == 200)
+            .then((response) => {
+                if (response.status == 200)
                     Swal.fire({
-                        position: 'top-end',
+                        position: 'center',
                         icon: 'success',
                         title: 'Success',
-                        text: res.data.message,
+                        text: response.data.message,
                         showConfirmButton: false
                     }).then(() => {
                         location.reload();
                     })
                 else {
                     Swal.fire({
-                        position: 'top-end',
+                        position: 'center',
                         icon: 'error',
                         title: 'Error',
-                        text: res.data.message,
+                        text: response.data.message,
                         showConfirmButton: false
                     })
                 }
@@ -282,11 +261,12 @@
         const defaultImg = id.split('-')[1];
         axios.post('/api/product/default_image/' + defaultImg)
             .then(function (response) {
+                console.log("🚀 ~ file: product.ejs ~ line 264 ~ response", response)
                 if (response.status === 200) {
                     Swal.fire({
-                        position: 'top-end',
+                        position: 'center',
                         icon: 'success',
-                        title: 'Success',
+                        title: response.data.message,
                         showConfirmButton: false
                     }).then(function () {
                         location.reload();
@@ -304,32 +284,12 @@
                 console.log(error);
             });
     }
-    function addProduct() {
-        const name = $('#name').val();
-        const amount = $('#amount').val();
-        const price = $('#price').val();
-        const description = $('#description').val();
-        const categoryId = $('input[type=checkbox]:checked').map(function (_, el) {
-            return $(el).val();
-        }).get();
-        axios.post('/product', {
-            name: name,
-            amount: amount,
-            price: price,
-            description: description,
-            categoryId: categoryId,
-        })
-            .then(function (response) {
-                console.log(response);
-            })
-
-    }
 
     function deleteProduct(id) {
         axios.delete('/api/product/' + id)
             .then(function (response) {
                 console.log(response);
-                if (response.data.status == 200) {
+                if (response.status === 200) {
                     Swal.fire({
                         position: 'center',
                         title: 'Deleted!',

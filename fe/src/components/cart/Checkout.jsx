@@ -15,10 +15,10 @@ import AddressForm from './AddressForm';
 import PaymentForm from './PaymentForm';
 import Review from './Review';
 import NoProduct from './NoProduct';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import helperFn from '../../utils/helperFn';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
@@ -50,6 +50,7 @@ const GETCART = gql`
       cartId
       productId
       name
+      price
       description
       quantity
       thumbnail
@@ -76,7 +77,7 @@ export default function Checkout() {
   const [user, setUser] = React.useState();
   const listCart = useSelector((state) => state.Carts);
   const [cartItems, setCartItems] = React.useState(listCart);
-
+  let navigate = useNavigate();
   React.useEffect(() => {
     setCartItems(listCart);
   }, [listCart]);
@@ -100,7 +101,9 @@ export default function Checkout() {
   }, [dataUser]);
 
   const [activeStep, setActiveStep] = React.useState(0);
-
+  if (activeStep === 3) {
+    navigate('/');
+  }
   const handleNext = () => {
     setActiveStep(activeStep + 1);
 
@@ -171,7 +174,10 @@ export default function Checkout() {
                     onClick={handleNext}
                     sx={{ mt: 3, ml: 1 }}
                   >
-                    {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
+                    {/* {activeStep === steps.length - 1 ? 'Place order' : 'Next'} */}
+                    {activeStep === steps.length - 1
+                      ? 'Go to homepage'
+                      : 'Next'}
                   </Button>
                 </Box>
               </React.Fragment>

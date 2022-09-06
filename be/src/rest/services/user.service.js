@@ -23,7 +23,12 @@ const getUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   const idUser = +req.params.id;
 
-  const data = await prisma.user.deleteMany({
+  const havingOrder = await prisma.order.findFirst({
+    where: { userId: idUser },
+  });
+  if (havingOrder) return helperFn.returnFail(req, res, 'User have order. Can not delete');
+
+  const data = await prisma.user.delete({
     where: { id: idUser },
   });
   return data;

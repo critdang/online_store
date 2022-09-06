@@ -101,8 +101,7 @@
             newStatus: newStatus
         })
             .then(function (response) {
-                console.log("🚀 ~ file: order.ejs ~ line 104 ~ response", response)
-                if (response.data.status == 200) {
+                if (response.status == 200) {
                     Swal.fire({
                         title: 'Updated!',
                         text: response.data.message,

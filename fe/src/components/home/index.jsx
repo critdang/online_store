@@ -254,7 +254,6 @@ export default function Home(props, { setLogin }) {
     value: 'ASC',
   });
   let totalPage = useRef(0);
-  console.log('🚀 ~ file: index.jsx ~ line 257 ~ Home ~ totalPage', totalPage);
   const [products, setProducts] = React.useState([]);
 
   const { data: dataProducts } = useQuery(PRODUCTS, {

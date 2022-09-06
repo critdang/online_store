@@ -6,7 +6,6 @@ const helperFn = require('../../utils/helperFn');
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
-
 const login = async (req, res, data) => {
   const { email: inputEmail, password: inputPassword } = req.body;
 
@@ -25,7 +24,6 @@ const login = async (req, res, data) => {
   if (!wrongPassword) {
     return new AppError(constants.PASS_NOT_CORRECT, 400);
   }
-  req.user = admin;
 };
 
 const uploadAdminAvatar = async (req, res, next) => {

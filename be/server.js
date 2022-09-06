@@ -7,16 +7,18 @@ const { ApolloServerPluginLandingPageLocalDefault } = require('apollo-server-cor
 const express = require('express');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const cors = require('cors');
+// const cron = require('node-cron');
+const cookieParser = require('cookie-parser');
 const context = require('./src/graphql/services/context.services');
 const typeDefs = require('./src/graphql/typeDefs');
 const resolvers = require('./src/graphql/resolvers');
 const initRouters = require('./src/config/routerConfig');
 const viewEngine = require('./src/rest/config/viewEngine');
 require('dotenv').config();
-// const cron = require('node-cron');
-// const reminder = require('./utils/reminder');
+// const reminder = require('./src/utils/reminder');
 
 const app = express();
+app.use(cookieParser());
 // cron.schedule('*/3 * * * * *', reminder);// reminder
 
 // middleware

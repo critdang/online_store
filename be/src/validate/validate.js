@@ -42,6 +42,7 @@ const categorySchema = Joi.object({
     .required(),
   description: Joi.string()
     .required(),
+  thumbnail: Joi.allow(''),
 });
 
 const productSchema = Joi.object({
@@ -103,7 +104,7 @@ exports.avatarValidate = async (req, res, next) => {
 };
 
 exports.categoryValidate = async (req, res, next) => {
-  const { error } = await categorySchema.validate(req.body);
+  const { error } = await categorySchema.validateAsync(req.body);
   if (error) {
     return helperFn.returnFail(req, res, error);
   }

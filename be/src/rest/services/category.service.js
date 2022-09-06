@@ -59,17 +59,26 @@ const editCategory = async (req, res, next) => {
     where: { id },
   });
   if (!foundCategory) return helperFn.returnFail(req, res, ERROR.NO_FOUND_CATE);
-  const thumbnail = await req.file.path;
+  if (req.file !== undefined) {
+    const thumbnail = await req.file.path;
 
+    const updateCategory = await prisma.category.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        thumbnail,
+      },
+    });
+    return updateCategory;
+  }
   const updateCategory = await prisma.category.update({
     where: { id },
     data: {
       name,
       description,
-      thumbnail,
     },
   });
-
   return updateCategory;
 };
 
@@ -100,7 +109,8 @@ const deleteCategory = async (req, res, next) => {
     });
 
     if (existCategoryProduct) {
-      return helperFn.returnFail(req, res, ERROR.HAVE_PRODUCT);
+      // return helperFn.returnFail(req, res, ERROR.HAVE_PRODUCT);
+      return res.status(400).json(ERROR.HAVE_PRODUCT);
     }
 
     const deleteC = await prisma.category.delete({

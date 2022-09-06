@@ -22,7 +22,8 @@ const typeDefs = gql`
     price: Float
     amount: Int
     productImage: [ProductImage]
-    categoryProduct: [CategoryProduct]
+    # categoryProduct: [CategoryProduct]
+    category: [Category]
   }
 
   type Cart {
@@ -36,7 +37,8 @@ const typeDefs = gql`
     name: String
     thumbnail: String
     description: String
-    categoryProduct: [CategoryProduct]
+    # categoryProduct: [CategoryProduct]
+    product: [Product]
   }
  
   type CategoryProduct {
@@ -44,7 +46,7 @@ const typeDefs = gql`
     productId: Int
     categoryId: Int
     category: Category
-    product: [Product]
+    product: Product
   }
 
   type CartProduct {
@@ -91,6 +93,7 @@ const typeDefs = gql`
     cartId: Int
     productId: Int
     name: String
+    price: Float
     description: String
     quantity: Int
     thumbnail: String
@@ -212,6 +215,7 @@ const typeDefs = gql`
     date: OrderType
     amount: OrderType
   }
+
   input ProductOrderBy {
     name: OrderType
     price: OrderType

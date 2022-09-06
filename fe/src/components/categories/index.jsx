@@ -143,7 +143,6 @@ export default function Album() {
       },
     }
   );
-  console.log('🚀 ~ file: index.jsx ~ line 118 ~ Album ~ data', data);
   React.useEffect(() => {
     if (data) setCategories(data.listCategories);
   }, [data]);

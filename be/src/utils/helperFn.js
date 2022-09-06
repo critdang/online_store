@@ -28,26 +28,17 @@ exports.swalNoti = (title, text, icon, confirmButtonText = 'OK') => {
 };
 
 exports.returnSuccess = (req, res, message = 'success') => {
-  // res.status(200).json({
-  //   status: 'success',
-  //   message,
-  // });
-  res.send({
-    status: 200,
+  res.status(200).json({
     message,
   });
 };
 
-exports.returnFail = (req, res, message) => {
-  // res.status(400).json({
-  //   status: 'fail',
-  //   err,
-  // });
-  res.send({
-    status: 400,
-    message,
+exports.returnFail = (req, res, err = 'fail') => {
+  res.status(400).json({
+    err,
   });
 };
+
 const getKeyByValue = (object, value) => Object.keys(object).find((key) => object[key] === value);
 const getErrorMessage = (code) => {
   const message = getKeyByValue(400, code);
@@ -136,9 +127,9 @@ exports.reminderCart = async (username, to, products) => {
 exports.createOrder = async (to, orders) => {
   const parseOrder = orders.map((item) => ({
     ...item,
-    paymentDate: moment(item.paymentDate).format('YYYY-MM-DD'),
-
+    paymentDate: moment(item.paymentDate).format('DD/MM/YYYY'),
   }));
+  console.log('🚀 ~ file: helperFn.js ~ line 137 ~ exports.createOrder= ~ orders', orders);
   const data = await ejs.renderFile('./src/views/createOrderNoti/order.ejs', { orders: parseOrder });
   transport.sendMail({
     from: 'critdang@gmail.com',

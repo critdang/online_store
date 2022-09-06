@@ -96,6 +96,7 @@
     function changeBlockUserStt(id) {
         axios.post('/api/user/block/' + id,)
             .then(function (response) {
+                console.log("🚀 ~ file: user.ejs ~ line 99 ~ response", response)
                 if (response.status === 200) {
                     Swal.fire({
                         position: 'center',
@@ -121,23 +122,25 @@
 
     function deleteUser(id) {
         axios.delete('/api/user/' + id)
-            .then(res => {
-                Swal.fire({
-                    position: 'center',
-                    icon: 'success',
-                    title: 'Deleted user',
-                    showConfirmButton: false
-                });
-                setTimeout(function () {
-                    window.location.reload();
-                }, 1500);
+            .then((response) => {
+                console.log("🚀 ~ file: user.ejs ~ line 125 ~ deleteUser ~ response", response)
+                if (response.status === 200) {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Deleted user',
+                        showConfirmButton: false
+                    });
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
             })
             .catch(error => {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong!',
-                    footer: '<a href>Why do I have this issue?</a>'
+                    title: 'Failed',
+                    text: error.response.data.err,
                 })
             })
     }

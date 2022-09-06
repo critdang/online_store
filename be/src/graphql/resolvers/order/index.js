@@ -6,6 +6,7 @@ const { RESPONSE, ERROR } = require('../../../common/constants');
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
+
 require('dotenv').config();
 
 exports.createOrder = async (parent, args, context, info) => {
@@ -25,15 +26,21 @@ exports.createOrder = async (parent, args, context, info) => {
     });
     if (!foundCarts) return Error('No cart found');
     const orders = [];
+    const orderDetail = [];
     if (foundCarts.cartProduct) {
       let paymentDate;
-      let statusPayment = 'Pending';
+      let statusPayment;
 
       if (paymentMethod === 'VISA') {
         paymentMethod = 'Visa';
         paymentDate = new Date();
         statusPayment = 'Completed';
+      } else {
+        paymentMethod = 'Cash';
+        paymentDate = new Date();
+        statusPayment = 'Pending';
       }
+
       const order = await prisma.order.create({
         data: {
           userId,
@@ -46,33 +53,34 @@ exports.createOrder = async (parent, args, context, info) => {
       });
 
       const run = [];
-      // load foundCarts
       foundCarts.cartProduct.map(async (item) => {
         if (item.quantity > item.product.amount) {
           throw new Error(ERROR.EXCEED_QUANTITY);
         }
 
+        // obj to create order
         const obj = {};
         obj.orderId = order.id;
         obj.quantity = item.quantity;
-        // obj.total = item.quantity * item.product.price;
         obj.productId = item.product.id;
-        // obj.productName = item.product.name;
-        // obj.paymentDate = paymentDate;
-        // obj.paymentMethod = paymentMethod;
         obj.price = item.product.price;
         orders.push(obj);
 
+        // d to send email
+        const d = {};
+        d.total = item.quantity * item.product.price;
+        d.productName = item.product.name;
+        d.paymentDate = paymentDate;
+        d.paymentMethod = paymentMethod;
+        d.quantity = item.quantity;
+        d.productId = item.product.id;
+        d.price = item.product.price;
+        orderDetail.push(d);
+
         const checkProduct = await prisma.product.findFirst({ where: { id: item.product.id } });
-
         const amount = checkProduct.amount - item.quantity;
-
         const updateProductAmount = prisma.product.update({ where: { id: item.product.id }, data: { amount } });
         run.push(updateProductAmount);
-
-        // run.push(createProductInOrder);
-
-        // run.push(deleteCartProduct);
         await prisma.$transaction(run);
       });
 
@@ -83,8 +91,7 @@ exports.createOrder = async (parent, args, context, info) => {
       // eslint-disable-next-line no-unused-vars
       const deleteCartProduct = await prisma.cartProduct.deleteMany({ where: { cartId } });
 
-      //  await Promise.all(promises);
-      await helperFn.createOrder(context.currentUser.email, orders);
+      await helperFn.createOrder(context.currentUser.email, orderDetail);
       return RESPONSE.ORDER_SUC;
     }
     return new Error(ERROR.NO_PRODUCT_IN_CART);

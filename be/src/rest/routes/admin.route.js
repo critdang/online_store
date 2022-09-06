@@ -1,9 +1,9 @@
 const express = require('express');
-const passport = require('passport');
+// const passport = require('passport');
 const adminController = require('../controller/admin.controller');
 
 const router = express.Router();
-require('../middleware/auth').authUser(passport);
+// require('../middleware/auth').authUser(passport);
 
 // ejs
 router.get('/loginView', adminController.getLoginView);

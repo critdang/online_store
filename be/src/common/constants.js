@@ -54,6 +54,7 @@ const ERROR = {
   PROVIDE_PRODUCTI_IMGID: 'Provide product ID and image ID',
   PRODUCT_IN_ORDER: 'Product in order.Can not deleted',
   PRODUCT_EXCEED: 'Product quantity exceed',
+  WRONG_INPUT_QUANTITY: 'Wrong quantity',
 
   // ORDER
   PROVIDE_ORDER_ID: 'Please provide order ID',

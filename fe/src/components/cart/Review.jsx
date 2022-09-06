@@ -28,7 +28,9 @@ const CREATEORDER = gql`
   }
 `;
 export default function Review(props) {
+  console.log('🚀 ~ file: Review.jsx ~ line 31 ~ Review ~ props', props);
   const { data: dataCart, paymentMethod } = props;
+  console.log('🚀 ~ file: Review.jsx ~ line 32 ~ Review ~ dataCart', dataCart);
 
   const DELTEITEMCART = gql`
     mutation deleteItemCart($input: InputItem) {
@@ -115,20 +117,6 @@ export default function Review(props) {
                 </Button>
               </div>
             </ListItem>
-
-            <ListItem sx={{ py: 1, px: 0 }}>
-              <ListItemText primary="Shipping" />
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                Free
-              </Typography>
-            </ListItem>
-
-            <ListItem sx={{ py: 1, px: 0 }}>
-              <ListItemText primary="Total" />
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                $34.06
-              </Typography>
-            </ListItem>
           </List>
         ))
       ) : (
@@ -136,30 +124,28 @@ export default function Review(props) {
           No product in cart
         </Typography>
       )}
+      <ListItem sx={{ py: 1, px: 0 }}>
+        <ListItemText primary="Shipping" />
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          Free
+        </Typography>
+      </ListItem>
+
+      {/* <ListItem sx={{ py: 1, px: 0 }}>
+        <ListItemText primary="Total" />
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          $34.06
+        </Typography>
+      </ListItem> */}
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-            Shipping
+            Payment method:
+            <Typography gutterBottom>{paymentMethod}</Typography>
           </Typography>
-          <Typography gutterBottom>John Smith</Typography>
-          <Typography gutterBottom>{addresses.join(', ')}</Typography>
+          {/* <Grid item xs={6}></Grid> */}
         </Grid>
-        <Grid item container direction="column" xs={12} sm={6}>
-          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-            Payment details
-          </Typography>
-          <Grid container>
-            {payments.map((payment) => (
-              <React.Fragment key={payment.name}>
-                <Grid item xs={6}>
-                  <Typography gutterBottom>{payment.name}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography gutterBottom>{payment.detail}</Typography>
-                </Grid>
-              </React.Fragment>
-            ))}
-          </Grid>
+        <Grid item container direction="column" xs={12} sm={12}>
           <Button
             variant="contained"
             onClick={() => handleSubmitOrder(paymentMethod, dataCart[0].cartId)}
