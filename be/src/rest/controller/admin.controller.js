@@ -12,9 +12,15 @@ const helperFn = require('../../utils/helperFn');
 const constants = require('../../common/constants');
 
 const logout = async (req, res, next) => {
-  req.session.destroy();
-  res.redirect('/loginView');
+  try {
+    req.session.destroy();
+    res.clearCookie('connect.sid');
+    res.redirect('/loginView');
+  } catch (error) {
+    throw new Error(error);
+  }
 };
+
 const getLoginView = async (req, res, next) => {
   res.render('auth/login');
 };
